@@ -1,0 +1,885 @@
+Process 0 (that is, the initial process):
+(
+    {1}out(trc_lock1, lock_token1)
+) | (
+    {2}out(trc_lock2, lock_token2)
+) | (
+    {3}!
+    {4}new N_R: bitstring;
+    {5}new T_R: bitstring;
+    {6}let tag1: bitstring = mac((ID_R,N_R,T_R),K_R_GW) in
+    {7}event BegAccess(ID_R,ID_Sj,N_R);
+    {8}out(ch, (ID_R,N_R,T_R,tag1));
+    {9}in(ch, mr: bitstring);
+    {10}let (ct_r: bitstring,tag_r: bitstring) = mr in
+    {11}if (tag_r = mac(ct_r,K_R_GW)) then
+    {12}let (=N_R,C: bitstring,T_EXP: bitstring,SK1: bitstring,SK2: bitstring,SK3: bitstring,SKj: bitstring) = sdec(ct_r,K_R_GW) in
+    {13}event EndAccess(ID_R,ID_Sj,N_R);
+    {14}out(ch, senc(witness_Sj,SKj));
+    {15}let CT_data1: bitstring = senc(witness_payload1,SK1) in
+    {16}let tag_ho1: bitstring = mac((C,ID_R,CT_data1),SK1) in
+    {17}event BegHandover(ID_R,ID_S1,C,CT_data1,SK1);
+    {18}out(ch, (C,ID_R,CT_data1,tag_ho1));
+    {19}let CT_data2: bitstring = senc(witness_payload2,SK2) in
+    {20}let tag_ho2: bitstring = mac((C,ID_R,CT_data2),SK2) in
+    {21}event BegHandover(ID_R,ID_S2,C,CT_data2,SK2);
+    {22}out(ch, (C,ID_R,CT_data2,tag_ho2))
+) | (
+    {23}!
+    {24}in(ch, m1: bitstring);
+    {25}let (id_r: bitstring,n_r: bitstring,t_r: bitstring,tag1_1: bitstring) = m1 in
+    {26}let tag2: bitstring = mac((ID_Sj,m1),K_Sj_GW) in
+    {27}out(ch, (ID_Sj,m1,tag2));
+    {28}in(ch, mdown: bitstring);
+    {29}let (=n_r,ct_sj: bitstring,mr_1: bitstring,tag_down: bitstring) = mdown in
+    {30}if (tag_down = mac((n_r,ct_sj,mr_1),K_Sj_GW)) then
+    {31}let (=id_r,SKj_1: bitstring) = sdec(ct_sj,K_Sj_GW) in
+    {32}out(ch, mr_1)
+) | (
+    {33}!
+    {34}in(ch, m2: bitstring);
+    {35}let (id_sj: bitstring,m1_1: bitstring,tag2_1: bitstring) = m2 in
+    {36}if (tag2_1 = mac((id_sj,m1_1),K_Sj_GW)) then
+    {37}let (id_r_1: bitstring,n_r_1: bitstring,t_r_1: bitstring,tag1_2: bitstring) = m1_1 in
+    {38}if (tag1_2 = mac((id_r_1,n_r_1,t_r_1),K_R_GW)) then
+    {39}new r1: bitstring;
+    {40}new r2: bitstring;
+    {41}new r3: bitstring;
+    {42}new T_GW: bitstring;
+    {43}new T_EXP_1: bitstring;
+    {44}let eta1: bitstring = recovery_hash((r1,id_r_1,ID_S1)) in
+    {45}let eta2: bitstring = recovery_hash((r2,id_r_1,ID_S2)) in
+    {46}let eta3: bitstring = recovery_hash((r3,id_r_1,ID_S3)) in
+    {47}let rho1: bitstring = pack_residue(eta1,T_EXP_1) in
+    {48}let rho2: bitstring = pack_residue(eta2,T_EXP_1) in
+    {49}let rho3: bitstring = pack_residue(eta3,T_EXP_1) in
+    {50}let C_1: bitstring = crt_pack3(rho1,rho2,rho3,N1,N2,N3) in
+    {51}let SK1_1: bitstring = handover_kdf(K_S1_GW,eta1,T_EXP_1) in
+    {52}let SK2_1: bitstring = handover_kdf(K_S2_GW,eta2,T_EXP_1) in
+    {53}let SK3_1: bitstring = handover_kdf(K_S3_GW,eta3,T_EXP_1) in
+    {54}let SKj_2: bitstring = access_kdf(K_Sj_GW,n_r_1,T_GW) in
+    {55}insert valid_expiration(T_EXP_1);
+    {56}event GWIssue(id_r_1,ID_S1,C_1,SK1_1);
+    {57}event GWIssue(id_r_1,ID_S2,C_1,SK2_1);
+    {58}out(ch, senc(witness_rho1,rho1));
+    {59}out(ch, senc(witness_rho2,rho2));
+    {60}out(ch, senc(witness_eta1,eta1));
+    {61}out(ch, senc(witness_eta2,eta2));
+    {62}out(ch, senc(witness_expiration,T_EXP_1));
+    {63}let ct_r_1: bitstring = senc((n_r_1,C_1,T_EXP_1,SK1_1,SK2_1,SK3_1,SKj_2),K_R_GW) in
+    {64}let mr_2: bitstring = (ct_r_1,mac(ct_r_1,K_R_GW)) in
+    {65}let ct_sj_1: bitstring = senc((id_r_1,SKj_2),K_Sj_GW) in
+    {66}out(ch, (n_r_1,ct_sj_1,mr_2,mac((n_r_1,ct_sj_1,mr_2),K_Sj_GW)))
+) | (
+    {67}!
+    {68}in(ch, mho: bitstring);
+    {69}let (C_2: bitstring,id_r_2: bitstring,CT_data: bitstring,tag_ho: bitstring) = mho in
+    {84}get accepted_handover(=id_r_2,=ID_S1,=C_2) in
+        0
+    else
+        {70}let rho1_1: bitstring = crt_decode(C_2,N1) in
+        {71}let eta1_1: bitstring = get_eta(rho1_1) in
+        {72}let T_EXP_2: bitstring = get_time(rho1_1) in
+        {83}get valid_expiration(=T_EXP_2) in
+        {73}let SK1_2: bitstring = handover_kdf(K_S1_GW,eta1_1,T_EXP_2) in
+        {74}if (tag_ho = mac((C_2,id_r_2,CT_data),SK1_2)) then
+        {75}let =witness_payload1 = sdec(CT_data,SK1_2) in
+        {76}in(trc_lock1, =lock_token1);
+        {82}get accepted_handover(=id_r_2,=ID_S1,=C_2) in
+            {77}out(trc_lock1, lock_token1)
+        else
+            {78}insert accepted_handover(id_r_2,ID_S1,C_2);
+            {79}event EndHandover(id_r_2,ID_S1,C_2,CT_data,SK1_2);
+            {80}out(ch, senc(witness_S1,SK1_2));
+            {81}out(trc_lock1, lock_token1)
+) | (
+    {85}!
+    {86}in(ch, mho_1: bitstring);
+    {87}let (C_3: bitstring,id_r_3: bitstring,CT_data_1: bitstring,tag_ho_1: bitstring) = mho_1 in
+    {102}get accepted_handover(=id_r_3,=ID_S2,=C_3) in
+        0
+    else
+        {88}let rho2_1: bitstring = crt_decode(C_3,N2) in
+        {89}let eta2_1: bitstring = get_eta(rho2_1) in
+        {90}let T_EXP_3: bitstring = get_time(rho2_1) in
+        {101}get valid_expiration(=T_EXP_3) in
+        {91}let SK2_2: bitstring = handover_kdf(K_S2_GW,eta2_1,T_EXP_3) in
+        {92}if (tag_ho_1 = mac((C_3,id_r_3,CT_data_1),SK2_2)) then
+        {93}let =witness_payload2 = sdec(CT_data_1,SK2_2) in
+        {94}in(trc_lock2, =lock_token2);
+        {100}get accepted_handover(=id_r_3,=ID_S2,=C_3) in
+            {95}out(trc_lock2, lock_token2)
+        else
+            {96}insert accepted_handover(id_r_3,ID_S2,C_3);
+            {97}event EndHandover(id_r_3,ID_S2,C_3,CT_data_1,SK2_2);
+            {98}out(ch, senc(witness_S2,SK2_2));
+            {99}out(trc_lock2, lock_token2)
+)
+
+--  Process 1 (that is, process 0, with let moved downwards):
+(
+    {1}out(trc_lock1, lock_token1)
+) | (
+    {2}out(trc_lock2, lock_token2)
+) | (
+    {3}!
+    {4}new N_R: bitstring;
+    {5}new T_R: bitstring;
+    {7}event BegAccess(ID_R,ID_Sj,N_R);
+    {6}let tag1: bitstring = mac((ID_R,N_R,T_R),K_R_GW) in
+    {8}out(ch, (ID_R,N_R,T_R,tag1));
+    {9}in(ch, mr: bitstring);
+    {10}let (ct_r: bitstring,tag_r: bitstring) = mr in
+    {11}if (tag_r = mac(ct_r,K_R_GW)) then
+    {12}let (=N_R,C: bitstring,T_EXP: bitstring,SK1: bitstring,SK2: bitstring,SK3: bitstring,SKj: bitstring) = sdec(ct_r,K_R_GW) in
+    {13}event EndAccess(ID_R,ID_Sj,N_R);
+    {14}out(ch, senc(witness_Sj,SKj));
+    {15}let CT_data1: bitstring = senc(witness_payload1,SK1) in
+    {17}event BegHandover(ID_R,ID_S1,C,CT_data1,SK1);
+    {16}let tag_ho1: bitstring = mac((C,ID_R,CT_data1),SK1) in
+    {18}out(ch, (C,ID_R,CT_data1,tag_ho1));
+    {19}let CT_data2: bitstring = senc(witness_payload2,SK2) in
+    {21}event BegHandover(ID_R,ID_S2,C,CT_data2,SK2);
+    {20}let tag_ho2: bitstring = mac((C,ID_R,CT_data2),SK2) in
+    {22}out(ch, (C,ID_R,CT_data2,tag_ho2))
+) | (
+    {23}!
+    {24}in(ch, m1: bitstring);
+    {25}let (id_r: bitstring,n_r: bitstring,t_r: bitstring,tag1_1: bitstring) = m1 in
+    {26}let tag2: bitstring = mac((ID_Sj,m1),K_Sj_GW) in
+    {27}out(ch, (ID_Sj,m1,tag2));
+    {28}in(ch, mdown: bitstring);
+    {29}let (=n_r,ct_sj: bitstring,mr_1: bitstring,tag_down: bitstring) = mdown in
+    {30}if (tag_down = mac((n_r,ct_sj,mr_1),K_Sj_GW)) then
+    {31}let (=id_r,SKj_1: bitstring) = sdec(ct_sj,K_Sj_GW) in
+    {32}out(ch, mr_1)
+) | (
+    {33}!
+    {34}in(ch, m2: bitstring);
+    {35}let (id_sj: bitstring,m1_1: bitstring,tag2_1: bitstring) = m2 in
+    {36}if (tag2_1 = mac((id_sj,m1_1),K_Sj_GW)) then
+    {37}let (id_r_1: bitstring,n_r_1: bitstring,t_r_1: bitstring,tag1_2: bitstring) = m1_1 in
+    {38}if (tag1_2 = mac((id_r_1,n_r_1,t_r_1),K_R_GW)) then
+    {39}new r1: bitstring;
+    {40}new r2: bitstring;
+    {41}new r3: bitstring;
+    {42}new T_GW: bitstring;
+    {43}new T_EXP_1: bitstring;
+    {55}insert valid_expiration(T_EXP_1);
+    {44}let eta1: bitstring = recovery_hash((r1,id_r_1,ID_S1)) in
+    {51}let SK1_1: bitstring = handover_kdf(K_S1_GW,eta1,T_EXP_1) in
+    {46}let eta3: bitstring = recovery_hash((r3,id_r_1,ID_S3)) in
+    {49}let rho3: bitstring = pack_residue(eta3,T_EXP_1) in
+    {45}let eta2: bitstring = recovery_hash((r2,id_r_1,ID_S2)) in
+    {48}let rho2: bitstring = pack_residue(eta2,T_EXP_1) in
+    {47}let rho1: bitstring = pack_residue(eta1,T_EXP_1) in
+    {50}let C_1: bitstring = crt_pack3(rho1,rho2,rho3,N1,N2,N3) in
+    {56}event GWIssue(id_r_1,ID_S1,C_1,SK1_1);
+    {52}let SK2_1: bitstring = handover_kdf(K_S2_GW,eta2,T_EXP_1) in
+    {57}event GWIssue(id_r_1,ID_S2,C_1,SK2_1);
+    {58}out(ch, senc(witness_rho1,rho1));
+    {59}out(ch, senc(witness_rho2,rho2));
+    {60}out(ch, senc(witness_eta1,eta1));
+    {61}out(ch, senc(witness_eta2,eta2));
+    {62}out(ch, senc(witness_expiration,T_EXP_1));
+    {54}let SKj_2: bitstring = access_kdf(K_Sj_GW,n_r_1,T_GW) in
+    {65}let ct_sj_1: bitstring = senc((id_r_1,SKj_2),K_Sj_GW) in
+    {53}let SK3_1: bitstring = handover_kdf(K_S3_GW,eta3,T_EXP_1) in
+    {63}let ct_r_1: bitstring = senc((n_r_1,C_1,T_EXP_1,SK1_1,SK2_1,SK3_1,SKj_2),K_R_GW) in
+    {64}let mr_2: bitstring = (ct_r_1,mac(ct_r_1,K_R_GW)) in
+    {66}out(ch, (n_r_1,ct_sj_1,mr_2,mac((n_r_1,ct_sj_1,mr_2),K_Sj_GW)))
+) | (
+    {67}!
+    {68}in(ch, mho: bitstring);
+    {69}let (C_2: bitstring,id_r_2: bitstring,CT_data: bitstring,tag_ho: bitstring) = mho in
+    {84}get accepted_handover(=id_r_2,=ID_S1,=C_2) in
+        0
+    else
+        {70}let rho1_1: bitstring = crt_decode(C_2,N1) in
+        {71}let eta1_1: bitstring = get_eta(rho1_1) in
+        {72}let T_EXP_2: bitstring = get_time(rho1_1) in
+        {83}get valid_expiration(=T_EXP_2) in
+        {73}let SK1_2: bitstring = handover_kdf(K_S1_GW,eta1_1,T_EXP_2) in
+        {74}if (tag_ho = mac((C_2,id_r_2,CT_data),SK1_2)) then
+        {75}let =witness_payload1 = sdec(CT_data,SK1_2) in
+        {76}in(trc_lock1, =lock_token1);
+        {82}get accepted_handover(=id_r_2,=ID_S1,=C_2) in
+            {77}out(trc_lock1, lock_token1)
+        else
+            {78}insert accepted_handover(id_r_2,ID_S1,C_2);
+            {79}event EndHandover(id_r_2,ID_S1,C_2,CT_data,SK1_2);
+            {80}out(ch, senc(witness_S1,SK1_2));
+            {81}out(trc_lock1, lock_token1)
+) | (
+    {85}!
+    {86}in(ch, mho_1: bitstring);
+    {87}let (C_3: bitstring,id_r_3: bitstring,CT_data_1: bitstring,tag_ho_1: bitstring) = mho_1 in
+    {102}get accepted_handover(=id_r_3,=ID_S2,=C_3) in
+        0
+    else
+        {88}let rho2_1: bitstring = crt_decode(C_3,N2) in
+        {89}let eta2_1: bitstring = get_eta(rho2_1) in
+        {90}let T_EXP_3: bitstring = get_time(rho2_1) in
+        {101}get valid_expiration(=T_EXP_3) in
+        {91}let SK2_2: bitstring = handover_kdf(K_S2_GW,eta2_1,T_EXP_3) in
+        {92}if (tag_ho_1 = mac((C_3,id_r_3,CT_data_1),SK2_2)) then
+        {93}let =witness_payload2 = sdec(CT_data_1,SK2_2) in
+        {94}in(trc_lock2, =lock_token2);
+        {100}get accepted_handover(=id_r_3,=ID_S2,=C_3) in
+            {95}out(trc_lock2, lock_token2)
+        else
+            {96}insert accepted_handover(id_r_3,ID_S2,C_3);
+            {97}event EndHandover(id_r_3,ID_S2,C_3,CT_data_1,SK2_2);
+            {98}out(ch, senc(witness_S2,SK2_2));
+            {99}out(trc_lock2, lock_token2)
+)
+
+-- Query not attacker(witness_Sj[]) in process 1.
+Translating the process into Horn clauses...
+Completing...
+200 rules inserted. Base: 162 rules (32 with conclusion selected). Queue: 28 rules.
+Starting query not attacker(witness_Sj[])
+RESULT not attacker(witness_Sj[]) is true.
+-- Query not attacker(witness_S1[]) in process 1.
+Translating the process into Horn clauses...
+Completing...
+200 rules inserted. Base: 162 rules (32 with conclusion selected). Queue: 28 rules.
+Starting query not attacker(witness_S1[])
+RESULT not attacker(witness_S1[]) is true.
+-- Query not attacker(witness_S2[]) in process 1.
+Translating the process into Horn clauses...
+Completing...
+200 rules inserted. Base: 162 rules (32 with conclusion selected). Queue: 28 rules.
+Starting query not attacker(witness_S2[])
+RESULT not attacker(witness_S2[]) is true.
+-- Query not attacker(witness_payload1[]) in process 1.
+Translating the process into Horn clauses...
+Completing...
+200 rules inserted. Base: 162 rules (32 with conclusion selected). Queue: 28 rules.
+Starting query not attacker(witness_payload1[])
+RESULT not attacker(witness_payload1[]) is true.
+-- Query not attacker(witness_payload2[]) in process 1.
+Translating the process into Horn clauses...
+Completing...
+200 rules inserted. Base: 162 rules (32 with conclusion selected). Queue: 28 rules.
+Starting query not attacker(witness_payload2[])
+RESULT not attacker(witness_payload2[]) is true.
+-- Query not attacker(witness_rho1[]) in process 1.
+Translating the process into Horn clauses...
+Completing...
+200 rules inserted. Base: 162 rules (32 with conclusion selected). Queue: 28 rules.
+Starting query not attacker(witness_rho1[])
+RESULT not attacker(witness_rho1[]) is true.
+-- Query not attacker(witness_rho2[]) in process 1.
+Translating the process into Horn clauses...
+Completing...
+200 rules inserted. Base: 162 rules (32 with conclusion selected). Queue: 28 rules.
+Starting query not attacker(witness_rho2[])
+RESULT not attacker(witness_rho2[]) is true.
+-- Query not attacker(witness_eta1[]) in process 1.
+Translating the process into Horn clauses...
+Completing...
+200 rules inserted. Base: 162 rules (32 with conclusion selected). Queue: 28 rules.
+Starting query not attacker(witness_eta1[])
+RESULT not attacker(witness_eta1[]) is true.
+-- Query not attacker(witness_eta2[]) in process 1.
+Translating the process into Horn clauses...
+Completing...
+200 rules inserted. Base: 162 rules (32 with conclusion selected). Queue: 28 rules.
+Starting query not attacker(witness_eta2[])
+RESULT not attacker(witness_eta2[]) is true.
+-- Query not attacker(witness_expiration[]) in process 1.
+Translating the process into Horn clauses...
+Completing...
+200 rules inserted. Base: 162 rules (32 with conclusion selected). Queue: 28 rules.
+Starting query not attacker(witness_expiration[])
+RESULT not attacker(witness_expiration[]) is true.
+-- Query not attacker(N1[]) in process 1.
+Translating the process into Horn clauses...
+Completing...
+200 rules inserted. Base: 162 rules (32 with conclusion selected). Queue: 28 rules.
+Starting query not attacker(N1[])
+RESULT not attacker(N1[]) is true.
+-- Query not attacker(N2[]) in process 1.
+Translating the process into Horn clauses...
+Completing...
+200 rules inserted. Base: 162 rules (32 with conclusion selected). Queue: 28 rules.
+Starting query not attacker(N2[])
+RESULT not attacker(N2[]) is true.
+-- Query inj-event(EndAccess(r,s,n)) ==> inj-event(BegAccess(r,s,n)) in process 1.
+Translating the process into Horn clauses...
+Completing...
+200 rules inserted. Base: 165 rules (32 with conclusion selected). Queue: 28 rules.
+Starting query inj-event(EndAccess(r,s,n)) ==> inj-event(BegAccess(r,s,n))
+goal reachable: b-event(@p_act(@occ9_1,(senc((N_R_1,crt_pack3(pack_residue(recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),pack_residue(recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),pack_residue(recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),N1[],N2[],N3[]),T_EXP_4,handover_kdf(K_S1_GW[],recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),handover_kdf(K_S2_GW[],recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),handover_kdf(K_S3_GW[],recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),access_kdf(K_Sj_GW[],N_R_1,T_GW_1)),K_R_GW[]),mac(senc((N_R_1,crt_pack3(pack_residue(recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),pack_residue(recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),pack_residue(recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),N1[],N2[],N3[]),T_EXP_4,handover_kdf(K_S1_GW[],recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),handover_kdf(K_S2_GW[],recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),handover_kdf(K_S3_GW[],recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),access_kdf(K_Sj_GW[],N_R_1,T_GW_1)),K_R_GW[]),K_R_GW[])))) && b-inj-event(BegAccess(ID_R[],ID_Sj[],N_R_1),@occ7_1) -> inj-event(EndAccess(ID_R[],ID_Sj[],N_R_1),@occ13_1)
+The 1st, 2nd hypotheses occur strictly before the conclusion.
+Abbreviations:
+N_R_1 = N_R[!1 = @sid]
+T_R_1 = T_R[!1 = @sid]
+r1_1 = r1[m2 = (ID_Sj[],(ID_R[],N_R_1,T_R_1,mac((ID_R[],N_R_1,T_R_1),K_R_GW[])),mac((ID_Sj[],(ID_R[],N_R_1,T_R_1,mac((ID_R[],N_R_1,T_R_1),K_R_GW[]))),K_Sj_GW[])),!1 = @sid_1]
+T_EXP_4 = T_EXP_1[m2 = (ID_Sj[],(ID_R[],N_R_1,T_R_1,mac((ID_R[],N_R_1,T_R_1),K_R_GW[])),mac((ID_Sj[],(ID_R[],N_R_1,T_R_1,mac((ID_R[],N_R_1,T_R_1),K_R_GW[]))),K_Sj_GW[])),!1 = @sid_1]
+r2_1 = r2[m2 = (ID_Sj[],(ID_R[],N_R_1,T_R_1,mac((ID_R[],N_R_1,T_R_1),K_R_GW[])),mac((ID_Sj[],(ID_R[],N_R_1,T_R_1,mac((ID_R[],N_R_1,T_R_1),K_R_GW[]))),K_Sj_GW[])),!1 = @sid_1]
+r3_1 = r3[m2 = (ID_Sj[],(ID_R[],N_R_1,T_R_1,mac((ID_R[],N_R_1,T_R_1),K_R_GW[])),mac((ID_Sj[],(ID_R[],N_R_1,T_R_1,mac((ID_R[],N_R_1,T_R_1),K_R_GW[]))),K_Sj_GW[])),!1 = @sid_1]
+T_GW_1 = T_GW[m2 = (ID_Sj[],(ID_R[],N_R_1,T_R_1,mac((ID_R[],N_R_1,T_R_1),K_R_GW[])),mac((ID_Sj[],(ID_R[],N_R_1,T_R_1,mac((ID_R[],N_R_1,T_R_1),K_R_GW[]))),K_Sj_GW[])),!1 = @sid_1]
+@occ13_1 = @occ13[mr = (senc((N_R_1,crt_pack3(pack_residue(recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),pack_residue(recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),pack_residue(recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),N1[],N2[],N3[]),T_EXP_4,handover_kdf(K_S1_GW[],recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),handover_kdf(K_S2_GW[],recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),handover_kdf(K_S3_GW[],recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),access_kdf(K_Sj_GW[],N_R_1,T_GW_1)),K_R_GW[]),mac(senc((N_R_1,crt_pack3(pack_residue(recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),pack_residue(recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),pack_residue(recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),N1[],N2[],N3[]),T_EXP_4,handover_kdf(K_S1_GW[],recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),handover_kdf(K_S2_GW[],recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),handover_kdf(K_S3_GW[],recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),access_kdf(K_Sj_GW[],N_R_1,T_GW_1)),K_R_GW[]),K_R_GW[])),!1 = @sid]
+@occ9_1 = @occ9[!1 = @sid]
+@occ7_1 = @occ7[!1 = @sid]
+RESULT inj-event(EndAccess(r,s,n)) ==> inj-event(BegAccess(r,s,n)) is true.
+-- Query inj-event(EndHandover(r,s,c,ct,k)) ==> inj-event(BegHandover(r,s,c,ct,k)) in process 1.
+Translating the process into Horn clauses...
+Completing...
+200 rules inserted. Base: 175 rules (32 with conclusion selected). Queue: 39 rules.
+400 rules inserted. Base: 301 rules (48 with conclusion selected). Queue: 28 rules.
+Starting query inj-event(EndHandover(r,s,c,ct,k)) ==> inj-event(BegHandover(r,s,c,ct,k))
+goal reachable: @sid ≠ @sid_1 && b-inj-event(BegHandover(ID_R[],ID_S2[],crt_pack3(pack_residue(recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),pack_residue(recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),pack_residue(recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),N1[],N2[],N3[]),senc(witness_payload2[],handover_kdf(K_S2_GW[],recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4)),handover_kdf(K_S2_GW[],recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4)),@occ21_1) && b-inj-event(BegHandover(ID_R[],ID_S1[],crt_pack3(pack_residue(recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),pack_residue(recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),pack_residue(recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),N1[],N2[],N3[]),senc(witness_payload1[],handover_kdf(K_S1_GW[],recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4)),handover_kdf(K_S1_GW[],recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4)),@occ17_1) -> inj-event(EndHandover(ID_R[],ID_S2[],crt_pack3(pack_residue(recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),pack_residue(recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),pack_residue(recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),N1[],N2[],N3[]),senc(witness_payload2[],handover_kdf(K_S2_GW[],recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4)),handover_kdf(K_S2_GW[],recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4)),@occ97_1) && inj-event(EndHandover(ID_R[],ID_S2[],crt_pack3(pack_residue(recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),pack_residue(recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),pack_residue(recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),N1[],N2[],N3[]),senc(witness_payload2[],handover_kdf(K_S2_GW[],recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4)),handover_kdf(K_S2_GW[],recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4)),@occ97_2)
+Abbreviations:
+N_R_1 = N_R[!1 = @sid_2]
+T_R_1 = T_R[!1 = @sid_2]
+r1_1 = r1[m2 = (ID_Sj[],(ID_R[],N_R_1,T_R_1,mac((ID_R[],N_R_1,T_R_1),K_R_GW[])),mac((ID_Sj[],(ID_R[],N_R_1,T_R_1,mac((ID_R[],N_R_1,T_R_1),K_R_GW[]))),K_Sj_GW[])),!1 = @sid_3]
+T_EXP_4 = T_EXP_1[m2 = (ID_Sj[],(ID_R[],N_R_1,T_R_1,mac((ID_R[],N_R_1,T_R_1),K_R_GW[])),mac((ID_Sj[],(ID_R[],N_R_1,T_R_1,mac((ID_R[],N_R_1,T_R_1),K_R_GW[]))),K_Sj_GW[])),!1 = @sid_3]
+r2_1 = r2[m2 = (ID_Sj[],(ID_R[],N_R_1,T_R_1,mac((ID_R[],N_R_1,T_R_1),K_R_GW[])),mac((ID_Sj[],(ID_R[],N_R_1,T_R_1,mac((ID_R[],N_R_1,T_R_1),K_R_GW[]))),K_Sj_GW[])),!1 = @sid_3]
+r3_1 = r3[m2 = (ID_Sj[],(ID_R[],N_R_1,T_R_1,mac((ID_R[],N_R_1,T_R_1),K_R_GW[])),mac((ID_Sj[],(ID_R[],N_R_1,T_R_1,mac((ID_R[],N_R_1,T_R_1),K_R_GW[]))),K_Sj_GW[])),!1 = @sid_3]
+@occ97_1 = @occ97[mho_1 = (crt_pack3(pack_residue(recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),pack_residue(recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),pack_residue(recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),N1[],N2[],N3[]),ID_R[],senc(witness_payload2[],handover_kdf(K_S2_GW[],recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4)),mac((crt_pack3(pack_residue(recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),pack_residue(recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),pack_residue(recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),N1[],N2[],N3[]),ID_R[],senc(witness_payload2[],handover_kdf(K_S2_GW[],recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4))),handover_kdf(K_S2_GW[],recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4))),!1 = @sid]
+@occ97_2 = @occ97[mho_1 = (crt_pack3(pack_residue(recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),pack_residue(recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),pack_residue(recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),N1[],N2[],N3[]),ID_R[],senc(witness_payload2[],handover_kdf(K_S2_GW[],recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4)),mac((crt_pack3(pack_residue(recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),pack_residue(recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),pack_residue(recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),N1[],N2[],N3[]),ID_R[],senc(witness_payload2[],handover_kdf(K_S2_GW[],recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4))),handover_kdf(K_S2_GW[],recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4))),!1 = @sid_1]
+T_GW_1 = T_GW[m2 = (ID_Sj[],(ID_R[],N_R_1,T_R_1,mac((ID_R[],N_R_1,T_R_1),K_R_GW[])),mac((ID_Sj[],(ID_R[],N_R_1,T_R_1,mac((ID_R[],N_R_1,T_R_1),K_R_GW[]))),K_Sj_GW[])),!1 = @sid_3]
+@occ21_1 = @occ21[mr = (senc((N_R_1,crt_pack3(pack_residue(recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),pack_residue(recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),pack_residue(recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),N1[],N2[],N3[]),T_EXP_4,handover_kdf(K_S1_GW[],recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),handover_kdf(K_S2_GW[],recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),handover_kdf(K_S3_GW[],recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),access_kdf(K_Sj_GW[],N_R_1,T_GW_1)),K_R_GW[]),mac(senc((N_R_1,crt_pack3(pack_residue(recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),pack_residue(recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),pack_residue(recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),N1[],N2[],N3[]),T_EXP_4,handover_kdf(K_S1_GW[],recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),handover_kdf(K_S2_GW[],recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),handover_kdf(K_S3_GW[],recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),access_kdf(K_Sj_GW[],N_R_1,T_GW_1)),K_R_GW[]),K_R_GW[])),!1 = @sid_2]
+@occ17_1 = @occ17[mr = (senc((N_R_1,crt_pack3(pack_residue(recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),pack_residue(recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),pack_residue(recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),N1[],N2[],N3[]),T_EXP_4,handover_kdf(K_S1_GW[],recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),handover_kdf(K_S2_GW[],recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),handover_kdf(K_S3_GW[],recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),access_kdf(K_Sj_GW[],N_R_1,T_GW_1)),K_R_GW[]),mac(senc((N_R_1,crt_pack3(pack_residue(recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),pack_residue(recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),pack_residue(recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),N1[],N2[],N3[]),T_EXP_4,handover_kdf(K_S1_GW[],recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),handover_kdf(K_S2_GW[],recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),handover_kdf(K_S3_GW[],recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),access_kdf(K_Sj_GW[],N_R_1,T_GW_1)),K_R_GW[]),K_R_GW[])),!1 = @sid_2]
+
+Derivation:
+Abbreviations:
+N_R_1 = N_R[!1 = @sid]
+T_R_1 = T_R[!1 = @sid]
+r1_1 = r1[m2 = (ID_Sj[],(ID_R[],N_R_1,T_R_1,mac((ID_R[],N_R_1,T_R_1),K_R_GW[])),mac((ID_Sj[],(ID_R[],N_R_1,T_R_1,mac((ID_R[],N_R_1,T_R_1),K_R_GW[]))),K_Sj_GW[])),!1 = @sid_1]
+T_EXP_4 = T_EXP_1[m2 = (ID_Sj[],(ID_R[],N_R_1,T_R_1,mac((ID_R[],N_R_1,T_R_1),K_R_GW[])),mac((ID_Sj[],(ID_R[],N_R_1,T_R_1,mac((ID_R[],N_R_1,T_R_1),K_R_GW[]))),K_Sj_GW[])),!1 = @sid_1]
+r2_1 = r2[m2 = (ID_Sj[],(ID_R[],N_R_1,T_R_1,mac((ID_R[],N_R_1,T_R_1),K_R_GW[])),mac((ID_Sj[],(ID_R[],N_R_1,T_R_1,mac((ID_R[],N_R_1,T_R_1),K_R_GW[]))),K_Sj_GW[])),!1 = @sid_1]
+r3_1 = r3[m2 = (ID_Sj[],(ID_R[],N_R_1,T_R_1,mac((ID_R[],N_R_1,T_R_1),K_R_GW[])),mac((ID_Sj[],(ID_R[],N_R_1,T_R_1,mac((ID_R[],N_R_1,T_R_1),K_R_GW[]))),K_Sj_GW[])),!1 = @sid_1]
+@occ97_1 = @occ97[mho_1 = (crt_pack3(pack_residue(recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),pack_residue(recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),pack_residue(recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),N1[],N2[],N3[]),ID_R[],senc(witness_payload2[],handover_kdf(K_S2_GW[],recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4)),mac((crt_pack3(pack_residue(recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),pack_residue(recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),pack_residue(recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),N1[],N2[],N3[]),ID_R[],senc(witness_payload2[],handover_kdf(K_S2_GW[],recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4))),handover_kdf(K_S2_GW[],recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4))),!1 = @sid_2]
+@occ97_2 = @occ97[mho_1 = (crt_pack3(pack_residue(recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),pack_residue(recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),pack_residue(recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),N1[],N2[],N3[]),ID_R[],senc(witness_payload2[],handover_kdf(K_S2_GW[],recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4)),mac((crt_pack3(pack_residue(recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),pack_residue(recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),pack_residue(recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),N1[],N2[],N3[]),ID_R[],senc(witness_payload2[],handover_kdf(K_S2_GW[],recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4))),handover_kdf(K_S2_GW[],recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4))),!1 = @sid_3]
+T_GW_1 = T_GW[m2 = (ID_Sj[],(ID_R[],N_R_1,T_R_1,mac((ID_R[],N_R_1,T_R_1),K_R_GW[])),mac((ID_Sj[],(ID_R[],N_R_1,T_R_1,mac((ID_R[],N_R_1,T_R_1),K_R_GW[]))),K_Sj_GW[])),!1 = @sid_1]
+@occ17_1 = @occ17[mr = (senc((N_R_1,crt_pack3(pack_residue(recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),pack_residue(recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),pack_residue(recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),N1[],N2[],N3[]),T_EXP_4,handover_kdf(K_S1_GW[],recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),handover_kdf(K_S2_GW[],recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),handover_kdf(K_S3_GW[],recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),access_kdf(K_Sj_GW[],N_R_1,T_GW_1)),K_R_GW[]),mac(senc((N_R_1,crt_pack3(pack_residue(recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),pack_residue(recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),pack_residue(recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),N1[],N2[],N3[]),T_EXP_4,handover_kdf(K_S1_GW[],recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),handover_kdf(K_S2_GW[],recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),handover_kdf(K_S3_GW[],recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),access_kdf(K_Sj_GW[],N_R_1,T_GW_1)),K_R_GW[]),K_R_GW[])),!1 = @sid]
+@occ21_1 = @occ21[mr = (senc((N_R_1,crt_pack3(pack_residue(recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),pack_residue(recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),pack_residue(recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),N1[],N2[],N3[]),T_EXP_4,handover_kdf(K_S1_GW[],recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),handover_kdf(K_S2_GW[],recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),handover_kdf(K_S3_GW[],recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),access_kdf(K_Sj_GW[],N_R_1,T_GW_1)),K_R_GW[]),mac(senc((N_R_1,crt_pack3(pack_residue(recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),pack_residue(recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),pack_residue(recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),N1[],N2[],N3[]),T_EXP_4,handover_kdf(K_S1_GW[],recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),handover_kdf(K_S2_GW[],recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),handover_kdf(K_S3_GW[],recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),access_kdf(K_Sj_GW[],N_R_1,T_GW_1)),K_R_GW[]),K_R_GW[])),!1 = @sid]
+
+1. The message (ID_R[],N_R_1,T_R_1,mac((ID_R[],N_R_1,T_R_1),K_R_GW[])) may be sent to the attacker at output {8}.
+attacker((ID_R[],N_R_1,T_R_1,mac((ID_R[],N_R_1,T_R_1),K_R_GW[]))).
+
+2. By 1, the attacker may know (ID_R[],N_R_1,T_R_1,mac((ID_R[],N_R_1,T_R_1),K_R_GW[])).
+Using the function 4-proj-4-tuple the attacker may obtain mac((ID_R[],N_R_1,T_R_1),K_R_GW[]).
+attacker(mac((ID_R[],N_R_1,T_R_1),K_R_GW[])).
+
+3. By 1, the attacker may know (ID_R[],N_R_1,T_R_1,mac((ID_R[],N_R_1,T_R_1),K_R_GW[])).
+Using the function 3-proj-4-tuple the attacker may obtain T_R_1.
+attacker(T_R_1).
+
+4. By 1, the attacker may know (ID_R[],N_R_1,T_R_1,mac((ID_R[],N_R_1,T_R_1),K_R_GW[])).
+Using the function 2-proj-4-tuple the attacker may obtain N_R_1.
+attacker(N_R_1).
+
+5. The attacker initially knows ID_R[].
+attacker(ID_R[]).
+
+6. By 5, the attacker may know ID_R[].
+By 4, the attacker may know N_R_1.
+By 3, the attacker may know T_R_1.
+By 2, the attacker may know mac((ID_R[],N_R_1,T_R_1),K_R_GW[]).
+Using the function 4-tuple the attacker may obtain (ID_R[],N_R_1,T_R_1,mac((ID_R[],N_R_1,T_R_1),K_R_GW[])).
+attacker((ID_R[],N_R_1,T_R_1,mac((ID_R[],N_R_1,T_R_1),K_R_GW[]))).
+
+7. The message (ID_R[],N_R_1,T_R_1,mac((ID_R[],N_R_1,T_R_1),K_R_GW[])) that the attacker may have by 6 may be received at input {24}.
+So the message (ID_Sj[],(ID_R[],N_R_1,T_R_1,mac((ID_R[],N_R_1,T_R_1),K_R_GW[])),mac((ID_Sj[],(ID_R[],N_R_1,T_R_1,mac((ID_R[],N_R_1,T_R_1),K_R_GW[]))),K_Sj_GW[])) may be sent to the attacker at output {27}.
+attacker((ID_Sj[],(ID_R[],N_R_1,T_R_1,mac((ID_R[],N_R_1,T_R_1),K_R_GW[])),mac((ID_Sj[],(ID_R[],N_R_1,T_R_1,mac((ID_R[],N_R_1,T_R_1),K_R_GW[]))),K_Sj_GW[]))).
+
+8. By 7, the attacker may know (ID_Sj[],(ID_R[],N_R_1,T_R_1,mac((ID_R[],N_R_1,T_R_1),K_R_GW[])),mac((ID_Sj[],(ID_R[],N_R_1,T_R_1,mac((ID_R[],N_R_1,T_R_1),K_R_GW[]))),K_Sj_GW[])).
+Using the function 3-proj-3-tuple the attacker may obtain mac((ID_Sj[],(ID_R[],N_R_1,T_R_1,mac((ID_R[],N_R_1,T_R_1),K_R_GW[]))),K_Sj_GW[]).
+attacker(mac((ID_Sj[],(ID_R[],N_R_1,T_R_1,mac((ID_R[],N_R_1,T_R_1),K_R_GW[]))),K_Sj_GW[])).
+
+9. The attacker initially knows ID_Sj[].
+attacker(ID_Sj[]).
+
+10. By 9, the attacker may know ID_Sj[].
+By 6, the attacker may know (ID_R[],N_R_1,T_R_1,mac((ID_R[],N_R_1,T_R_1),K_R_GW[])).
+By 8, the attacker may know mac((ID_Sj[],(ID_R[],N_R_1,T_R_1,mac((ID_R[],N_R_1,T_R_1),K_R_GW[]))),K_Sj_GW[]).
+Using the function 3-tuple the attacker may obtain (ID_Sj[],(ID_R[],N_R_1,T_R_1,mac((ID_R[],N_R_1,T_R_1),K_R_GW[])),mac((ID_Sj[],(ID_R[],N_R_1,T_R_1,mac((ID_R[],N_R_1,T_R_1),K_R_GW[]))),K_Sj_GW[])).
+attacker((ID_Sj[],(ID_R[],N_R_1,T_R_1,mac((ID_R[],N_R_1,T_R_1),K_R_GW[])),mac((ID_Sj[],(ID_R[],N_R_1,T_R_1,mac((ID_R[],N_R_1,T_R_1),K_R_GW[]))),K_Sj_GW[]))).
+
+11. The message (ID_Sj[],(ID_R[],N_R_1,T_R_1,mac((ID_R[],N_R_1,T_R_1),K_R_GW[])),mac((ID_Sj[],(ID_R[],N_R_1,T_R_1,mac((ID_R[],N_R_1,T_R_1),K_R_GW[]))),K_Sj_GW[])) that the attacker may have by 10 may be received at input {34}.
+So the message (N_R_1,senc((ID_R[],access_kdf(K_Sj_GW[],N_R_1,T_GW_1)),K_Sj_GW[]),(senc((N_R_1,crt_pack3(pack_residue(recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),pack_residue(recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),pack_residue(recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),N1[],N2[],N3[]),T_EXP_4,handover_kdf(K_S1_GW[],recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),handover_kdf(K_S2_GW[],recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),handover_kdf(K_S3_GW[],recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),access_kdf(K_Sj_GW[],N_R_1,T_GW_1)),K_R_GW[]),mac(senc((N_R_1,crt_pack3(pack_residue(recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),pack_residue(recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),pack_residue(recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),N1[],N2[],N3[]),T_EXP_4,handover_kdf(K_S1_GW[],recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),handover_kdf(K_S2_GW[],recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),handover_kdf(K_S3_GW[],recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),access_kdf(K_Sj_GW[],N_R_1,T_GW_1)),K_R_GW[]),K_R_GW[])),mac((N_R_1,senc((ID_R[],access_kdf(K_Sj_GW[],N_R_1,T_GW_1)),K_Sj_GW[]),(senc((N_R_1,crt_pack3(pack_residue(recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),pack_residue(recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),pack_residue(recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),N1[],N2[],N3[]),T_EXP_4,handover_kdf(K_S1_GW[],recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),handover_kdf(K_S2_GW[],recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),handover_kdf(K_S3_GW[],recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),access_kdf(K_Sj_GW[],N_R_1,T_GW_1)),K_R_GW[]),mac(senc((N_R_1,crt_pack3(pack_residue(recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),pack_residue(recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),pack_residue(recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),N1[],N2[],N3[]),T_EXP_4,handover_kdf(K_S1_GW[],recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),handover_kdf(K_S2_GW[],recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),handover_kdf(K_S3_GW[],recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),access_kdf(K_Sj_GW[],N_R_1,T_GW_1)),K_R_GW[]),K_R_GW[]))),K_Sj_GW[])) may be sent to the attacker at output {66}.
+attacker((N_R_1,senc((ID_R[],access_kdf(K_Sj_GW[],N_R_1,T_GW_1)),K_Sj_GW[]),(senc((N_R_1,crt_pack3(pack_residue(recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),pack_residue(recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),pack_residue(recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),N1[],N2[],N3[]),T_EXP_4,handover_kdf(K_S1_GW[],recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),handover_kdf(K_S2_GW[],recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),handover_kdf(K_S3_GW[],recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),access_kdf(K_Sj_GW[],N_R_1,T_GW_1)),K_R_GW[]),mac(senc((N_R_1,crt_pack3(pack_residue(recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),pack_residue(recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),pack_residue(recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),N1[],N2[],N3[]),T_EXP_4,handover_kdf(K_S1_GW[],recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),handover_kdf(K_S2_GW[],recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),handover_kdf(K_S3_GW[],recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),access_kdf(K_Sj_GW[],N_R_1,T_GW_1)),K_R_GW[]),K_R_GW[])),mac((N_R_1,senc((ID_R[],access_kdf(K_Sj_GW[],N_R_1,T_GW_1)),K_Sj_GW[]),(senc((N_R_1,crt_pack3(pack_residue(recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),pack_residue(recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),pack_residue(recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),N1[],N2[],N3[]),T_EXP_4,handover_kdf(K_S1_GW[],recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),handover_kdf(K_S2_GW[],recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),handover_kdf(K_S3_GW[],recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),access_kdf(K_Sj_GW[],N_R_1,T_GW_1)),K_R_GW[]),mac(senc((N_R_1,crt_pack3(pack_residue(recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),pack_residue(recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),pack_residue(recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),N1[],N2[],N3[]),T_EXP_4,handover_kdf(K_S1_GW[],recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),handover_kdf(K_S2_GW[],recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),handover_kdf(K_S3_GW[],recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),access_kdf(K_Sj_GW[],N_R_1,T_GW_1)),K_R_GW[]),K_R_GW[]))),K_Sj_GW[]))).
+
+12. By 11, the attacker may know (N_R_1,senc((ID_R[],access_kdf(K_Sj_GW[],N_R_1,T_GW_1)),K_Sj_GW[]),(senc((N_R_1,crt_pack3(pack_residue(recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),pack_residue(recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),pack_residue(recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),N1[],N2[],N3[]),T_EXP_4,handover_kdf(K_S1_GW[],recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),handover_kdf(K_S2_GW[],recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),handover_kdf(K_S3_GW[],recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),access_kdf(K_Sj_GW[],N_R_1,T_GW_1)),K_R_GW[]),mac(senc((N_R_1,crt_pack3(pack_residue(recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),pack_residue(recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),pack_residue(recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),N1[],N2[],N3[]),T_EXP_4,handover_kdf(K_S1_GW[],recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),handover_kdf(K_S2_GW[],recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),handover_kdf(K_S3_GW[],recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),access_kdf(K_Sj_GW[],N_R_1,T_GW_1)),K_R_GW[]),K_R_GW[])),mac((N_R_1,senc((ID_R[],access_kdf(K_Sj_GW[],N_R_1,T_GW_1)),K_Sj_GW[]),(senc((N_R_1,crt_pack3(pack_residue(recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),pack_residue(recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),pack_residue(recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),N1[],N2[],N3[]),T_EXP_4,handover_kdf(K_S1_GW[],recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),handover_kdf(K_S2_GW[],recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),handover_kdf(K_S3_GW[],recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),access_kdf(K_Sj_GW[],N_R_1,T_GW_1)),K_R_GW[]),mac(senc((N_R_1,crt_pack3(pack_residue(recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),pack_residue(recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),pack_residue(recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),N1[],N2[],N3[]),T_EXP_4,handover_kdf(K_S1_GW[],recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),handover_kdf(K_S2_GW[],recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),handover_kdf(K_S3_GW[],recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),access_kdf(K_Sj_GW[],N_R_1,T_GW_1)),K_R_GW[]),K_R_GW[]))),K_Sj_GW[])).
+Using the function 3-proj-4-tuple the attacker may obtain (senc((N_R_1,crt_pack3(pack_residue(recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),pack_residue(recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),pack_residue(recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),N1[],N2[],N3[]),T_EXP_4,handover_kdf(K_S1_GW[],recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),handover_kdf(K_S2_GW[],recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),handover_kdf(K_S3_GW[],recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),access_kdf(K_Sj_GW[],N_R_1,T_GW_1)),K_R_GW[]),mac(senc((N_R_1,crt_pack3(pack_residue(recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),pack_residue(recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),pack_residue(recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),N1[],N2[],N3[]),T_EXP_4,handover_kdf(K_S1_GW[],recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),handover_kdf(K_S2_GW[],recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),handover_kdf(K_S3_GW[],recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),access_kdf(K_Sj_GW[],N_R_1,T_GW_1)),K_R_GW[]),K_R_GW[])).
+attacker((senc((N_R_1,crt_pack3(pack_residue(recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),pack_residue(recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),pack_residue(recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),N1[],N2[],N3[]),T_EXP_4,handover_kdf(K_S1_GW[],recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),handover_kdf(K_S2_GW[],recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),handover_kdf(K_S3_GW[],recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),access_kdf(K_Sj_GW[],N_R_1,T_GW_1)),K_R_GW[]),mac(senc((N_R_1,crt_pack3(pack_residue(recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),pack_residue(recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),pack_residue(recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),N1[],N2[],N3[]),T_EXP_4,handover_kdf(K_S1_GW[],recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),handover_kdf(K_S2_GW[],recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),handover_kdf(K_S3_GW[],recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),access_kdf(K_Sj_GW[],N_R_1,T_GW_1)),K_R_GW[]),K_R_GW[]))).
+
+13. By 12, the attacker may know (senc((N_R_1,crt_pack3(pack_residue(recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),pack_residue(recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),pack_residue(recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),N1[],N2[],N3[]),T_EXP_4,handover_kdf(K_S1_GW[],recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),handover_kdf(K_S2_GW[],recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),handover_kdf(K_S3_GW[],recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),access_kdf(K_Sj_GW[],N_R_1,T_GW_1)),K_R_GW[]),mac(senc((N_R_1,crt_pack3(pack_residue(recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),pack_residue(recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),pack_residue(recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),N1[],N2[],N3[]),T_EXP_4,handover_kdf(K_S1_GW[],recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),handover_kdf(K_S2_GW[],recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),handover_kdf(K_S3_GW[],recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),access_kdf(K_Sj_GW[],N_R_1,T_GW_1)),K_R_GW[]),K_R_GW[])).
+Using the function 2-proj-2-tuple the attacker may obtain mac(senc((N_R_1,crt_pack3(pack_residue(recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),pack_residue(recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),pack_residue(recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),N1[],N2[],N3[]),T_EXP_4,handover_kdf(K_S1_GW[],recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),handover_kdf(K_S2_GW[],recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),handover_kdf(K_S3_GW[],recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),access_kdf(K_Sj_GW[],N_R_1,T_GW_1)),K_R_GW[]),K_R_GW[]).
+attacker(mac(senc((N_R_1,crt_pack3(pack_residue(recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),pack_residue(recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),pack_residue(recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),N1[],N2[],N3[]),T_EXP_4,handover_kdf(K_S1_GW[],recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),handover_kdf(K_S2_GW[],recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),handover_kdf(K_S3_GW[],recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),access_kdf(K_Sj_GW[],N_R_1,T_GW_1)),K_R_GW[]),K_R_GW[])).
+
+14. By 12, the attacker may know (senc((N_R_1,crt_pack3(pack_residue(recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),pack_residue(recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),pack_residue(recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),N1[],N2[],N3[]),T_EXP_4,handover_kdf(K_S1_GW[],recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),handover_kdf(K_S2_GW[],recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),handover_kdf(K_S3_GW[],recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),access_kdf(K_Sj_GW[],N_R_1,T_GW_1)),K_R_GW[]),mac(senc((N_R_1,crt_pack3(pack_residue(recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),pack_residue(recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),pack_residue(recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),N1[],N2[],N3[]),T_EXP_4,handover_kdf(K_S1_GW[],recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),handover_kdf(K_S2_GW[],recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),handover_kdf(K_S3_GW[],recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),access_kdf(K_Sj_GW[],N_R_1,T_GW_1)),K_R_GW[]),K_R_GW[])).
+Using the function 1-proj-2-tuple the attacker may obtain senc((N_R_1,crt_pack3(pack_residue(recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),pack_residue(recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),pack_residue(recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),N1[],N2[],N3[]),T_EXP_4,handover_kdf(K_S1_GW[],recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),handover_kdf(K_S2_GW[],recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),handover_kdf(K_S3_GW[],recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),access_kdf(K_Sj_GW[],N_R_1,T_GW_1)),K_R_GW[]).
+attacker(senc((N_R_1,crt_pack3(pack_residue(recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),pack_residue(recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),pack_residue(recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),N1[],N2[],N3[]),T_EXP_4,handover_kdf(K_S1_GW[],recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),handover_kdf(K_S2_GW[],recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),handover_kdf(K_S3_GW[],recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),access_kdf(K_Sj_GW[],N_R_1,T_GW_1)),K_R_GW[])).
+
+15. By 14, the attacker may know senc((N_R_1,crt_pack3(pack_residue(recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),pack_residue(recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),pack_residue(recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),N1[],N2[],N3[]),T_EXP_4,handover_kdf(K_S1_GW[],recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),handover_kdf(K_S2_GW[],recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),handover_kdf(K_S3_GW[],recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),access_kdf(K_Sj_GW[],N_R_1,T_GW_1)),K_R_GW[]).
+By 13, the attacker may know mac(senc((N_R_1,crt_pack3(pack_residue(recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),pack_residue(recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),pack_residue(recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),N1[],N2[],N3[]),T_EXP_4,handover_kdf(K_S1_GW[],recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),handover_kdf(K_S2_GW[],recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),handover_kdf(K_S3_GW[],recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),access_kdf(K_Sj_GW[],N_R_1,T_GW_1)),K_R_GW[]),K_R_GW[]).
+Using the function 2-tuple the attacker may obtain (senc((N_R_1,crt_pack3(pack_residue(recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),pack_residue(recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),pack_residue(recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),N1[],N2[],N3[]),T_EXP_4,handover_kdf(K_S1_GW[],recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),handover_kdf(K_S2_GW[],recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),handover_kdf(K_S3_GW[],recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),access_kdf(K_Sj_GW[],N_R_1,T_GW_1)),K_R_GW[]),mac(senc((N_R_1,crt_pack3(pack_residue(recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),pack_residue(recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),pack_residue(recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),N1[],N2[],N3[]),T_EXP_4,handover_kdf(K_S1_GW[],recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),handover_kdf(K_S2_GW[],recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),handover_kdf(K_S3_GW[],recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),access_kdf(K_Sj_GW[],N_R_1,T_GW_1)),K_R_GW[]),K_R_GW[])).
+attacker((senc((N_R_1,crt_pack3(pack_residue(recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),pack_residue(recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),pack_residue(recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),N1[],N2[],N3[]),T_EXP_4,handover_kdf(K_S1_GW[],recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),handover_kdf(K_S2_GW[],recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),handover_kdf(K_S3_GW[],recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),access_kdf(K_Sj_GW[],N_R_1,T_GW_1)),K_R_GW[]),mac(senc((N_R_1,crt_pack3(pack_residue(recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),pack_residue(recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),pack_residue(recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),N1[],N2[],N3[]),T_EXP_4,handover_kdf(K_S1_GW[],recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),handover_kdf(K_S2_GW[],recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),handover_kdf(K_S3_GW[],recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),access_kdf(K_Sj_GW[],N_R_1,T_GW_1)),K_R_GW[]),K_R_GW[]))).
+
+16. The message (senc((N_R_1,crt_pack3(pack_residue(recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),pack_residue(recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),pack_residue(recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),N1[],N2[],N3[]),T_EXP_4,handover_kdf(K_S1_GW[],recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),handover_kdf(K_S2_GW[],recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),handover_kdf(K_S3_GW[],recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),access_kdf(K_Sj_GW[],N_R_1,T_GW_1)),K_R_GW[]),mac(senc((N_R_1,crt_pack3(pack_residue(recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),pack_residue(recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),pack_residue(recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),N1[],N2[],N3[]),T_EXP_4,handover_kdf(K_S1_GW[],recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),handover_kdf(K_S2_GW[],recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),handover_kdf(K_S3_GW[],recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),access_kdf(K_Sj_GW[],N_R_1,T_GW_1)),K_R_GW[]),K_R_GW[])) that the attacker may have by 15 may be received at input {9}.
+The event BegHandover(ID_R[],ID_S1[],crt_pack3(pack_residue(recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),pack_residue(recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),pack_residue(recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),N1[],N2[],N3[]),senc(witness_payload1[],handover_kdf(K_S1_GW[],recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4)),handover_kdf(K_S1_GW[],recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4)) (with occurrence name @occ17_1) may be executed at {17}.
+The event BegHandover(ID_R[],ID_S2[],crt_pack3(pack_residue(recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),pack_residue(recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),pack_residue(recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),N1[],N2[],N3[]),senc(witness_payload2[],handover_kdf(K_S2_GW[],recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4)),handover_kdf(K_S2_GW[],recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4)) (with occurrence name @occ21_1) may be executed at {21}.
+So the message (crt_pack3(pack_residue(recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),pack_residue(recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),pack_residue(recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),N1[],N2[],N3[]),ID_R[],senc(witness_payload2[],handover_kdf(K_S2_GW[],recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4)),mac((crt_pack3(pack_residue(recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),pack_residue(recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),pack_residue(recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),N1[],N2[],N3[]),ID_R[],senc(witness_payload2[],handover_kdf(K_S2_GW[],recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4))),handover_kdf(K_S2_GW[],recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4))) may be sent to the attacker at output {22}.
+attacker((crt_pack3(pack_residue(recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),pack_residue(recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),pack_residue(recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),N1[],N2[],N3[]),ID_R[],senc(witness_payload2[],handover_kdf(K_S2_GW[],recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4)),mac((crt_pack3(pack_residue(recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),pack_residue(recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),pack_residue(recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),N1[],N2[],N3[]),ID_R[],senc(witness_payload2[],handover_kdf(K_S2_GW[],recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4))),handover_kdf(K_S2_GW[],recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4)))).
+
+17. By 16, the attacker may know (crt_pack3(pack_residue(recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),pack_residue(recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),pack_residue(recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),N1[],N2[],N3[]),ID_R[],senc(witness_payload2[],handover_kdf(K_S2_GW[],recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4)),mac((crt_pack3(pack_residue(recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),pack_residue(recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),pack_residue(recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),N1[],N2[],N3[]),ID_R[],senc(witness_payload2[],handover_kdf(K_S2_GW[],recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4))),handover_kdf(K_S2_GW[],recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4))).
+Using the function 4-proj-4-tuple the attacker may obtain mac((crt_pack3(pack_residue(recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),pack_residue(recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),pack_residue(recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),N1[],N2[],N3[]),ID_R[],senc(witness_payload2[],handover_kdf(K_S2_GW[],recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4))),handover_kdf(K_S2_GW[],recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4)).
+attacker(mac((crt_pack3(pack_residue(recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),pack_residue(recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),pack_residue(recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),N1[],N2[],N3[]),ID_R[],senc(witness_payload2[],handover_kdf(K_S2_GW[],recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4))),handover_kdf(K_S2_GW[],recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4))).
+
+18. By 16, the attacker may know (crt_pack3(pack_residue(recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),pack_residue(recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),pack_residue(recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),N1[],N2[],N3[]),ID_R[],senc(witness_payload2[],handover_kdf(K_S2_GW[],recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4)),mac((crt_pack3(pack_residue(recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),pack_residue(recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),pack_residue(recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),N1[],N2[],N3[]),ID_R[],senc(witness_payload2[],handover_kdf(K_S2_GW[],recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4))),handover_kdf(K_S2_GW[],recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4))).
+Using the function 3-proj-4-tuple the attacker may obtain senc(witness_payload2[],handover_kdf(K_S2_GW[],recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4)).
+attacker(senc(witness_payload2[],handover_kdf(K_S2_GW[],recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4))).
+
+19. The message (senc((N_R_1,crt_pack3(pack_residue(recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),pack_residue(recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),pack_residue(recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),N1[],N2[],N3[]),T_EXP_4,handover_kdf(K_S1_GW[],recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),handover_kdf(K_S2_GW[],recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),handover_kdf(K_S3_GW[],recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),access_kdf(K_Sj_GW[],N_R_1,T_GW_1)),K_R_GW[]),mac(senc((N_R_1,crt_pack3(pack_residue(recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),pack_residue(recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),pack_residue(recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),N1[],N2[],N3[]),T_EXP_4,handover_kdf(K_S1_GW[],recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),handover_kdf(K_S2_GW[],recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),handover_kdf(K_S3_GW[],recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),access_kdf(K_Sj_GW[],N_R_1,T_GW_1)),K_R_GW[]),K_R_GW[])) that the attacker may have by 15 may be received at input {9}.
+The event BegHandover(ID_R[],ID_S1[],crt_pack3(pack_residue(recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),pack_residue(recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),pack_residue(recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),N1[],N2[],N3[]),senc(witness_payload1[],handover_kdf(K_S1_GW[],recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4)),handover_kdf(K_S1_GW[],recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4)) (with occurrence name @occ17_1) may be executed at {17}.
+So the message (crt_pack3(pack_residue(recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),pack_residue(recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),pack_residue(recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),N1[],N2[],N3[]),ID_R[],senc(witness_payload1[],handover_kdf(K_S1_GW[],recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4)),mac((crt_pack3(pack_residue(recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),pack_residue(recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),pack_residue(recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),N1[],N2[],N3[]),ID_R[],senc(witness_payload1[],handover_kdf(K_S1_GW[],recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4))),handover_kdf(K_S1_GW[],recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4))) may be sent to the attacker at output {18}.
+attacker((crt_pack3(pack_residue(recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),pack_residue(recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),pack_residue(recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),N1[],N2[],N3[]),ID_R[],senc(witness_payload1[],handover_kdf(K_S1_GW[],recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4)),mac((crt_pack3(pack_residue(recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),pack_residue(recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),pack_residue(recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),N1[],N2[],N3[]),ID_R[],senc(witness_payload1[],handover_kdf(K_S1_GW[],recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4))),handover_kdf(K_S1_GW[],recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4)))).
+
+20. By 19, the attacker may know (crt_pack3(pack_residue(recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),pack_residue(recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),pack_residue(recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),N1[],N2[],N3[]),ID_R[],senc(witness_payload1[],handover_kdf(K_S1_GW[],recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4)),mac((crt_pack3(pack_residue(recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),pack_residue(recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),pack_residue(recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),N1[],N2[],N3[]),ID_R[],senc(witness_payload1[],handover_kdf(K_S1_GW[],recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4))),handover_kdf(K_S1_GW[],recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4))).
+Using the function 1-proj-4-tuple the attacker may obtain crt_pack3(pack_residue(recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),pack_residue(recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),pack_residue(recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),N1[],N2[],N3[]).
+attacker(crt_pack3(pack_residue(recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),pack_residue(recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),pack_residue(recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),N1[],N2[],N3[])).
+
+21. By 20, the attacker may know crt_pack3(pack_residue(recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),pack_residue(recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),pack_residue(recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),N1[],N2[],N3[]).
+By 5, the attacker may know ID_R[].
+By 18, the attacker may know senc(witness_payload2[],handover_kdf(K_S2_GW[],recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4)).
+By 17, the attacker may know mac((crt_pack3(pack_residue(recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),pack_residue(recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),pack_residue(recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),N1[],N2[],N3[]),ID_R[],senc(witness_payload2[],handover_kdf(K_S2_GW[],recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4))),handover_kdf(K_S2_GW[],recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4)).
+Using the function 4-tuple the attacker may obtain (crt_pack3(pack_residue(recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),pack_residue(recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),pack_residue(recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),N1[],N2[],N3[]),ID_R[],senc(witness_payload2[],handover_kdf(K_S2_GW[],recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4)),mac((crt_pack3(pack_residue(recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),pack_residue(recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),pack_residue(recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),N1[],N2[],N3[]),ID_R[],senc(witness_payload2[],handover_kdf(K_S2_GW[],recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4))),handover_kdf(K_S2_GW[],recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4))).
+attacker((crt_pack3(pack_residue(recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),pack_residue(recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),pack_residue(recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),N1[],N2[],N3[]),ID_R[],senc(witness_payload2[],handover_kdf(K_S2_GW[],recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4)),mac((crt_pack3(pack_residue(recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),pack_residue(recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),pack_residue(recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),N1[],N2[],N3[]),ID_R[],senc(witness_payload2[],handover_kdf(K_S2_GW[],recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4))),handover_kdf(K_S2_GW[],recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4)))).
+
+22. The message (ID_Sj[],(ID_R[],N_R_1,T_R_1,mac((ID_R[],N_R_1,T_R_1),K_R_GW[])),mac((ID_Sj[],(ID_R[],N_R_1,T_R_1,mac((ID_R[],N_R_1,T_R_1),K_R_GW[]))),K_Sj_GW[])) that the attacker may have by 10 may be received at input {34}.
+So the entry valid_expiration(T_EXP_4) may be inserted in a table at insert {55}.
+table(valid_expiration(T_EXP_4)).
+
+23. The message lock_token2[] may be sent on channel trc_lock2[] at output {2}.
+mess(trc_lock2[],lock_token2[]).
+
+24. The message (crt_pack3(pack_residue(recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),pack_residue(recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),pack_residue(recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),N1[],N2[],N3[]),ID_R[],senc(witness_payload2[],handover_kdf(K_S2_GW[],recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4)),mac((crt_pack3(pack_residue(recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),pack_residue(recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),pack_residue(recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),N1[],N2[],N3[]),ID_R[],senc(witness_payload2[],handover_kdf(K_S2_GW[],recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4))),handover_kdf(K_S2_GW[],recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4))) that the attacker may have by 21 may be received at input {86}.
+The entry valid_expiration(T_EXP_4) that may be in a table by 22 may be read at get {101}.
+The message lock_token2[] that may be sent on channel trc_lock2[] by 23 may be received at input {94}.
+We have N1[] ≠ N2[].
+So event EndHandover(ID_R[],ID_S2[],crt_pack3(pack_residue(recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),pack_residue(recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),pack_residue(recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),N1[],N2[],N3[]),senc(witness_payload2[],handover_kdf(K_S2_GW[],recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4)),handover_kdf(K_S2_GW[],recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4)) may be executed at {97} in session @sid_3.
+inj-event(EndHandover(ID_R[],ID_S2[],crt_pack3(pack_residue(recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),pack_residue(recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),pack_residue(recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),N1[],N2[],N3[]),senc(witness_payload2[],handover_kdf(K_S2_GW[],recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4)),handover_kdf(K_S2_GW[],recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4)),@occ97_2).
+
+25. By 24, inj-event(EndHandover(ID_R[],ID_S2[],crt_pack3(pack_residue(recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),pack_residue(recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),pack_residue(recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),N1[],N2[],N3[]),senc(witness_payload2[],handover_kdf(K_S2_GW[],recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4)),handover_kdf(K_S2_GW[],recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4)),@occ97_2).
+The goal is reached, represented in the following fact:
+inj-event(EndHandover(ID_R[],ID_S2[],crt_pack3(pack_residue(recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),pack_residue(recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),pack_residue(recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),N1[],N2[],N3[]),senc(witness_payload2[],handover_kdf(K_S2_GW[],recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4)),handover_kdf(K_S2_GW[],recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4)),@occ97_2).
+
+26. The message (crt_pack3(pack_residue(recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),pack_residue(recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),pack_residue(recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),N1[],N2[],N3[]),ID_R[],senc(witness_payload2[],handover_kdf(K_S2_GW[],recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4)),mac((crt_pack3(pack_residue(recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),pack_residue(recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),pack_residue(recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),N1[],N2[],N3[]),ID_R[],senc(witness_payload2[],handover_kdf(K_S2_GW[],recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4))),handover_kdf(K_S2_GW[],recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4))) that the attacker may have by 21 may be received at input {86}.
+The entry valid_expiration(T_EXP_4) that may be in a table by 22 may be read at get {101}.
+The message lock_token2[] that may be sent on channel trc_lock2[] by 23 may be received at input {94}.
+We have N1[] ≠ N2[].
+So event EndHandover(ID_R[],ID_S2[],crt_pack3(pack_residue(recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),pack_residue(recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),pack_residue(recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),N1[],N2[],N3[]),senc(witness_payload2[],handover_kdf(K_S2_GW[],recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4)),handover_kdf(K_S2_GW[],recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4)) may be executed at {97} in session @sid_2.
+inj-event(EndHandover(ID_R[],ID_S2[],crt_pack3(pack_residue(recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),pack_residue(recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),pack_residue(recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),N1[],N2[],N3[]),senc(witness_payload2[],handover_kdf(K_S2_GW[],recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4)),handover_kdf(K_S2_GW[],recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4)),@occ97_1).
+
+27. By 26, inj-event(EndHandover(ID_R[],ID_S2[],crt_pack3(pack_residue(recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),pack_residue(recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),pack_residue(recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),N1[],N2[],N3[]),senc(witness_payload2[],handover_kdf(K_S2_GW[],recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4)),handover_kdf(K_S2_GW[],recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4)),@occ97_1).
+The goal is reached, represented in the following fact:
+inj-event(EndHandover(ID_R[],ID_S2[],crt_pack3(pack_residue(recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),pack_residue(recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),pack_residue(recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),N1[],N2[],N3[]),senc(witness_payload2[],handover_kdf(K_S2_GW[],recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4)),handover_kdf(K_S2_GW[],recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4)),@occ97_1).
+
+28. By 27, inj-event(EndHandover(ID_R[],ID_S2[],crt_pack3(pack_residue(recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),pack_residue(recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),pack_residue(recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),N1[],N2[],N3[]),senc(witness_payload2[],handover_kdf(K_S2_GW[],recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4)),handover_kdf(K_S2_GW[],recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4)),@occ97_1).
+By 25, inj-event(EndHandover(ID_R[],ID_S2[],crt_pack3(pack_residue(recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),pack_residue(recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),pack_residue(recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),N1[],N2[],N3[]),senc(witness_payload2[],handover_kdf(K_S2_GW[],recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4)),handover_kdf(K_S2_GW[],recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4)),@occ97_2).
+We have @occ97_1 ≠ @occ97_2.
+The goals for injectivity are reached, combined in the following fact:
+inj-event(EndHandover(ID_R[],ID_S2[],crt_pack3(pack_residue(recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),pack_residue(recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),pack_residue(recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),N1[],N2[],N3[]),senc(witness_payload2[],handover_kdf(K_S2_GW[],recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4)),handover_kdf(K_S2_GW[],recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4)),@occ97_1) && inj-event(EndHandover(ID_R[],ID_S2[],crt_pack3(pack_residue(recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),pack_residue(recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),pack_residue(recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),N1[],N2[],N3[]),senc(witness_payload2[],handover_kdf(K_S2_GW[],recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4)),handover_kdf(K_S2_GW[],recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4)),@occ97_2).
+
+
+Could not find a trace corresponding to this derivation.
+Trying to find a trace falsifying the query on another derivation.
+goal reachable: @sid ≠ @sid_1 && b-inj-event(BegHandover(ID_R[],ID_S1[],crt_pack3(pack_residue(recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),pack_residue(recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),pack_residue(recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),N1[],N2[],N3[]),senc(witness_payload1[],handover_kdf(K_S1_GW[],recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4)),handover_kdf(K_S1_GW[],recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4)),@occ17_1) -> inj-event(EndHandover(ID_R[],ID_S1[],crt_pack3(pack_residue(recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),pack_residue(recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),pack_residue(recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),N1[],N2[],N3[]),senc(witness_payload1[],handover_kdf(K_S1_GW[],recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4)),handover_kdf(K_S1_GW[],recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4)),@occ79_1) && inj-event(EndHandover(ID_R[],ID_S1[],crt_pack3(pack_residue(recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),pack_residue(recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),pack_residue(recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),N1[],N2[],N3[]),senc(witness_payload1[],handover_kdf(K_S1_GW[],recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4)),handover_kdf(K_S1_GW[],recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4)),@occ79_2)
+Abbreviations:
+N_R_1 = N_R[!1 = @sid_2]
+T_R_1 = T_R[!1 = @sid_2]
+r1_1 = r1[m2 = (ID_Sj[],(ID_R[],N_R_1,T_R_1,mac((ID_R[],N_R_1,T_R_1),K_R_GW[])),mac((ID_Sj[],(ID_R[],N_R_1,T_R_1,mac((ID_R[],N_R_1,T_R_1),K_R_GW[]))),K_Sj_GW[])),!1 = @sid_3]
+T_EXP_4 = T_EXP_1[m2 = (ID_Sj[],(ID_R[],N_R_1,T_R_1,mac((ID_R[],N_R_1,T_R_1),K_R_GW[])),mac((ID_Sj[],(ID_R[],N_R_1,T_R_1,mac((ID_R[],N_R_1,T_R_1),K_R_GW[]))),K_Sj_GW[])),!1 = @sid_3]
+r2_1 = r2[m2 = (ID_Sj[],(ID_R[],N_R_1,T_R_1,mac((ID_R[],N_R_1,T_R_1),K_R_GW[])),mac((ID_Sj[],(ID_R[],N_R_1,T_R_1,mac((ID_R[],N_R_1,T_R_1),K_R_GW[]))),K_Sj_GW[])),!1 = @sid_3]
+r3_1 = r3[m2 = (ID_Sj[],(ID_R[],N_R_1,T_R_1,mac((ID_R[],N_R_1,T_R_1),K_R_GW[])),mac((ID_Sj[],(ID_R[],N_R_1,T_R_1,mac((ID_R[],N_R_1,T_R_1),K_R_GW[]))),K_Sj_GW[])),!1 = @sid_3]
+@occ79_1 = @occ79[mho = (crt_pack3(pack_residue(recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),pack_residue(recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),pack_residue(recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),N1[],N2[],N3[]),ID_R[],senc(witness_payload1[],handover_kdf(K_S1_GW[],recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4)),mac((crt_pack3(pack_residue(recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),pack_residue(recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),pack_residue(recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),N1[],N2[],N3[]),ID_R[],senc(witness_payload1[],handover_kdf(K_S1_GW[],recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4))),handover_kdf(K_S1_GW[],recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4))),!1 = @sid]
+@occ79_2 = @occ79[mho = (crt_pack3(pack_residue(recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),pack_residue(recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),pack_residue(recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),N1[],N2[],N3[]),ID_R[],senc(witness_payload1[],handover_kdf(K_S1_GW[],recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4)),mac((crt_pack3(pack_residue(recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),pack_residue(recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),pack_residue(recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),N1[],N2[],N3[]),ID_R[],senc(witness_payload1[],handover_kdf(K_S1_GW[],recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4))),handover_kdf(K_S1_GW[],recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4))),!1 = @sid_1]
+T_GW_1 = T_GW[m2 = (ID_Sj[],(ID_R[],N_R_1,T_R_1,mac((ID_R[],N_R_1,T_R_1),K_R_GW[])),mac((ID_Sj[],(ID_R[],N_R_1,T_R_1,mac((ID_R[],N_R_1,T_R_1),K_R_GW[]))),K_Sj_GW[])),!1 = @sid_3]
+@occ17_1 = @occ17[mr = (senc((N_R_1,crt_pack3(pack_residue(recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),pack_residue(recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),pack_residue(recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),N1[],N2[],N3[]),T_EXP_4,handover_kdf(K_S1_GW[],recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),handover_kdf(K_S2_GW[],recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),handover_kdf(K_S3_GW[],recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),access_kdf(K_Sj_GW[],N_R_1,T_GW_1)),K_R_GW[]),mac(senc((N_R_1,crt_pack3(pack_residue(recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),pack_residue(recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),pack_residue(recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),N1[],N2[],N3[]),T_EXP_4,handover_kdf(K_S1_GW[],recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),handover_kdf(K_S2_GW[],recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),handover_kdf(K_S3_GW[],recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),access_kdf(K_Sj_GW[],N_R_1,T_GW_1)),K_R_GW[]),K_R_GW[])),!1 = @sid_2]
+
+Derivation:
+Abbreviations:
+N_R_1 = N_R[!1 = @sid]
+T_R_1 = T_R[!1 = @sid]
+r1_1 = r1[m2 = (ID_Sj[],(ID_R[],N_R_1,T_R_1,mac((ID_R[],N_R_1,T_R_1),K_R_GW[])),mac((ID_Sj[],(ID_R[],N_R_1,T_R_1,mac((ID_R[],N_R_1,T_R_1),K_R_GW[]))),K_Sj_GW[])),!1 = @sid_1]
+T_EXP_4 = T_EXP_1[m2 = (ID_Sj[],(ID_R[],N_R_1,T_R_1,mac((ID_R[],N_R_1,T_R_1),K_R_GW[])),mac((ID_Sj[],(ID_R[],N_R_1,T_R_1,mac((ID_R[],N_R_1,T_R_1),K_R_GW[]))),K_Sj_GW[])),!1 = @sid_1]
+r2_1 = r2[m2 = (ID_Sj[],(ID_R[],N_R_1,T_R_1,mac((ID_R[],N_R_1,T_R_1),K_R_GW[])),mac((ID_Sj[],(ID_R[],N_R_1,T_R_1,mac((ID_R[],N_R_1,T_R_1),K_R_GW[]))),K_Sj_GW[])),!1 = @sid_1]
+r3_1 = r3[m2 = (ID_Sj[],(ID_R[],N_R_1,T_R_1,mac((ID_R[],N_R_1,T_R_1),K_R_GW[])),mac((ID_Sj[],(ID_R[],N_R_1,T_R_1,mac((ID_R[],N_R_1,T_R_1),K_R_GW[]))),K_Sj_GW[])),!1 = @sid_1]
+@occ79_1 = @occ79[mho = (crt_pack3(pack_residue(recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),pack_residue(recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),pack_residue(recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),N1[],N2[],N3[]),ID_R[],senc(witness_payload1[],handover_kdf(K_S1_GW[],recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4)),mac((crt_pack3(pack_residue(recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),pack_residue(recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),pack_residue(recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),N1[],N2[],N3[]),ID_R[],senc(witness_payload1[],handover_kdf(K_S1_GW[],recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4))),handover_kdf(K_S1_GW[],recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4))),!1 = @sid_2]
+@occ79_2 = @occ79[mho = (crt_pack3(pack_residue(recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),pack_residue(recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),pack_residue(recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),N1[],N2[],N3[]),ID_R[],senc(witness_payload1[],handover_kdf(K_S1_GW[],recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4)),mac((crt_pack3(pack_residue(recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),pack_residue(recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),pack_residue(recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),N1[],N2[],N3[]),ID_R[],senc(witness_payload1[],handover_kdf(K_S1_GW[],recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4))),handover_kdf(K_S1_GW[],recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4))),!1 = @sid_3]
+T_GW_1 = T_GW[m2 = (ID_Sj[],(ID_R[],N_R_1,T_R_1,mac((ID_R[],N_R_1,T_R_1),K_R_GW[])),mac((ID_Sj[],(ID_R[],N_R_1,T_R_1,mac((ID_R[],N_R_1,T_R_1),K_R_GW[]))),K_Sj_GW[])),!1 = @sid_1]
+@occ17_1 = @occ17[mr = (senc((N_R_1,crt_pack3(pack_residue(recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),pack_residue(recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),pack_residue(recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),N1[],N2[],N3[]),T_EXP_4,handover_kdf(K_S1_GW[],recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),handover_kdf(K_S2_GW[],recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),handover_kdf(K_S3_GW[],recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),access_kdf(K_Sj_GW[],N_R_1,T_GW_1)),K_R_GW[]),mac(senc((N_R_1,crt_pack3(pack_residue(recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),pack_residue(recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),pack_residue(recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),N1[],N2[],N3[]),T_EXP_4,handover_kdf(K_S1_GW[],recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),handover_kdf(K_S2_GW[],recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),handover_kdf(K_S3_GW[],recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),access_kdf(K_Sj_GW[],N_R_1,T_GW_1)),K_R_GW[]),K_R_GW[])),!1 = @sid]
+
+1. The message (ID_R[],N_R_1,T_R_1,mac((ID_R[],N_R_1,T_R_1),K_R_GW[])) may be sent to the attacker at output {8}.
+attacker((ID_R[],N_R_1,T_R_1,mac((ID_R[],N_R_1,T_R_1),K_R_GW[]))).
+
+2. By 1, the attacker may know (ID_R[],N_R_1,T_R_1,mac((ID_R[],N_R_1,T_R_1),K_R_GW[])).
+Using the function 4-proj-4-tuple the attacker may obtain mac((ID_R[],N_R_1,T_R_1),K_R_GW[]).
+attacker(mac((ID_R[],N_R_1,T_R_1),K_R_GW[])).
+
+3. By 1, the attacker may know (ID_R[],N_R_1,T_R_1,mac((ID_R[],N_R_1,T_R_1),K_R_GW[])).
+Using the function 3-proj-4-tuple the attacker may obtain T_R_1.
+attacker(T_R_1).
+
+4. By 1, the attacker may know (ID_R[],N_R_1,T_R_1,mac((ID_R[],N_R_1,T_R_1),K_R_GW[])).
+Using the function 2-proj-4-tuple the attacker may obtain N_R_1.
+attacker(N_R_1).
+
+5. The attacker initially knows ID_R[].
+attacker(ID_R[]).
+
+6. By 5, the attacker may know ID_R[].
+By 4, the attacker may know N_R_1.
+By 3, the attacker may know T_R_1.
+By 2, the attacker may know mac((ID_R[],N_R_1,T_R_1),K_R_GW[]).
+Using the function 4-tuple the attacker may obtain (ID_R[],N_R_1,T_R_1,mac((ID_R[],N_R_1,T_R_1),K_R_GW[])).
+attacker((ID_R[],N_R_1,T_R_1,mac((ID_R[],N_R_1,T_R_1),K_R_GW[]))).
+
+7. The message (ID_R[],N_R_1,T_R_1,mac((ID_R[],N_R_1,T_R_1),K_R_GW[])) that the attacker may have by 6 may be received at input {24}.
+So the message (ID_Sj[],(ID_R[],N_R_1,T_R_1,mac((ID_R[],N_R_1,T_R_1),K_R_GW[])),mac((ID_Sj[],(ID_R[],N_R_1,T_R_1,mac((ID_R[],N_R_1,T_R_1),K_R_GW[]))),K_Sj_GW[])) may be sent to the attacker at output {27}.
+attacker((ID_Sj[],(ID_R[],N_R_1,T_R_1,mac((ID_R[],N_R_1,T_R_1),K_R_GW[])),mac((ID_Sj[],(ID_R[],N_R_1,T_R_1,mac((ID_R[],N_R_1,T_R_1),K_R_GW[]))),K_Sj_GW[]))).
+
+8. By 7, the attacker may know (ID_Sj[],(ID_R[],N_R_1,T_R_1,mac((ID_R[],N_R_1,T_R_1),K_R_GW[])),mac((ID_Sj[],(ID_R[],N_R_1,T_R_1,mac((ID_R[],N_R_1,T_R_1),K_R_GW[]))),K_Sj_GW[])).
+Using the function 3-proj-3-tuple the attacker may obtain mac((ID_Sj[],(ID_R[],N_R_1,T_R_1,mac((ID_R[],N_R_1,T_R_1),K_R_GW[]))),K_Sj_GW[]).
+attacker(mac((ID_Sj[],(ID_R[],N_R_1,T_R_1,mac((ID_R[],N_R_1,T_R_1),K_R_GW[]))),K_Sj_GW[])).
+
+9. The attacker initially knows ID_Sj[].
+attacker(ID_Sj[]).
+
+10. By 9, the attacker may know ID_Sj[].
+By 6, the attacker may know (ID_R[],N_R_1,T_R_1,mac((ID_R[],N_R_1,T_R_1),K_R_GW[])).
+By 8, the attacker may know mac((ID_Sj[],(ID_R[],N_R_1,T_R_1,mac((ID_R[],N_R_1,T_R_1),K_R_GW[]))),K_Sj_GW[]).
+Using the function 3-tuple the attacker may obtain (ID_Sj[],(ID_R[],N_R_1,T_R_1,mac((ID_R[],N_R_1,T_R_1),K_R_GW[])),mac((ID_Sj[],(ID_R[],N_R_1,T_R_1,mac((ID_R[],N_R_1,T_R_1),K_R_GW[]))),K_Sj_GW[])).
+attacker((ID_Sj[],(ID_R[],N_R_1,T_R_1,mac((ID_R[],N_R_1,T_R_1),K_R_GW[])),mac((ID_Sj[],(ID_R[],N_R_1,T_R_1,mac((ID_R[],N_R_1,T_R_1),K_R_GW[]))),K_Sj_GW[]))).
+
+11. The message (ID_Sj[],(ID_R[],N_R_1,T_R_1,mac((ID_R[],N_R_1,T_R_1),K_R_GW[])),mac((ID_Sj[],(ID_R[],N_R_1,T_R_1,mac((ID_R[],N_R_1,T_R_1),K_R_GW[]))),K_Sj_GW[])) that the attacker may have by 10 may be received at input {34}.
+So the message (N_R_1,senc((ID_R[],access_kdf(K_Sj_GW[],N_R_1,T_GW_1)),K_Sj_GW[]),(senc((N_R_1,crt_pack3(pack_residue(recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),pack_residue(recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),pack_residue(recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),N1[],N2[],N3[]),T_EXP_4,handover_kdf(K_S1_GW[],recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),handover_kdf(K_S2_GW[],recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),handover_kdf(K_S3_GW[],recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),access_kdf(K_Sj_GW[],N_R_1,T_GW_1)),K_R_GW[]),mac(senc((N_R_1,crt_pack3(pack_residue(recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),pack_residue(recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),pack_residue(recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),N1[],N2[],N3[]),T_EXP_4,handover_kdf(K_S1_GW[],recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),handover_kdf(K_S2_GW[],recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),handover_kdf(K_S3_GW[],recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),access_kdf(K_Sj_GW[],N_R_1,T_GW_1)),K_R_GW[]),K_R_GW[])),mac((N_R_1,senc((ID_R[],access_kdf(K_Sj_GW[],N_R_1,T_GW_1)),K_Sj_GW[]),(senc((N_R_1,crt_pack3(pack_residue(recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),pack_residue(recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),pack_residue(recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),N1[],N2[],N3[]),T_EXP_4,handover_kdf(K_S1_GW[],recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),handover_kdf(K_S2_GW[],recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),handover_kdf(K_S3_GW[],recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),access_kdf(K_Sj_GW[],N_R_1,T_GW_1)),K_R_GW[]),mac(senc((N_R_1,crt_pack3(pack_residue(recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),pack_residue(recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),pack_residue(recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),N1[],N2[],N3[]),T_EXP_4,handover_kdf(K_S1_GW[],recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),handover_kdf(K_S2_GW[],recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),handover_kdf(K_S3_GW[],recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),access_kdf(K_Sj_GW[],N_R_1,T_GW_1)),K_R_GW[]),K_R_GW[]))),K_Sj_GW[])) may be sent to the attacker at output {66}.
+attacker((N_R_1,senc((ID_R[],access_kdf(K_Sj_GW[],N_R_1,T_GW_1)),K_Sj_GW[]),(senc((N_R_1,crt_pack3(pack_residue(recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),pack_residue(recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),pack_residue(recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),N1[],N2[],N3[]),T_EXP_4,handover_kdf(K_S1_GW[],recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),handover_kdf(K_S2_GW[],recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),handover_kdf(K_S3_GW[],recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),access_kdf(K_Sj_GW[],N_R_1,T_GW_1)),K_R_GW[]),mac(senc((N_R_1,crt_pack3(pack_residue(recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),pack_residue(recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),pack_residue(recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),N1[],N2[],N3[]),T_EXP_4,handover_kdf(K_S1_GW[],recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),handover_kdf(K_S2_GW[],recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),handover_kdf(K_S3_GW[],recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),access_kdf(K_Sj_GW[],N_R_1,T_GW_1)),K_R_GW[]),K_R_GW[])),mac((N_R_1,senc((ID_R[],access_kdf(K_Sj_GW[],N_R_1,T_GW_1)),K_Sj_GW[]),(senc((N_R_1,crt_pack3(pack_residue(recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),pack_residue(recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),pack_residue(recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),N1[],N2[],N3[]),T_EXP_4,handover_kdf(K_S1_GW[],recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),handover_kdf(K_S2_GW[],recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),handover_kdf(K_S3_GW[],recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),access_kdf(K_Sj_GW[],N_R_1,T_GW_1)),K_R_GW[]),mac(senc((N_R_1,crt_pack3(pack_residue(recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),pack_residue(recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),pack_residue(recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),N1[],N2[],N3[]),T_EXP_4,handover_kdf(K_S1_GW[],recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),handover_kdf(K_S2_GW[],recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),handover_kdf(K_S3_GW[],recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),access_kdf(K_Sj_GW[],N_R_1,T_GW_1)),K_R_GW[]),K_R_GW[]))),K_Sj_GW[]))).
+
+12. By 11, the attacker may know (N_R_1,senc((ID_R[],access_kdf(K_Sj_GW[],N_R_1,T_GW_1)),K_Sj_GW[]),(senc((N_R_1,crt_pack3(pack_residue(recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),pack_residue(recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),pack_residue(recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),N1[],N2[],N3[]),T_EXP_4,handover_kdf(K_S1_GW[],recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),handover_kdf(K_S2_GW[],recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),handover_kdf(K_S3_GW[],recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),access_kdf(K_Sj_GW[],N_R_1,T_GW_1)),K_R_GW[]),mac(senc((N_R_1,crt_pack3(pack_residue(recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),pack_residue(recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),pack_residue(recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),N1[],N2[],N3[]),T_EXP_4,handover_kdf(K_S1_GW[],recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),handover_kdf(K_S2_GW[],recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),handover_kdf(K_S3_GW[],recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),access_kdf(K_Sj_GW[],N_R_1,T_GW_1)),K_R_GW[]),K_R_GW[])),mac((N_R_1,senc((ID_R[],access_kdf(K_Sj_GW[],N_R_1,T_GW_1)),K_Sj_GW[]),(senc((N_R_1,crt_pack3(pack_residue(recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),pack_residue(recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),pack_residue(recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),N1[],N2[],N3[]),T_EXP_4,handover_kdf(K_S1_GW[],recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),handover_kdf(K_S2_GW[],recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),handover_kdf(K_S3_GW[],recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),access_kdf(K_Sj_GW[],N_R_1,T_GW_1)),K_R_GW[]),mac(senc((N_R_1,crt_pack3(pack_residue(recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),pack_residue(recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),pack_residue(recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),N1[],N2[],N3[]),T_EXP_4,handover_kdf(K_S1_GW[],recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),handover_kdf(K_S2_GW[],recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),handover_kdf(K_S3_GW[],recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),access_kdf(K_Sj_GW[],N_R_1,T_GW_1)),K_R_GW[]),K_R_GW[]))),K_Sj_GW[])).
+Using the function 3-proj-4-tuple the attacker may obtain (senc((N_R_1,crt_pack3(pack_residue(recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),pack_residue(recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),pack_residue(recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),N1[],N2[],N3[]),T_EXP_4,handover_kdf(K_S1_GW[],recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),handover_kdf(K_S2_GW[],recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),handover_kdf(K_S3_GW[],recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),access_kdf(K_Sj_GW[],N_R_1,T_GW_1)),K_R_GW[]),mac(senc((N_R_1,crt_pack3(pack_residue(recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),pack_residue(recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),pack_residue(recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),N1[],N2[],N3[]),T_EXP_4,handover_kdf(K_S1_GW[],recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),handover_kdf(K_S2_GW[],recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),handover_kdf(K_S3_GW[],recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),access_kdf(K_Sj_GW[],N_R_1,T_GW_1)),K_R_GW[]),K_R_GW[])).
+attacker((senc((N_R_1,crt_pack3(pack_residue(recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),pack_residue(recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),pack_residue(recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),N1[],N2[],N3[]),T_EXP_4,handover_kdf(K_S1_GW[],recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),handover_kdf(K_S2_GW[],recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),handover_kdf(K_S3_GW[],recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),access_kdf(K_Sj_GW[],N_R_1,T_GW_1)),K_R_GW[]),mac(senc((N_R_1,crt_pack3(pack_residue(recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),pack_residue(recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),pack_residue(recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),N1[],N2[],N3[]),T_EXP_4,handover_kdf(K_S1_GW[],recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),handover_kdf(K_S2_GW[],recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),handover_kdf(K_S3_GW[],recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),access_kdf(K_Sj_GW[],N_R_1,T_GW_1)),K_R_GW[]),K_R_GW[]))).
+
+13. By 12, the attacker may know (senc((N_R_1,crt_pack3(pack_residue(recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),pack_residue(recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),pack_residue(recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),N1[],N2[],N3[]),T_EXP_4,handover_kdf(K_S1_GW[],recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),handover_kdf(K_S2_GW[],recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),handover_kdf(K_S3_GW[],recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),access_kdf(K_Sj_GW[],N_R_1,T_GW_1)),K_R_GW[]),mac(senc((N_R_1,crt_pack3(pack_residue(recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),pack_residue(recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),pack_residue(recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),N1[],N2[],N3[]),T_EXP_4,handover_kdf(K_S1_GW[],recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),handover_kdf(K_S2_GW[],recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),handover_kdf(K_S3_GW[],recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),access_kdf(K_Sj_GW[],N_R_1,T_GW_1)),K_R_GW[]),K_R_GW[])).
+Using the function 2-proj-2-tuple the attacker may obtain mac(senc((N_R_1,crt_pack3(pack_residue(recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),pack_residue(recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),pack_residue(recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),N1[],N2[],N3[]),T_EXP_4,handover_kdf(K_S1_GW[],recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),handover_kdf(K_S2_GW[],recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),handover_kdf(K_S3_GW[],recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),access_kdf(K_Sj_GW[],N_R_1,T_GW_1)),K_R_GW[]),K_R_GW[]).
+attacker(mac(senc((N_R_1,crt_pack3(pack_residue(recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),pack_residue(recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),pack_residue(recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),N1[],N2[],N3[]),T_EXP_4,handover_kdf(K_S1_GW[],recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),handover_kdf(K_S2_GW[],recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),handover_kdf(K_S3_GW[],recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),access_kdf(K_Sj_GW[],N_R_1,T_GW_1)),K_R_GW[]),K_R_GW[])).
+
+14. By 12, the attacker may know (senc((N_R_1,crt_pack3(pack_residue(recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),pack_residue(recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),pack_residue(recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),N1[],N2[],N3[]),T_EXP_4,handover_kdf(K_S1_GW[],recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),handover_kdf(K_S2_GW[],recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),handover_kdf(K_S3_GW[],recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),access_kdf(K_Sj_GW[],N_R_1,T_GW_1)),K_R_GW[]),mac(senc((N_R_1,crt_pack3(pack_residue(recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),pack_residue(recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),pack_residue(recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),N1[],N2[],N3[]),T_EXP_4,handover_kdf(K_S1_GW[],recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),handover_kdf(K_S2_GW[],recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),handover_kdf(K_S3_GW[],recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),access_kdf(K_Sj_GW[],N_R_1,T_GW_1)),K_R_GW[]),K_R_GW[])).
+Using the function 1-proj-2-tuple the attacker may obtain senc((N_R_1,crt_pack3(pack_residue(recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),pack_residue(recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),pack_residue(recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),N1[],N2[],N3[]),T_EXP_4,handover_kdf(K_S1_GW[],recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),handover_kdf(K_S2_GW[],recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),handover_kdf(K_S3_GW[],recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),access_kdf(K_Sj_GW[],N_R_1,T_GW_1)),K_R_GW[]).
+attacker(senc((N_R_1,crt_pack3(pack_residue(recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),pack_residue(recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),pack_residue(recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),N1[],N2[],N3[]),T_EXP_4,handover_kdf(K_S1_GW[],recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),handover_kdf(K_S2_GW[],recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),handover_kdf(K_S3_GW[],recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),access_kdf(K_Sj_GW[],N_R_1,T_GW_1)),K_R_GW[])).
+
+15. By 14, the attacker may know senc((N_R_1,crt_pack3(pack_residue(recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),pack_residue(recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),pack_residue(recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),N1[],N2[],N3[]),T_EXP_4,handover_kdf(K_S1_GW[],recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),handover_kdf(K_S2_GW[],recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),handover_kdf(K_S3_GW[],recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),access_kdf(K_Sj_GW[],N_R_1,T_GW_1)),K_R_GW[]).
+By 13, the attacker may know mac(senc((N_R_1,crt_pack3(pack_residue(recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),pack_residue(recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),pack_residue(recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),N1[],N2[],N3[]),T_EXP_4,handover_kdf(K_S1_GW[],recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),handover_kdf(K_S2_GW[],recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),handover_kdf(K_S3_GW[],recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),access_kdf(K_Sj_GW[],N_R_1,T_GW_1)),K_R_GW[]),K_R_GW[]).
+Using the function 2-tuple the attacker may obtain (senc((N_R_1,crt_pack3(pack_residue(recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),pack_residue(recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),pack_residue(recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),N1[],N2[],N3[]),T_EXP_4,handover_kdf(K_S1_GW[],recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),handover_kdf(K_S2_GW[],recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),handover_kdf(K_S3_GW[],recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),access_kdf(K_Sj_GW[],N_R_1,T_GW_1)),K_R_GW[]),mac(senc((N_R_1,crt_pack3(pack_residue(recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),pack_residue(recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),pack_residue(recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),N1[],N2[],N3[]),T_EXP_4,handover_kdf(K_S1_GW[],recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),handover_kdf(K_S2_GW[],recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),handover_kdf(K_S3_GW[],recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),access_kdf(K_Sj_GW[],N_R_1,T_GW_1)),K_R_GW[]),K_R_GW[])).
+attacker((senc((N_R_1,crt_pack3(pack_residue(recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),pack_residue(recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),pack_residue(recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),N1[],N2[],N3[]),T_EXP_4,handover_kdf(K_S1_GW[],recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),handover_kdf(K_S2_GW[],recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),handover_kdf(K_S3_GW[],recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),access_kdf(K_Sj_GW[],N_R_1,T_GW_1)),K_R_GW[]),mac(senc((N_R_1,crt_pack3(pack_residue(recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),pack_residue(recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),pack_residue(recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),N1[],N2[],N3[]),T_EXP_4,handover_kdf(K_S1_GW[],recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),handover_kdf(K_S2_GW[],recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),handover_kdf(K_S3_GW[],recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),access_kdf(K_Sj_GW[],N_R_1,T_GW_1)),K_R_GW[]),K_R_GW[]))).
+
+16. The message (senc((N_R_1,crt_pack3(pack_residue(recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),pack_residue(recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),pack_residue(recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),N1[],N2[],N3[]),T_EXP_4,handover_kdf(K_S1_GW[],recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),handover_kdf(K_S2_GW[],recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),handover_kdf(K_S3_GW[],recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),access_kdf(K_Sj_GW[],N_R_1,T_GW_1)),K_R_GW[]),mac(senc((N_R_1,crt_pack3(pack_residue(recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),pack_residue(recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),pack_residue(recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),N1[],N2[],N3[]),T_EXP_4,handover_kdf(K_S1_GW[],recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),handover_kdf(K_S2_GW[],recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),handover_kdf(K_S3_GW[],recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),access_kdf(K_Sj_GW[],N_R_1,T_GW_1)),K_R_GW[]),K_R_GW[])) that the attacker may have by 15 may be received at input {9}.
+The event BegHandover(ID_R[],ID_S1[],crt_pack3(pack_residue(recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),pack_residue(recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),pack_residue(recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),N1[],N2[],N3[]),senc(witness_payload1[],handover_kdf(K_S1_GW[],recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4)),handover_kdf(K_S1_GW[],recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4)) (with occurrence name @occ17_1) may be executed at {17}.
+So the message (crt_pack3(pack_residue(recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),pack_residue(recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),pack_residue(recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),N1[],N2[],N3[]),ID_R[],senc(witness_payload1[],handover_kdf(K_S1_GW[],recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4)),mac((crt_pack3(pack_residue(recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),pack_residue(recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),pack_residue(recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),N1[],N2[],N3[]),ID_R[],senc(witness_payload1[],handover_kdf(K_S1_GW[],recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4))),handover_kdf(K_S1_GW[],recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4))) may be sent to the attacker at output {18}.
+attacker((crt_pack3(pack_residue(recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),pack_residue(recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),pack_residue(recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),N1[],N2[],N3[]),ID_R[],senc(witness_payload1[],handover_kdf(K_S1_GW[],recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4)),mac((crt_pack3(pack_residue(recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),pack_residue(recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),pack_residue(recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),N1[],N2[],N3[]),ID_R[],senc(witness_payload1[],handover_kdf(K_S1_GW[],recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4))),handover_kdf(K_S1_GW[],recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4)))).
+
+17. By 16, the attacker may know (crt_pack3(pack_residue(recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),pack_residue(recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),pack_residue(recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),N1[],N2[],N3[]),ID_R[],senc(witness_payload1[],handover_kdf(K_S1_GW[],recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4)),mac((crt_pack3(pack_residue(recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),pack_residue(recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),pack_residue(recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),N1[],N2[],N3[]),ID_R[],senc(witness_payload1[],handover_kdf(K_S1_GW[],recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4))),handover_kdf(K_S1_GW[],recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4))).
+Using the function 4-proj-4-tuple the attacker may obtain mac((crt_pack3(pack_residue(recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),pack_residue(recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),pack_residue(recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),N1[],N2[],N3[]),ID_R[],senc(witness_payload1[],handover_kdf(K_S1_GW[],recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4))),handover_kdf(K_S1_GW[],recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4)).
+attacker(mac((crt_pack3(pack_residue(recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),pack_residue(recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),pack_residue(recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),N1[],N2[],N3[]),ID_R[],senc(witness_payload1[],handover_kdf(K_S1_GW[],recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4))),handover_kdf(K_S1_GW[],recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4))).
+
+18. By 16, the attacker may know (crt_pack3(pack_residue(recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),pack_residue(recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),pack_residue(recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),N1[],N2[],N3[]),ID_R[],senc(witness_payload1[],handover_kdf(K_S1_GW[],recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4)),mac((crt_pack3(pack_residue(recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),pack_residue(recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),pack_residue(recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),N1[],N2[],N3[]),ID_R[],senc(witness_payload1[],handover_kdf(K_S1_GW[],recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4))),handover_kdf(K_S1_GW[],recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4))).
+Using the function 3-proj-4-tuple the attacker may obtain senc(witness_payload1[],handover_kdf(K_S1_GW[],recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4)).
+attacker(senc(witness_payload1[],handover_kdf(K_S1_GW[],recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4))).
+
+19. By 16, the attacker may know (crt_pack3(pack_residue(recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),pack_residue(recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),pack_residue(recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),N1[],N2[],N3[]),ID_R[],senc(witness_payload1[],handover_kdf(K_S1_GW[],recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4)),mac((crt_pack3(pack_residue(recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),pack_residue(recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),pack_residue(recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),N1[],N2[],N3[]),ID_R[],senc(witness_payload1[],handover_kdf(K_S1_GW[],recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4))),handover_kdf(K_S1_GW[],recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4))).
+Using the function 1-proj-4-tuple the attacker may obtain crt_pack3(pack_residue(recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),pack_residue(recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),pack_residue(recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),N1[],N2[],N3[]).
+attacker(crt_pack3(pack_residue(recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),pack_residue(recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),pack_residue(recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),N1[],N2[],N3[])).
+
+20. By 19, the attacker may know crt_pack3(pack_residue(recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),pack_residue(recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),pack_residue(recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),N1[],N2[],N3[]).
+By 5, the attacker may know ID_R[].
+By 18, the attacker may know senc(witness_payload1[],handover_kdf(K_S1_GW[],recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4)).
+By 17, the attacker may know mac((crt_pack3(pack_residue(recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),pack_residue(recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),pack_residue(recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),N1[],N2[],N3[]),ID_R[],senc(witness_payload1[],handover_kdf(K_S1_GW[],recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4))),handover_kdf(K_S1_GW[],recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4)).
+Using the function 4-tuple the attacker may obtain (crt_pack3(pack_residue(recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),pack_residue(recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),pack_residue(recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),N1[],N2[],N3[]),ID_R[],senc(witness_payload1[],handover_kdf(K_S1_GW[],recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4)),mac((crt_pack3(pack_residue(recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),pack_residue(recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),pack_residue(recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),N1[],N2[],N3[]),ID_R[],senc(witness_payload1[],handover_kdf(K_S1_GW[],recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4))),handover_kdf(K_S1_GW[],recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4))).
+attacker((crt_pack3(pack_residue(recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),pack_residue(recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),pack_residue(recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),N1[],N2[],N3[]),ID_R[],senc(witness_payload1[],handover_kdf(K_S1_GW[],recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4)),mac((crt_pack3(pack_residue(recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),pack_residue(recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),pack_residue(recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),N1[],N2[],N3[]),ID_R[],senc(witness_payload1[],handover_kdf(K_S1_GW[],recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4))),handover_kdf(K_S1_GW[],recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4)))).
+
+21. The message (ID_Sj[],(ID_R[],N_R_1,T_R_1,mac((ID_R[],N_R_1,T_R_1),K_R_GW[])),mac((ID_Sj[],(ID_R[],N_R_1,T_R_1,mac((ID_R[],N_R_1,T_R_1),K_R_GW[]))),K_Sj_GW[])) that the attacker may have by 10 may be received at input {34}.
+So the entry valid_expiration(T_EXP_4) may be inserted in a table at insert {55}.
+table(valid_expiration(T_EXP_4)).
+
+22. The message lock_token1[] may be sent on channel trc_lock1[] at output {1}.
+mess(trc_lock1[],lock_token1[]).
+
+23. The message (crt_pack3(pack_residue(recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),pack_residue(recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),pack_residue(recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),N1[],N2[],N3[]),ID_R[],senc(witness_payload1[],handover_kdf(K_S1_GW[],recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4)),mac((crt_pack3(pack_residue(recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),pack_residue(recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),pack_residue(recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),N1[],N2[],N3[]),ID_R[],senc(witness_payload1[],handover_kdf(K_S1_GW[],recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4))),handover_kdf(K_S1_GW[],recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4))) that the attacker may have by 20 may be received at input {68}.
+The entry valid_expiration(T_EXP_4) that may be in a table by 21 may be read at get {83}.
+The message lock_token1[] that may be sent on channel trc_lock1[] by 22 may be received at input {76}.
+So event EndHandover(ID_R[],ID_S1[],crt_pack3(pack_residue(recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),pack_residue(recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),pack_residue(recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),N1[],N2[],N3[]),senc(witness_payload1[],handover_kdf(K_S1_GW[],recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4)),handover_kdf(K_S1_GW[],recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4)) may be executed at {79} in session @sid_3.
+inj-event(EndHandover(ID_R[],ID_S1[],crt_pack3(pack_residue(recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),pack_residue(recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),pack_residue(recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),N1[],N2[],N3[]),senc(witness_payload1[],handover_kdf(K_S1_GW[],recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4)),handover_kdf(K_S1_GW[],recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4)),@occ79_2).
+
+24. By 23, inj-event(EndHandover(ID_R[],ID_S1[],crt_pack3(pack_residue(recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),pack_residue(recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),pack_residue(recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),N1[],N2[],N3[]),senc(witness_payload1[],handover_kdf(K_S1_GW[],recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4)),handover_kdf(K_S1_GW[],recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4)),@occ79_2).
+The goal is reached, represented in the following fact:
+inj-event(EndHandover(ID_R[],ID_S1[],crt_pack3(pack_residue(recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),pack_residue(recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),pack_residue(recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),N1[],N2[],N3[]),senc(witness_payload1[],handover_kdf(K_S1_GW[],recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4)),handover_kdf(K_S1_GW[],recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4)),@occ79_2).
+
+25. The message (crt_pack3(pack_residue(recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),pack_residue(recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),pack_residue(recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),N1[],N2[],N3[]),ID_R[],senc(witness_payload1[],handover_kdf(K_S1_GW[],recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4)),mac((crt_pack3(pack_residue(recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),pack_residue(recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),pack_residue(recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),N1[],N2[],N3[]),ID_R[],senc(witness_payload1[],handover_kdf(K_S1_GW[],recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4))),handover_kdf(K_S1_GW[],recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4))) that the attacker may have by 20 may be received at input {68}.
+The entry valid_expiration(T_EXP_4) that may be in a table by 21 may be read at get {83}.
+The message lock_token1[] that may be sent on channel trc_lock1[] by 22 may be received at input {76}.
+So event EndHandover(ID_R[],ID_S1[],crt_pack3(pack_residue(recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),pack_residue(recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),pack_residue(recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),N1[],N2[],N3[]),senc(witness_payload1[],handover_kdf(K_S1_GW[],recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4)),handover_kdf(K_S1_GW[],recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4)) may be executed at {79} in session @sid_2.
+inj-event(EndHandover(ID_R[],ID_S1[],crt_pack3(pack_residue(recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),pack_residue(recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),pack_residue(recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),N1[],N2[],N3[]),senc(witness_payload1[],handover_kdf(K_S1_GW[],recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4)),handover_kdf(K_S1_GW[],recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4)),@occ79_1).
+
+26. By 25, inj-event(EndHandover(ID_R[],ID_S1[],crt_pack3(pack_residue(recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),pack_residue(recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),pack_residue(recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),N1[],N2[],N3[]),senc(witness_payload1[],handover_kdf(K_S1_GW[],recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4)),handover_kdf(K_S1_GW[],recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4)),@occ79_1).
+The goal is reached, represented in the following fact:
+inj-event(EndHandover(ID_R[],ID_S1[],crt_pack3(pack_residue(recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),pack_residue(recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),pack_residue(recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),N1[],N2[],N3[]),senc(witness_payload1[],handover_kdf(K_S1_GW[],recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4)),handover_kdf(K_S1_GW[],recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4)),@occ79_1).
+
+27. By 26, inj-event(EndHandover(ID_R[],ID_S1[],crt_pack3(pack_residue(recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),pack_residue(recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),pack_residue(recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),N1[],N2[],N3[]),senc(witness_payload1[],handover_kdf(K_S1_GW[],recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4)),handover_kdf(K_S1_GW[],recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4)),@occ79_1).
+By 24, inj-event(EndHandover(ID_R[],ID_S1[],crt_pack3(pack_residue(recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),pack_residue(recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),pack_residue(recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),N1[],N2[],N3[]),senc(witness_payload1[],handover_kdf(K_S1_GW[],recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4)),handover_kdf(K_S1_GW[],recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4)),@occ79_2).
+We have @occ79_1 ≠ @occ79_2.
+The goals for injectivity are reached, combined in the following fact:
+inj-event(EndHandover(ID_R[],ID_S1[],crt_pack3(pack_residue(recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),pack_residue(recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),pack_residue(recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),N1[],N2[],N3[]),senc(witness_payload1[],handover_kdf(K_S1_GW[],recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4)),handover_kdf(K_S1_GW[],recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4)),@occ79_1) && inj-event(EndHandover(ID_R[],ID_S1[],crt_pack3(pack_residue(recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),pack_residue(recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),pack_residue(recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),N1[],N2[],N3[]),senc(witness_payload1[],handover_kdf(K_S1_GW[],recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4)),handover_kdf(K_S1_GW[],recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4)),@occ79_2).
+
+
+Could not find a trace corresponding to this derivation.
+Trying to find a trace falsifying the query on another derivation.
+goal reachable: @sid ≠ @sid_1 && b-inj-event(BegHandover(ID_R[],ID_S2[],crt_pack3(pack_residue(recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),pack_residue(recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),pack_residue(recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),N1[],N2[],N3[]),senc(witness_payload2[],handover_kdf(K_S2_GW[],recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4)),handover_kdf(K_S2_GW[],recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4)),@occ21_1) && b-inj-event(BegHandover(ID_R[],ID_S1[],crt_pack3(pack_residue(recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),pack_residue(recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),pack_residue(recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),N1[],N2[],N3[]),senc(witness_payload1[],handover_kdf(K_S1_GW[],recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4)),handover_kdf(K_S1_GW[],recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4)),@occ17_1) -> inj-event(EndHandover(ID_R[],ID_S2[],crt_pack3(pack_residue(recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),pack_residue(recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),pack_residue(recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),N1[],N2[],N3[]),senc(witness_payload2[],handover_kdf(K_S2_GW[],recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4)),handover_kdf(K_S2_GW[],recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4)),@occ97_1) && inj-event(EndHandover(ID_R[],ID_S2[],crt_pack3(pack_residue(recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),pack_residue(recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),pack_residue(recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),N1[],N2[],N3[]),senc(witness_payload2[],handover_kdf(K_S2_GW[],recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4)),handover_kdf(K_S2_GW[],recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4)),@occ97_2)
+Abbreviations:
+N_R_1 = N_R[!1 = @sid_2]
+T_R_1 = T_R[!1 = @sid_2]
+r1_1 = r1[m2 = (ID_Sj[],(ID_R[],N_R_1,T_R_1,mac((ID_R[],N_R_1,T_R_1),K_R_GW[])),mac((ID_Sj[],(ID_R[],N_R_1,T_R_1,mac((ID_R[],N_R_1,T_R_1),K_R_GW[]))),K_Sj_GW[])),!1 = @sid_3]
+T_EXP_4 = T_EXP_1[m2 = (ID_Sj[],(ID_R[],N_R_1,T_R_1,mac((ID_R[],N_R_1,T_R_1),K_R_GW[])),mac((ID_Sj[],(ID_R[],N_R_1,T_R_1,mac((ID_R[],N_R_1,T_R_1),K_R_GW[]))),K_Sj_GW[])),!1 = @sid_3]
+r2_1 = r2[m2 = (ID_Sj[],(ID_R[],N_R_1,T_R_1,mac((ID_R[],N_R_1,T_R_1),K_R_GW[])),mac((ID_Sj[],(ID_R[],N_R_1,T_R_1,mac((ID_R[],N_R_1,T_R_1),K_R_GW[]))),K_Sj_GW[])),!1 = @sid_3]
+r3_1 = r3[m2 = (ID_Sj[],(ID_R[],N_R_1,T_R_1,mac((ID_R[],N_R_1,T_R_1),K_R_GW[])),mac((ID_Sj[],(ID_R[],N_R_1,T_R_1,mac((ID_R[],N_R_1,T_R_1),K_R_GW[]))),K_Sj_GW[])),!1 = @sid_3]
+@occ97_1 = @occ97[mho_1 = (crt_pack3(pack_residue(recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),pack_residue(recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),pack_residue(recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),N1[],N2[],N3[]),ID_R[],senc(witness_payload2[],handover_kdf(K_S2_GW[],recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4)),mac((crt_pack3(pack_residue(recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),pack_residue(recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),pack_residue(recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),N1[],N2[],N3[]),ID_R[],senc(witness_payload2[],handover_kdf(K_S2_GW[],recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4))),handover_kdf(K_S2_GW[],recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4))),!1 = @sid]
+@occ97_2 = @occ97[mho_1 = (crt_pack3(pack_residue(recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),pack_residue(recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),pack_residue(recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),N1[],N2[],N3[]),ID_R[],senc(witness_payload2[],handover_kdf(K_S2_GW[],recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4)),mac((crt_pack3(pack_residue(recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),pack_residue(recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),pack_residue(recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),N1[],N2[],N3[]),ID_R[],senc(witness_payload2[],handover_kdf(K_S2_GW[],recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4))),handover_kdf(K_S2_GW[],recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4))),!1 = @sid_1]
+T_GW_1 = T_GW[m2 = (ID_Sj[],(ID_R[],N_R_1,T_R_1,mac((ID_R[],N_R_1,T_R_1),K_R_GW[])),mac((ID_Sj[],(ID_R[],N_R_1,T_R_1,mac((ID_R[],N_R_1,T_R_1),K_R_GW[]))),K_Sj_GW[])),!1 = @sid_3]
+@occ21_1 = @occ21[mr = (senc((N_R_1,crt_pack3(pack_residue(recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),pack_residue(recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),pack_residue(recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),N1[],N2[],N3[]),T_EXP_4,handover_kdf(K_S1_GW[],recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),handover_kdf(K_S2_GW[],recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),handover_kdf(K_S3_GW[],recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),access_kdf(K_Sj_GW[],N_R_1,T_GW_1)),K_R_GW[]),mac(senc((N_R_1,crt_pack3(pack_residue(recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),pack_residue(recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),pack_residue(recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),N1[],N2[],N3[]),T_EXP_4,handover_kdf(K_S1_GW[],recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),handover_kdf(K_S2_GW[],recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),handover_kdf(K_S3_GW[],recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),access_kdf(K_Sj_GW[],N_R_1,T_GW_1)),K_R_GW[]),K_R_GW[])),!1 = @sid_2]
+@occ17_1 = @occ17[mr = (senc((N_R_1,crt_pack3(pack_residue(recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),pack_residue(recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),pack_residue(recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),N1[],N2[],N3[]),T_EXP_4,handover_kdf(K_S1_GW[],recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),handover_kdf(K_S2_GW[],recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),handover_kdf(K_S3_GW[],recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),access_kdf(K_Sj_GW[],N_R_1,T_GW_1)),K_R_GW[]),mac(senc((N_R_1,crt_pack3(pack_residue(recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),pack_residue(recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),pack_residue(recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),N1[],N2[],N3[]),T_EXP_4,handover_kdf(K_S1_GW[],recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),handover_kdf(K_S2_GW[],recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),handover_kdf(K_S3_GW[],recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),access_kdf(K_Sj_GW[],N_R_1,T_GW_1)),K_R_GW[]),K_R_GW[])),!1 = @sid_2]
+
+Derivation:
+Abbreviations:
+N_R_1 = N_R[!1 = @sid]
+T_R_1 = T_R[!1 = @sid]
+r1_1 = r1[m2 = (ID_Sj[],(ID_R[],N_R_1,T_R_1,mac((ID_R[],N_R_1,T_R_1),K_R_GW[])),mac((ID_Sj[],(ID_R[],N_R_1,T_R_1,mac((ID_R[],N_R_1,T_R_1),K_R_GW[]))),K_Sj_GW[])),!1 = @sid_1]
+T_EXP_4 = T_EXP_1[m2 = (ID_Sj[],(ID_R[],N_R_1,T_R_1,mac((ID_R[],N_R_1,T_R_1),K_R_GW[])),mac((ID_Sj[],(ID_R[],N_R_1,T_R_1,mac((ID_R[],N_R_1,T_R_1),K_R_GW[]))),K_Sj_GW[])),!1 = @sid_1]
+r2_1 = r2[m2 = (ID_Sj[],(ID_R[],N_R_1,T_R_1,mac((ID_R[],N_R_1,T_R_1),K_R_GW[])),mac((ID_Sj[],(ID_R[],N_R_1,T_R_1,mac((ID_R[],N_R_1,T_R_1),K_R_GW[]))),K_Sj_GW[])),!1 = @sid_1]
+r3_1 = r3[m2 = (ID_Sj[],(ID_R[],N_R_1,T_R_1,mac((ID_R[],N_R_1,T_R_1),K_R_GW[])),mac((ID_Sj[],(ID_R[],N_R_1,T_R_1,mac((ID_R[],N_R_1,T_R_1),K_R_GW[]))),K_Sj_GW[])),!1 = @sid_1]
+@occ97_1 = @occ97[mho_1 = (crt_pack3(pack_residue(recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),pack_residue(recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),pack_residue(recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),N1[],N2[],N3[]),ID_R[],senc(witness_payload2[],handover_kdf(K_S2_GW[],recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4)),mac((crt_pack3(pack_residue(recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),pack_residue(recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),pack_residue(recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),N1[],N2[],N3[]),ID_R[],senc(witness_payload2[],handover_kdf(K_S2_GW[],recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4))),handover_kdf(K_S2_GW[],recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4))),!1 = @sid_2]
+@occ97_2 = @occ97[mho_1 = (crt_pack3(pack_residue(recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),pack_residue(recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),pack_residue(recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),N1[],N2[],N3[]),ID_R[],senc(witness_payload2[],handover_kdf(K_S2_GW[],recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4)),mac((crt_pack3(pack_residue(recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),pack_residue(recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),pack_residue(recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),N1[],N2[],N3[]),ID_R[],senc(witness_payload2[],handover_kdf(K_S2_GW[],recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4))),handover_kdf(K_S2_GW[],recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4))),!1 = @sid_3]
+T_GW_1 = T_GW[m2 = (ID_Sj[],(ID_R[],N_R_1,T_R_1,mac((ID_R[],N_R_1,T_R_1),K_R_GW[])),mac((ID_Sj[],(ID_R[],N_R_1,T_R_1,mac((ID_R[],N_R_1,T_R_1),K_R_GW[]))),K_Sj_GW[])),!1 = @sid_1]
+@occ17_1 = @occ17[mr = (senc((N_R_1,crt_pack3(pack_residue(recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),pack_residue(recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),pack_residue(recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),N1[],N2[],N3[]),T_EXP_4,handover_kdf(K_S1_GW[],recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),handover_kdf(K_S2_GW[],recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),handover_kdf(K_S3_GW[],recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),access_kdf(K_Sj_GW[],N_R_1,T_GW_1)),K_R_GW[]),mac(senc((N_R_1,crt_pack3(pack_residue(recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),pack_residue(recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),pack_residue(recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),N1[],N2[],N3[]),T_EXP_4,handover_kdf(K_S1_GW[],recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),handover_kdf(K_S2_GW[],recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),handover_kdf(K_S3_GW[],recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),access_kdf(K_Sj_GW[],N_R_1,T_GW_1)),K_R_GW[]),K_R_GW[])),!1 = @sid]
+@occ21_1 = @occ21[mr = (senc((N_R_1,crt_pack3(pack_residue(recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),pack_residue(recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),pack_residue(recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),N1[],N2[],N3[]),T_EXP_4,handover_kdf(K_S1_GW[],recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),handover_kdf(K_S2_GW[],recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),handover_kdf(K_S3_GW[],recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),access_kdf(K_Sj_GW[],N_R_1,T_GW_1)),K_R_GW[]),mac(senc((N_R_1,crt_pack3(pack_residue(recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),pack_residue(recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),pack_residue(recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),N1[],N2[],N3[]),T_EXP_4,handover_kdf(K_S1_GW[],recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),handover_kdf(K_S2_GW[],recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),handover_kdf(K_S3_GW[],recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),access_kdf(K_Sj_GW[],N_R_1,T_GW_1)),K_R_GW[]),K_R_GW[])),!1 = @sid]
+
+1. The message (ID_R[],N_R_1,T_R_1,mac((ID_R[],N_R_1,T_R_1),K_R_GW[])) may be sent to the attacker at output {8}.
+attacker((ID_R[],N_R_1,T_R_1,mac((ID_R[],N_R_1,T_R_1),K_R_GW[]))).
+
+2. By 1, the attacker may know (ID_R[],N_R_1,T_R_1,mac((ID_R[],N_R_1,T_R_1),K_R_GW[])).
+Using the function 4-proj-4-tuple the attacker may obtain mac((ID_R[],N_R_1,T_R_1),K_R_GW[]).
+attacker(mac((ID_R[],N_R_1,T_R_1),K_R_GW[])).
+
+3. By 1, the attacker may know (ID_R[],N_R_1,T_R_1,mac((ID_R[],N_R_1,T_R_1),K_R_GW[])).
+Using the function 3-proj-4-tuple the attacker may obtain T_R_1.
+attacker(T_R_1).
+
+4. By 1, the attacker may know (ID_R[],N_R_1,T_R_1,mac((ID_R[],N_R_1,T_R_1),K_R_GW[])).
+Using the function 2-proj-4-tuple the attacker may obtain N_R_1.
+attacker(N_R_1).
+
+5. The attacker initially knows ID_R[].
+attacker(ID_R[]).
+
+6. By 5, the attacker may know ID_R[].
+By 4, the attacker may know N_R_1.
+By 3, the attacker may know T_R_1.
+By 2, the attacker may know mac((ID_R[],N_R_1,T_R_1),K_R_GW[]).
+Using the function 4-tuple the attacker may obtain (ID_R[],N_R_1,T_R_1,mac((ID_R[],N_R_1,T_R_1),K_R_GW[])).
+attacker((ID_R[],N_R_1,T_R_1,mac((ID_R[],N_R_1,T_R_1),K_R_GW[]))).
+
+7. The message (ID_R[],N_R_1,T_R_1,mac((ID_R[],N_R_1,T_R_1),K_R_GW[])) that the attacker may have by 6 may be received at input {24}.
+So the message (ID_Sj[],(ID_R[],N_R_1,T_R_1,mac((ID_R[],N_R_1,T_R_1),K_R_GW[])),mac((ID_Sj[],(ID_R[],N_R_1,T_R_1,mac((ID_R[],N_R_1,T_R_1),K_R_GW[]))),K_Sj_GW[])) may be sent to the attacker at output {27}.
+attacker((ID_Sj[],(ID_R[],N_R_1,T_R_1,mac((ID_R[],N_R_1,T_R_1),K_R_GW[])),mac((ID_Sj[],(ID_R[],N_R_1,T_R_1,mac((ID_R[],N_R_1,T_R_1),K_R_GW[]))),K_Sj_GW[]))).
+
+8. By 7, the attacker may know (ID_Sj[],(ID_R[],N_R_1,T_R_1,mac((ID_R[],N_R_1,T_R_1),K_R_GW[])),mac((ID_Sj[],(ID_R[],N_R_1,T_R_1,mac((ID_R[],N_R_1,T_R_1),K_R_GW[]))),K_Sj_GW[])).
+Using the function 3-proj-3-tuple the attacker may obtain mac((ID_Sj[],(ID_R[],N_R_1,T_R_1,mac((ID_R[],N_R_1,T_R_1),K_R_GW[]))),K_Sj_GW[]).
+attacker(mac((ID_Sj[],(ID_R[],N_R_1,T_R_1,mac((ID_R[],N_R_1,T_R_1),K_R_GW[]))),K_Sj_GW[])).
+
+9. The attacker initially knows ID_Sj[].
+attacker(ID_Sj[]).
+
+10. By 9, the attacker may know ID_Sj[].
+By 6, the attacker may know (ID_R[],N_R_1,T_R_1,mac((ID_R[],N_R_1,T_R_1),K_R_GW[])).
+By 8, the attacker may know mac((ID_Sj[],(ID_R[],N_R_1,T_R_1,mac((ID_R[],N_R_1,T_R_1),K_R_GW[]))),K_Sj_GW[]).
+Using the function 3-tuple the attacker may obtain (ID_Sj[],(ID_R[],N_R_1,T_R_1,mac((ID_R[],N_R_1,T_R_1),K_R_GW[])),mac((ID_Sj[],(ID_R[],N_R_1,T_R_1,mac((ID_R[],N_R_1,T_R_1),K_R_GW[]))),K_Sj_GW[])).
+attacker((ID_Sj[],(ID_R[],N_R_1,T_R_1,mac((ID_R[],N_R_1,T_R_1),K_R_GW[])),mac((ID_Sj[],(ID_R[],N_R_1,T_R_1,mac((ID_R[],N_R_1,T_R_1),K_R_GW[]))),K_Sj_GW[]))).
+
+11. The message (ID_Sj[],(ID_R[],N_R_1,T_R_1,mac((ID_R[],N_R_1,T_R_1),K_R_GW[])),mac((ID_Sj[],(ID_R[],N_R_1,T_R_1,mac((ID_R[],N_R_1,T_R_1),K_R_GW[]))),K_Sj_GW[])) that the attacker may have by 10 may be received at input {34}.
+So the message (N_R_1,senc((ID_R[],access_kdf(K_Sj_GW[],N_R_1,T_GW_1)),K_Sj_GW[]),(senc((N_R_1,crt_pack3(pack_residue(recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),pack_residue(recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),pack_residue(recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),N1[],N2[],N3[]),T_EXP_4,handover_kdf(K_S1_GW[],recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),handover_kdf(K_S2_GW[],recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),handover_kdf(K_S3_GW[],recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),access_kdf(K_Sj_GW[],N_R_1,T_GW_1)),K_R_GW[]),mac(senc((N_R_1,crt_pack3(pack_residue(recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),pack_residue(recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),pack_residue(recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),N1[],N2[],N3[]),T_EXP_4,handover_kdf(K_S1_GW[],recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),handover_kdf(K_S2_GW[],recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),handover_kdf(K_S3_GW[],recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),access_kdf(K_Sj_GW[],N_R_1,T_GW_1)),K_R_GW[]),K_R_GW[])),mac((N_R_1,senc((ID_R[],access_kdf(K_Sj_GW[],N_R_1,T_GW_1)),K_Sj_GW[]),(senc((N_R_1,crt_pack3(pack_residue(recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),pack_residue(recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),pack_residue(recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),N1[],N2[],N3[]),T_EXP_4,handover_kdf(K_S1_GW[],recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),handover_kdf(K_S2_GW[],recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),handover_kdf(K_S3_GW[],recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),access_kdf(K_Sj_GW[],N_R_1,T_GW_1)),K_R_GW[]),mac(senc((N_R_1,crt_pack3(pack_residue(recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),pack_residue(recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),pack_residue(recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),N1[],N2[],N3[]),T_EXP_4,handover_kdf(K_S1_GW[],recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),handover_kdf(K_S2_GW[],recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),handover_kdf(K_S3_GW[],recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),access_kdf(K_Sj_GW[],N_R_1,T_GW_1)),K_R_GW[]),K_R_GW[]))),K_Sj_GW[])) may be sent to the attacker at output {66}.
+attacker((N_R_1,senc((ID_R[],access_kdf(K_Sj_GW[],N_R_1,T_GW_1)),K_Sj_GW[]),(senc((N_R_1,crt_pack3(pack_residue(recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),pack_residue(recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),pack_residue(recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),N1[],N2[],N3[]),T_EXP_4,handover_kdf(K_S1_GW[],recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),handover_kdf(K_S2_GW[],recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),handover_kdf(K_S3_GW[],recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),access_kdf(K_Sj_GW[],N_R_1,T_GW_1)),K_R_GW[]),mac(senc((N_R_1,crt_pack3(pack_residue(recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),pack_residue(recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),pack_residue(recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),N1[],N2[],N3[]),T_EXP_4,handover_kdf(K_S1_GW[],recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),handover_kdf(K_S2_GW[],recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),handover_kdf(K_S3_GW[],recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),access_kdf(K_Sj_GW[],N_R_1,T_GW_1)),K_R_GW[]),K_R_GW[])),mac((N_R_1,senc((ID_R[],access_kdf(K_Sj_GW[],N_R_1,T_GW_1)),K_Sj_GW[]),(senc((N_R_1,crt_pack3(pack_residue(recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),pack_residue(recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),pack_residue(recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),N1[],N2[],N3[]),T_EXP_4,handover_kdf(K_S1_GW[],recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),handover_kdf(K_S2_GW[],recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),handover_kdf(K_S3_GW[],recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),access_kdf(K_Sj_GW[],N_R_1,T_GW_1)),K_R_GW[]),mac(senc((N_R_1,crt_pack3(pack_residue(recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),pack_residue(recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),pack_residue(recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),N1[],N2[],N3[]),T_EXP_4,handover_kdf(K_S1_GW[],recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),handover_kdf(K_S2_GW[],recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),handover_kdf(K_S3_GW[],recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),access_kdf(K_Sj_GW[],N_R_1,T_GW_1)),K_R_GW[]),K_R_GW[]))),K_Sj_GW[]))).
+
+12. By 11, the attacker may know (N_R_1,senc((ID_R[],access_kdf(K_Sj_GW[],N_R_1,T_GW_1)),K_Sj_GW[]),(senc((N_R_1,crt_pack3(pack_residue(recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),pack_residue(recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),pack_residue(recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),N1[],N2[],N3[]),T_EXP_4,handover_kdf(K_S1_GW[],recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),handover_kdf(K_S2_GW[],recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),handover_kdf(K_S3_GW[],recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),access_kdf(K_Sj_GW[],N_R_1,T_GW_1)),K_R_GW[]),mac(senc((N_R_1,crt_pack3(pack_residue(recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),pack_residue(recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),pack_residue(recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),N1[],N2[],N3[]),T_EXP_4,handover_kdf(K_S1_GW[],recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),handover_kdf(K_S2_GW[],recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),handover_kdf(K_S3_GW[],recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),access_kdf(K_Sj_GW[],N_R_1,T_GW_1)),K_R_GW[]),K_R_GW[])),mac((N_R_1,senc((ID_R[],access_kdf(K_Sj_GW[],N_R_1,T_GW_1)),K_Sj_GW[]),(senc((N_R_1,crt_pack3(pack_residue(recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),pack_residue(recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),pack_residue(recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),N1[],N2[],N3[]),T_EXP_4,handover_kdf(K_S1_GW[],recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),handover_kdf(K_S2_GW[],recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),handover_kdf(K_S3_GW[],recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),access_kdf(K_Sj_GW[],N_R_1,T_GW_1)),K_R_GW[]),mac(senc((N_R_1,crt_pack3(pack_residue(recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),pack_residue(recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),pack_residue(recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),N1[],N2[],N3[]),T_EXP_4,handover_kdf(K_S1_GW[],recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),handover_kdf(K_S2_GW[],recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),handover_kdf(K_S3_GW[],recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),access_kdf(K_Sj_GW[],N_R_1,T_GW_1)),K_R_GW[]),K_R_GW[]))),K_Sj_GW[])).
+Using the function 3-proj-4-tuple the attacker may obtain (senc((N_R_1,crt_pack3(pack_residue(recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),pack_residue(recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),pack_residue(recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),N1[],N2[],N3[]),T_EXP_4,handover_kdf(K_S1_GW[],recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),handover_kdf(K_S2_GW[],recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),handover_kdf(K_S3_GW[],recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),access_kdf(K_Sj_GW[],N_R_1,T_GW_1)),K_R_GW[]),mac(senc((N_R_1,crt_pack3(pack_residue(recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),pack_residue(recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),pack_residue(recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),N1[],N2[],N3[]),T_EXP_4,handover_kdf(K_S1_GW[],recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),handover_kdf(K_S2_GW[],recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),handover_kdf(K_S3_GW[],recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),access_kdf(K_Sj_GW[],N_R_1,T_GW_1)),K_R_GW[]),K_R_GW[])).
+attacker((senc((N_R_1,crt_pack3(pack_residue(recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),pack_residue(recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),pack_residue(recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),N1[],N2[],N3[]),T_EXP_4,handover_kdf(K_S1_GW[],recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),handover_kdf(K_S2_GW[],recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),handover_kdf(K_S3_GW[],recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),access_kdf(K_Sj_GW[],N_R_1,T_GW_1)),K_R_GW[]),mac(senc((N_R_1,crt_pack3(pack_residue(recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),pack_residue(recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),pack_residue(recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),N1[],N2[],N3[]),T_EXP_4,handover_kdf(K_S1_GW[],recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),handover_kdf(K_S2_GW[],recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),handover_kdf(K_S3_GW[],recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),access_kdf(K_Sj_GW[],N_R_1,T_GW_1)),K_R_GW[]),K_R_GW[]))).
+
+13. By 12, the attacker may know (senc((N_R_1,crt_pack3(pack_residue(recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),pack_residue(recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),pack_residue(recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),N1[],N2[],N3[]),T_EXP_4,handover_kdf(K_S1_GW[],recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),handover_kdf(K_S2_GW[],recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),handover_kdf(K_S3_GW[],recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),access_kdf(K_Sj_GW[],N_R_1,T_GW_1)),K_R_GW[]),mac(senc((N_R_1,crt_pack3(pack_residue(recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),pack_residue(recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),pack_residue(recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),N1[],N2[],N3[]),T_EXP_4,handover_kdf(K_S1_GW[],recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),handover_kdf(K_S2_GW[],recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),handover_kdf(K_S3_GW[],recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),access_kdf(K_Sj_GW[],N_R_1,T_GW_1)),K_R_GW[]),K_R_GW[])).
+Using the function 2-proj-2-tuple the attacker may obtain mac(senc((N_R_1,crt_pack3(pack_residue(recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),pack_residue(recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),pack_residue(recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),N1[],N2[],N3[]),T_EXP_4,handover_kdf(K_S1_GW[],recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),handover_kdf(K_S2_GW[],recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),handover_kdf(K_S3_GW[],recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),access_kdf(K_Sj_GW[],N_R_1,T_GW_1)),K_R_GW[]),K_R_GW[]).
+attacker(mac(senc((N_R_1,crt_pack3(pack_residue(recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),pack_residue(recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),pack_residue(recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),N1[],N2[],N3[]),T_EXP_4,handover_kdf(K_S1_GW[],recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),handover_kdf(K_S2_GW[],recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),handover_kdf(K_S3_GW[],recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),access_kdf(K_Sj_GW[],N_R_1,T_GW_1)),K_R_GW[]),K_R_GW[])).
+
+14. By 12, the attacker may know (senc((N_R_1,crt_pack3(pack_residue(recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),pack_residue(recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),pack_residue(recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),N1[],N2[],N3[]),T_EXP_4,handover_kdf(K_S1_GW[],recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),handover_kdf(K_S2_GW[],recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),handover_kdf(K_S3_GW[],recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),access_kdf(K_Sj_GW[],N_R_1,T_GW_1)),K_R_GW[]),mac(senc((N_R_1,crt_pack3(pack_residue(recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),pack_residue(recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),pack_residue(recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),N1[],N2[],N3[]),T_EXP_4,handover_kdf(K_S1_GW[],recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),handover_kdf(K_S2_GW[],recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),handover_kdf(K_S3_GW[],recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),access_kdf(K_Sj_GW[],N_R_1,T_GW_1)),K_R_GW[]),K_R_GW[])).
+Using the function 1-proj-2-tuple the attacker may obtain senc((N_R_1,crt_pack3(pack_residue(recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),pack_residue(recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),pack_residue(recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),N1[],N2[],N3[]),T_EXP_4,handover_kdf(K_S1_GW[],recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),handover_kdf(K_S2_GW[],recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),handover_kdf(K_S3_GW[],recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),access_kdf(K_Sj_GW[],N_R_1,T_GW_1)),K_R_GW[]).
+attacker(senc((N_R_1,crt_pack3(pack_residue(recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),pack_residue(recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),pack_residue(recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),N1[],N2[],N3[]),T_EXP_4,handover_kdf(K_S1_GW[],recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),handover_kdf(K_S2_GW[],recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),handover_kdf(K_S3_GW[],recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),access_kdf(K_Sj_GW[],N_R_1,T_GW_1)),K_R_GW[])).
+
+15. By 14, the attacker may know senc((N_R_1,crt_pack3(pack_residue(recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),pack_residue(recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),pack_residue(recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),N1[],N2[],N3[]),T_EXP_4,handover_kdf(K_S1_GW[],recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),handover_kdf(K_S2_GW[],recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),handover_kdf(K_S3_GW[],recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),access_kdf(K_Sj_GW[],N_R_1,T_GW_1)),K_R_GW[]).
+By 13, the attacker may know mac(senc((N_R_1,crt_pack3(pack_residue(recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),pack_residue(recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),pack_residue(recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),N1[],N2[],N3[]),T_EXP_4,handover_kdf(K_S1_GW[],recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),handover_kdf(K_S2_GW[],recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),handover_kdf(K_S3_GW[],recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),access_kdf(K_Sj_GW[],N_R_1,T_GW_1)),K_R_GW[]),K_R_GW[]).
+Using the function 2-tuple the attacker may obtain (senc((N_R_1,crt_pack3(pack_residue(recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),pack_residue(recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),pack_residue(recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),N1[],N2[],N3[]),T_EXP_4,handover_kdf(K_S1_GW[],recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),handover_kdf(K_S2_GW[],recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),handover_kdf(K_S3_GW[],recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),access_kdf(K_Sj_GW[],N_R_1,T_GW_1)),K_R_GW[]),mac(senc((N_R_1,crt_pack3(pack_residue(recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),pack_residue(recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),pack_residue(recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),N1[],N2[],N3[]),T_EXP_4,handover_kdf(K_S1_GW[],recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),handover_kdf(K_S2_GW[],recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),handover_kdf(K_S3_GW[],recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),access_kdf(K_Sj_GW[],N_R_1,T_GW_1)),K_R_GW[]),K_R_GW[])).
+attacker((senc((N_R_1,crt_pack3(pack_residue(recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),pack_residue(recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),pack_residue(recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),N1[],N2[],N3[]),T_EXP_4,handover_kdf(K_S1_GW[],recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),handover_kdf(K_S2_GW[],recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),handover_kdf(K_S3_GW[],recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),access_kdf(K_Sj_GW[],N_R_1,T_GW_1)),K_R_GW[]),mac(senc((N_R_1,crt_pack3(pack_residue(recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),pack_residue(recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),pack_residue(recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),N1[],N2[],N3[]),T_EXP_4,handover_kdf(K_S1_GW[],recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),handover_kdf(K_S2_GW[],recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),handover_kdf(K_S3_GW[],recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),access_kdf(K_Sj_GW[],N_R_1,T_GW_1)),K_R_GW[]),K_R_GW[]))).
+
+16. The message (senc((N_R_1,crt_pack3(pack_residue(recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),pack_residue(recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),pack_residue(recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),N1[],N2[],N3[]),T_EXP_4,handover_kdf(K_S1_GW[],recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),handover_kdf(K_S2_GW[],recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),handover_kdf(K_S3_GW[],recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),access_kdf(K_Sj_GW[],N_R_1,T_GW_1)),K_R_GW[]),mac(senc((N_R_1,crt_pack3(pack_residue(recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),pack_residue(recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),pack_residue(recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),N1[],N2[],N3[]),T_EXP_4,handover_kdf(K_S1_GW[],recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),handover_kdf(K_S2_GW[],recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),handover_kdf(K_S3_GW[],recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),access_kdf(K_Sj_GW[],N_R_1,T_GW_1)),K_R_GW[]),K_R_GW[])) that the attacker may have by 15 may be received at input {9}.
+The event BegHandover(ID_R[],ID_S1[],crt_pack3(pack_residue(recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),pack_residue(recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),pack_residue(recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),N1[],N2[],N3[]),senc(witness_payload1[],handover_kdf(K_S1_GW[],recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4)),handover_kdf(K_S1_GW[],recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4)) (with occurrence name @occ17_1) may be executed at {17}.
+The event BegHandover(ID_R[],ID_S2[],crt_pack3(pack_residue(recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),pack_residue(recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),pack_residue(recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),N1[],N2[],N3[]),senc(witness_payload2[],handover_kdf(K_S2_GW[],recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4)),handover_kdf(K_S2_GW[],recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4)) (with occurrence name @occ21_1) may be executed at {21}.
+So the message (crt_pack3(pack_residue(recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),pack_residue(recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),pack_residue(recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),N1[],N2[],N3[]),ID_R[],senc(witness_payload2[],handover_kdf(K_S2_GW[],recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4)),mac((crt_pack3(pack_residue(recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),pack_residue(recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),pack_residue(recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),N1[],N2[],N3[]),ID_R[],senc(witness_payload2[],handover_kdf(K_S2_GW[],recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4))),handover_kdf(K_S2_GW[],recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4))) may be sent to the attacker at output {22}.
+attacker((crt_pack3(pack_residue(recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),pack_residue(recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),pack_residue(recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),N1[],N2[],N3[]),ID_R[],senc(witness_payload2[],handover_kdf(K_S2_GW[],recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4)),mac((crt_pack3(pack_residue(recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),pack_residue(recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),pack_residue(recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),N1[],N2[],N3[]),ID_R[],senc(witness_payload2[],handover_kdf(K_S2_GW[],recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4))),handover_kdf(K_S2_GW[],recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4)))).
+
+17. By 16, the attacker may know (crt_pack3(pack_residue(recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),pack_residue(recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),pack_residue(recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),N1[],N2[],N3[]),ID_R[],senc(witness_payload2[],handover_kdf(K_S2_GW[],recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4)),mac((crt_pack3(pack_residue(recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),pack_residue(recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),pack_residue(recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),N1[],N2[],N3[]),ID_R[],senc(witness_payload2[],handover_kdf(K_S2_GW[],recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4))),handover_kdf(K_S2_GW[],recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4))).
+Using the function 4-proj-4-tuple the attacker may obtain mac((crt_pack3(pack_residue(recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),pack_residue(recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),pack_residue(recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),N1[],N2[],N3[]),ID_R[],senc(witness_payload2[],handover_kdf(K_S2_GW[],recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4))),handover_kdf(K_S2_GW[],recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4)).
+attacker(mac((crt_pack3(pack_residue(recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),pack_residue(recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),pack_residue(recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),N1[],N2[],N3[]),ID_R[],senc(witness_payload2[],handover_kdf(K_S2_GW[],recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4))),handover_kdf(K_S2_GW[],recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4))).
+
+18. By 16, the attacker may know (crt_pack3(pack_residue(recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),pack_residue(recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),pack_residue(recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),N1[],N2[],N3[]),ID_R[],senc(witness_payload2[],handover_kdf(K_S2_GW[],recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4)),mac((crt_pack3(pack_residue(recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),pack_residue(recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),pack_residue(recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),N1[],N2[],N3[]),ID_R[],senc(witness_payload2[],handover_kdf(K_S2_GW[],recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4))),handover_kdf(K_S2_GW[],recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4))).
+Using the function 3-proj-4-tuple the attacker may obtain senc(witness_payload2[],handover_kdf(K_S2_GW[],recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4)).
+attacker(senc(witness_payload2[],handover_kdf(K_S2_GW[],recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4))).
+
+19. The message (senc((N_R_1,crt_pack3(pack_residue(recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),pack_residue(recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),pack_residue(recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),N1[],N2[],N3[]),T_EXP_4,handover_kdf(K_S1_GW[],recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),handover_kdf(K_S2_GW[],recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),handover_kdf(K_S3_GW[],recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),access_kdf(K_Sj_GW[],N_R_1,T_GW_1)),K_R_GW[]),mac(senc((N_R_1,crt_pack3(pack_residue(recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),pack_residue(recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),pack_residue(recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),N1[],N2[],N3[]),T_EXP_4,handover_kdf(K_S1_GW[],recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),handover_kdf(K_S2_GW[],recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),handover_kdf(K_S3_GW[],recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),access_kdf(K_Sj_GW[],N_R_1,T_GW_1)),K_R_GW[]),K_R_GW[])) that the attacker may have by 15 may be received at input {9}.
+The event BegHandover(ID_R[],ID_S1[],crt_pack3(pack_residue(recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),pack_residue(recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),pack_residue(recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),N1[],N2[],N3[]),senc(witness_payload1[],handover_kdf(K_S1_GW[],recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4)),handover_kdf(K_S1_GW[],recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4)) (with occurrence name @occ17_1) may be executed at {17}.
+So the message (crt_pack3(pack_residue(recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),pack_residue(recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),pack_residue(recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),N1[],N2[],N3[]),ID_R[],senc(witness_payload1[],handover_kdf(K_S1_GW[],recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4)),mac((crt_pack3(pack_residue(recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),pack_residue(recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),pack_residue(recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),N1[],N2[],N3[]),ID_R[],senc(witness_payload1[],handover_kdf(K_S1_GW[],recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4))),handover_kdf(K_S1_GW[],recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4))) may be sent to the attacker at output {18}.
+attacker((crt_pack3(pack_residue(recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),pack_residue(recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),pack_residue(recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),N1[],N2[],N3[]),ID_R[],senc(witness_payload1[],handover_kdf(K_S1_GW[],recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4)),mac((crt_pack3(pack_residue(recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),pack_residue(recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),pack_residue(recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),N1[],N2[],N3[]),ID_R[],senc(witness_payload1[],handover_kdf(K_S1_GW[],recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4))),handover_kdf(K_S1_GW[],recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4)))).
+
+20. By 19, the attacker may know (crt_pack3(pack_residue(recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),pack_residue(recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),pack_residue(recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),N1[],N2[],N3[]),ID_R[],senc(witness_payload1[],handover_kdf(K_S1_GW[],recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4)),mac((crt_pack3(pack_residue(recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),pack_residue(recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),pack_residue(recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),N1[],N2[],N3[]),ID_R[],senc(witness_payload1[],handover_kdf(K_S1_GW[],recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4))),handover_kdf(K_S1_GW[],recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4))).
+Using the function 1-proj-4-tuple the attacker may obtain crt_pack3(pack_residue(recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),pack_residue(recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),pack_residue(recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),N1[],N2[],N3[]).
+attacker(crt_pack3(pack_residue(recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),pack_residue(recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),pack_residue(recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),N1[],N2[],N3[])).
+
+21. By 20, the attacker may know crt_pack3(pack_residue(recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),pack_residue(recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),pack_residue(recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),N1[],N2[],N3[]).
+By 5, the attacker may know ID_R[].
+By 18, the attacker may know senc(witness_payload2[],handover_kdf(K_S2_GW[],recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4)).
+By 17, the attacker may know mac((crt_pack3(pack_residue(recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),pack_residue(recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),pack_residue(recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),N1[],N2[],N3[]),ID_R[],senc(witness_payload2[],handover_kdf(K_S2_GW[],recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4))),handover_kdf(K_S2_GW[],recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4)).
+Using the function 4-tuple the attacker may obtain (crt_pack3(pack_residue(recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),pack_residue(recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),pack_residue(recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),N1[],N2[],N3[]),ID_R[],senc(witness_payload2[],handover_kdf(K_S2_GW[],recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4)),mac((crt_pack3(pack_residue(recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),pack_residue(recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),pack_residue(recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),N1[],N2[],N3[]),ID_R[],senc(witness_payload2[],handover_kdf(K_S2_GW[],recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4))),handover_kdf(K_S2_GW[],recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4))).
+attacker((crt_pack3(pack_residue(recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),pack_residue(recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),pack_residue(recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),N1[],N2[],N3[]),ID_R[],senc(witness_payload2[],handover_kdf(K_S2_GW[],recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4)),mac((crt_pack3(pack_residue(recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),pack_residue(recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),pack_residue(recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),N1[],N2[],N3[]),ID_R[],senc(witness_payload2[],handover_kdf(K_S2_GW[],recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4))),handover_kdf(K_S2_GW[],recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4)))).
+
+22. The message (ID_Sj[],(ID_R[],N_R_1,T_R_1,mac((ID_R[],N_R_1,T_R_1),K_R_GW[])),mac((ID_Sj[],(ID_R[],N_R_1,T_R_1,mac((ID_R[],N_R_1,T_R_1),K_R_GW[]))),K_Sj_GW[])) that the attacker may have by 10 may be received at input {34}.
+So the entry valid_expiration(T_EXP_4) may be inserted in a table at insert {55}.
+table(valid_expiration(T_EXP_4)).
+
+23. The message lock_token2[] may be sent on channel trc_lock2[] at output {2}.
+mess(trc_lock2[],lock_token2[]).
+
+24. The message (crt_pack3(pack_residue(recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),pack_residue(recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),pack_residue(recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),N1[],N2[],N3[]),ID_R[],senc(witness_payload2[],handover_kdf(K_S2_GW[],recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4)),mac((crt_pack3(pack_residue(recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),pack_residue(recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),pack_residue(recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),N1[],N2[],N3[]),ID_R[],senc(witness_payload2[],handover_kdf(K_S2_GW[],recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4))),handover_kdf(K_S2_GW[],recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4))) that the attacker may have by 21 may be received at input {86}.
+The entry valid_expiration(T_EXP_4) that may be in a table by 22 may be read at get {101}.
+The message lock_token2[] that may be sent on channel trc_lock2[] by 23 may be received at input {94}.
+We have N1[] ≠ N2[].
+So event EndHandover(ID_R[],ID_S2[],crt_pack3(pack_residue(recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),pack_residue(recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),pack_residue(recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),N1[],N2[],N3[]),senc(witness_payload2[],handover_kdf(K_S2_GW[],recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4)),handover_kdf(K_S2_GW[],recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4)) may be executed at {97} in session @sid_3.
+inj-event(EndHandover(ID_R[],ID_S2[],crt_pack3(pack_residue(recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),pack_residue(recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),pack_residue(recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),N1[],N2[],N3[]),senc(witness_payload2[],handover_kdf(K_S2_GW[],recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4)),handover_kdf(K_S2_GW[],recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4)),@occ97_2).
+
+25. By 24, inj-event(EndHandover(ID_R[],ID_S2[],crt_pack3(pack_residue(recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),pack_residue(recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),pack_residue(recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),N1[],N2[],N3[]),senc(witness_payload2[],handover_kdf(K_S2_GW[],recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4)),handover_kdf(K_S2_GW[],recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4)),@occ97_2).
+The goal is reached, represented in the following fact:
+inj-event(EndHandover(ID_R[],ID_S2[],crt_pack3(pack_residue(recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),pack_residue(recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),pack_residue(recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),N1[],N2[],N3[]),senc(witness_payload2[],handover_kdf(K_S2_GW[],recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4)),handover_kdf(K_S2_GW[],recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4)),@occ97_2).
+
+26. The message (crt_pack3(pack_residue(recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),pack_residue(recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),pack_residue(recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),N1[],N2[],N3[]),ID_R[],senc(witness_payload2[],handover_kdf(K_S2_GW[],recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4)),mac((crt_pack3(pack_residue(recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),pack_residue(recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),pack_residue(recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),N1[],N2[],N3[]),ID_R[],senc(witness_payload2[],handover_kdf(K_S2_GW[],recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4))),handover_kdf(K_S2_GW[],recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4))) that the attacker may have by 21 may be received at input {86}.
+The entry valid_expiration(T_EXP_4) that may be in a table by 22 may be read at get {101}.
+The message lock_token2[] that may be sent on channel trc_lock2[] by 23 may be received at input {94}.
+We have N1[] ≠ N2[].
+So event EndHandover(ID_R[],ID_S2[],crt_pack3(pack_residue(recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),pack_residue(recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),pack_residue(recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),N1[],N2[],N3[]),senc(witness_payload2[],handover_kdf(K_S2_GW[],recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4)),handover_kdf(K_S2_GW[],recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4)) may be executed at {97} in session @sid_2.
+inj-event(EndHandover(ID_R[],ID_S2[],crt_pack3(pack_residue(recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),pack_residue(recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),pack_residue(recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),N1[],N2[],N3[]),senc(witness_payload2[],handover_kdf(K_S2_GW[],recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4)),handover_kdf(K_S2_GW[],recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4)),@occ97_1).
+
+27. By 26, inj-event(EndHandover(ID_R[],ID_S2[],crt_pack3(pack_residue(recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),pack_residue(recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),pack_residue(recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),N1[],N2[],N3[]),senc(witness_payload2[],handover_kdf(K_S2_GW[],recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4)),handover_kdf(K_S2_GW[],recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4)),@occ97_1).
+The goal is reached, represented in the following fact:
+inj-event(EndHandover(ID_R[],ID_S2[],crt_pack3(pack_residue(recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),pack_residue(recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),pack_residue(recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),N1[],N2[],N3[]),senc(witness_payload2[],handover_kdf(K_S2_GW[],recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4)),handover_kdf(K_S2_GW[],recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4)),@occ97_1).
+
+28. By 27, inj-event(EndHandover(ID_R[],ID_S2[],crt_pack3(pack_residue(recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),pack_residue(recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),pack_residue(recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),N1[],N2[],N3[]),senc(witness_payload2[],handover_kdf(K_S2_GW[],recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4)),handover_kdf(K_S2_GW[],recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4)),@occ97_1).
+By 25, inj-event(EndHandover(ID_R[],ID_S2[],crt_pack3(pack_residue(recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),pack_residue(recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),pack_residue(recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),N1[],N2[],N3[]),senc(witness_payload2[],handover_kdf(K_S2_GW[],recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4)),handover_kdf(K_S2_GW[],recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4)),@occ97_2).
+We have @occ97_1 ≠ @occ97_2.
+The goals for injectivity are reached, combined in the following fact:
+inj-event(EndHandover(ID_R[],ID_S2[],crt_pack3(pack_residue(recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),pack_residue(recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),pack_residue(recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),N1[],N2[],N3[]),senc(witness_payload2[],handover_kdf(K_S2_GW[],recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4)),handover_kdf(K_S2_GW[],recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4)),@occ97_1) && inj-event(EndHandover(ID_R[],ID_S2[],crt_pack3(pack_residue(recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),pack_residue(recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),pack_residue(recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),N1[],N2[],N3[]),senc(witness_payload2[],handover_kdf(K_S2_GW[],recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4)),handover_kdf(K_S2_GW[],recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4)),@occ97_2).
+
+
+Could not find a trace corresponding to this derivation.
+RESULT inj-event(EndHandover(r,s,c,ct,k)) ==> inj-event(BegHandover(r,s,c,ct,k)) cannot be proved.
+RESULT (but event(EndHandover(r,s,c,ct,k)) ==> event(BegHandover(r,s,c,ct,k)) is true.)
+-- Query event(EndHandover(r,s,c,ct,k)) ==> event(BegHandover(r,s,c,ct,k)) in process 1.
+Translating the process into Horn clauses...
+Completing...
+200 rules inserted. Base: 175 rules (32 with conclusion selected). Queue: 39 rules.
+400 rules inserted. Base: 301 rules (48 with conclusion selected). Queue: 28 rules.
+Starting query event(EndHandover(r,s,c,ct,k)) ==> event(BegHandover(r,s,c,ct,k))
+goal reachable: b-event(BegHandover(ID_R[],ID_S2[],crt_pack3(pack_residue(recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),pack_residue(recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),pack_residue(recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),N1[],N2[],N3[]),senc(witness_payload2[],handover_kdf(K_S2_GW[],recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4)),handover_kdf(K_S2_GW[],recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4))) && b-event(BegHandover(ID_R[],ID_S1[],crt_pack3(pack_residue(recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),pack_residue(recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),pack_residue(recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),N1[],N2[],N3[]),senc(witness_payload1[],handover_kdf(K_S1_GW[],recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4)),handover_kdf(K_S1_GW[],recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4))) -> event(EndHandover(ID_R[],ID_S2[],crt_pack3(pack_residue(recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),pack_residue(recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),pack_residue(recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),N1[],N2[],N3[]),senc(witness_payload2[],handover_kdf(K_S2_GW[],recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4)),handover_kdf(K_S2_GW[],recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4)))
+Abbreviations:
+N_R_1 = N_R[!1 = @sid]
+T_R_1 = T_R[!1 = @sid]
+r1_1 = r1[m2 = (ID_Sj[],(ID_R[],N_R_1,T_R_1,mac((ID_R[],N_R_1,T_R_1),K_R_GW[])),mac((ID_Sj[],(ID_R[],N_R_1,T_R_1,mac((ID_R[],N_R_1,T_R_1),K_R_GW[]))),K_Sj_GW[])),!1 = @sid_1]
+T_EXP_4 = T_EXP_1[m2 = (ID_Sj[],(ID_R[],N_R_1,T_R_1,mac((ID_R[],N_R_1,T_R_1),K_R_GW[])),mac((ID_Sj[],(ID_R[],N_R_1,T_R_1,mac((ID_R[],N_R_1,T_R_1),K_R_GW[]))),K_Sj_GW[])),!1 = @sid_1]
+r2_1 = r2[m2 = (ID_Sj[],(ID_R[],N_R_1,T_R_1,mac((ID_R[],N_R_1,T_R_1),K_R_GW[])),mac((ID_Sj[],(ID_R[],N_R_1,T_R_1,mac((ID_R[],N_R_1,T_R_1),K_R_GW[]))),K_Sj_GW[])),!1 = @sid_1]
+r3_1 = r3[m2 = (ID_Sj[],(ID_R[],N_R_1,T_R_1,mac((ID_R[],N_R_1,T_R_1),K_R_GW[])),mac((ID_Sj[],(ID_R[],N_R_1,T_R_1,mac((ID_R[],N_R_1,T_R_1),K_R_GW[]))),K_Sj_GW[])),!1 = @sid_1]
+goal reachable: b-event(BegHandover(ID_R[],ID_S1[],crt_pack3(pack_residue(recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),pack_residue(recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),pack_residue(recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),N1[],N2[],N3[]),senc(witness_payload1[],handover_kdf(K_S1_GW[],recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4)),handover_kdf(K_S1_GW[],recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4))) -> event(EndHandover(ID_R[],ID_S1[],crt_pack3(pack_residue(recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),pack_residue(recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),pack_residue(recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),N1[],N2[],N3[]),senc(witness_payload1[],handover_kdf(K_S1_GW[],recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4)),handover_kdf(K_S1_GW[],recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4)))
+Abbreviations:
+N_R_1 = N_R[!1 = @sid]
+T_R_1 = T_R[!1 = @sid]
+r1_1 = r1[m2 = (ID_Sj[],(ID_R[],N_R_1,T_R_1,mac((ID_R[],N_R_1,T_R_1),K_R_GW[])),mac((ID_Sj[],(ID_R[],N_R_1,T_R_1,mac((ID_R[],N_R_1,T_R_1),K_R_GW[]))),K_Sj_GW[])),!1 = @sid_1]
+T_EXP_4 = T_EXP_1[m2 = (ID_Sj[],(ID_R[],N_R_1,T_R_1,mac((ID_R[],N_R_1,T_R_1),K_R_GW[])),mac((ID_Sj[],(ID_R[],N_R_1,T_R_1,mac((ID_R[],N_R_1,T_R_1),K_R_GW[]))),K_Sj_GW[])),!1 = @sid_1]
+r2_1 = r2[m2 = (ID_Sj[],(ID_R[],N_R_1,T_R_1,mac((ID_R[],N_R_1,T_R_1),K_R_GW[])),mac((ID_Sj[],(ID_R[],N_R_1,T_R_1,mac((ID_R[],N_R_1,T_R_1),K_R_GW[]))),K_Sj_GW[])),!1 = @sid_1]
+r3_1 = r3[m2 = (ID_Sj[],(ID_R[],N_R_1,T_R_1,mac((ID_R[],N_R_1,T_R_1),K_R_GW[])),mac((ID_Sj[],(ID_R[],N_R_1,T_R_1,mac((ID_R[],N_R_1,T_R_1),K_R_GW[]))),K_Sj_GW[])),!1 = @sid_1]
+RESULT event(EndHandover(r,s,c,ct,k)) ==> event(BegHandover(r,s,c,ct,k)) is true.
+-- Query event(EndHandover(r,s,c,ct,k)) ==> event(GWIssue(r,s,c,k)) in process 1.
+Translating the process into Horn clauses...
+Completing...
+200 rules inserted. Base: 175 rules (32 with conclusion selected). Queue: 39 rules.
+400 rules inserted. Base: 300 rules (48 with conclusion selected). Queue: 25 rules.
+Starting query event(EndHandover(r,s,c,ct,k)) ==> event(GWIssue(r,s,c,k))
+goal reachable: b-event(GWIssue(ID_R[],ID_S2[],crt_pack3(pack_residue(recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),pack_residue(recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),pack_residue(recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),N1[],N2[],N3[]),handover_kdf(K_S2_GW[],recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4))) && b-event(GWIssue(ID_R[],ID_S1[],crt_pack3(pack_residue(recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),pack_residue(recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),pack_residue(recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),N1[],N2[],N3[]),handover_kdf(K_S1_GW[],recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4))) -> event(EndHandover(ID_R[],ID_S2[],crt_pack3(pack_residue(recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),pack_residue(recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),pack_residue(recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),N1[],N2[],N3[]),senc(witness_payload2[],handover_kdf(K_S2_GW[],recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4)),handover_kdf(K_S2_GW[],recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4)))
+Abbreviations:
+N_R_1 = N_R[!1 = @sid]
+T_R_1 = T_R[!1 = @sid]
+r1_1 = r1[m2 = (ID_Sj[],(ID_R[],N_R_1,T_R_1,mac((ID_R[],N_R_1,T_R_1),K_R_GW[])),mac((ID_Sj[],(ID_R[],N_R_1,T_R_1,mac((ID_R[],N_R_1,T_R_1),K_R_GW[]))),K_Sj_GW[])),!1 = @sid_1]
+T_EXP_4 = T_EXP_1[m2 = (ID_Sj[],(ID_R[],N_R_1,T_R_1,mac((ID_R[],N_R_1,T_R_1),K_R_GW[])),mac((ID_Sj[],(ID_R[],N_R_1,T_R_1,mac((ID_R[],N_R_1,T_R_1),K_R_GW[]))),K_Sj_GW[])),!1 = @sid_1]
+r2_1 = r2[m2 = (ID_Sj[],(ID_R[],N_R_1,T_R_1,mac((ID_R[],N_R_1,T_R_1),K_R_GW[])),mac((ID_Sj[],(ID_R[],N_R_1,T_R_1,mac((ID_R[],N_R_1,T_R_1),K_R_GW[]))),K_Sj_GW[])),!1 = @sid_1]
+r3_1 = r3[m2 = (ID_Sj[],(ID_R[],N_R_1,T_R_1,mac((ID_R[],N_R_1,T_R_1),K_R_GW[])),mac((ID_Sj[],(ID_R[],N_R_1,T_R_1,mac((ID_R[],N_R_1,T_R_1),K_R_GW[]))),K_Sj_GW[])),!1 = @sid_1]
+goal reachable: b-event(GWIssue(ID_R[],ID_S2[],crt_pack3(pack_residue(recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),pack_residue(recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),pack_residue(recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),N1[],N2[],N3[]),handover_kdf(K_S2_GW[],recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4))) && b-event(GWIssue(ID_R[],ID_S1[],crt_pack3(pack_residue(recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),pack_residue(recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),pack_residue(recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),N1[],N2[],N3[]),handover_kdf(K_S1_GW[],recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4))) -> event(EndHandover(ID_R[],ID_S1[],crt_pack3(pack_residue(recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4),pack_residue(recovery_hash((r2_1,ID_R[],ID_S2[])),T_EXP_4),pack_residue(recovery_hash((r3_1,ID_R[],ID_S3[])),T_EXP_4),N1[],N2[],N3[]),senc(witness_payload1[],handover_kdf(K_S1_GW[],recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4)),handover_kdf(K_S1_GW[],recovery_hash((r1_1,ID_R[],ID_S1[])),T_EXP_4)))
+Abbreviations:
+N_R_1 = N_R[!1 = @sid]
+T_R_1 = T_R[!1 = @sid]
+r1_1 = r1[m2 = (ID_Sj[],(ID_R[],N_R_1,T_R_1,mac((ID_R[],N_R_1,T_R_1),K_R_GW[])),mac((ID_Sj[],(ID_R[],N_R_1,T_R_1,mac((ID_R[],N_R_1,T_R_1),K_R_GW[]))),K_Sj_GW[])),!1 = @sid_1]
+T_EXP_4 = T_EXP_1[m2 = (ID_Sj[],(ID_R[],N_R_1,T_R_1,mac((ID_R[],N_R_1,T_R_1),K_R_GW[])),mac((ID_Sj[],(ID_R[],N_R_1,T_R_1,mac((ID_R[],N_R_1,T_R_1),K_R_GW[]))),K_Sj_GW[])),!1 = @sid_1]
+r2_1 = r2[m2 = (ID_Sj[],(ID_R[],N_R_1,T_R_1,mac((ID_R[],N_R_1,T_R_1),K_R_GW[])),mac((ID_Sj[],(ID_R[],N_R_1,T_R_1,mac((ID_R[],N_R_1,T_R_1),K_R_GW[]))),K_Sj_GW[])),!1 = @sid_1]
+r3_1 = r3[m2 = (ID_Sj[],(ID_R[],N_R_1,T_R_1,mac((ID_R[],N_R_1,T_R_1),K_R_GW[])),mac((ID_Sj[],(ID_R[],N_R_1,T_R_1,mac((ID_R[],N_R_1,T_R_1),K_R_GW[]))),K_Sj_GW[])),!1 = @sid_1]
+RESULT event(EndHandover(r,s,c,ct,k)) ==> event(GWIssue(r,s,c,k)) is true.
+
+--------------------------------------------------------------
+Verification summary:
+
+Query not attacker(witness_Sj[]) is true.
+
+Query not attacker(witness_S1[]) is true.
+
+Query not attacker(witness_S2[]) is true.
+
+Query not attacker(witness_payload1[]) is true.
+
+Query not attacker(witness_payload2[]) is true.
+
+Query not attacker(witness_rho1[]) is true.
+
+Query not attacker(witness_rho2[]) is true.
+
+Query not attacker(witness_eta1[]) is true.
+
+Query not attacker(witness_eta2[]) is true.
+
+Query not attacker(witness_expiration[]) is true.
+
+Query not attacker(N1[]) is true.
+
+Query not attacker(N2[]) is true.
+
+Query inj-event(EndAccess(r,s,n)) ==> inj-event(BegAccess(r,s,n)) is true.
+
+Query inj-event(EndHandover(r,s,c,ct,k)) ==> inj-event(BegHandover(r,s,c,ct,k)) cannot be proved.
+
+Query event(EndHandover(r,s,c,ct,k)) ==> event(BegHandover(r,s,c,ct,k)) is true.
+
+Query event(EndHandover(r,s,c,ct,k)) ==> event(GWIssue(r,s,c,k)) is true.
+
+--------------------------------------------------------------
+

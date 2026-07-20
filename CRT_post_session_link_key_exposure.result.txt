@@ -1,0 +1,143 @@
+Process 0 (that is, the initial process):
+{1}new r1: bitstring;
+{2}new r2: bitstring;
+{3}new r3: bitstring;
+{4}new T_EXP: bitstring;
+{5}let eta1: bitstring = recovery_hash((r1,ID_R,ID_S1)) in
+{6}let eta2: bitstring = recovery_hash((r2,ID_R,ID_S2)) in
+{7}let eta3: bitstring = recovery_hash((r3,ID_R,ID_S3)) in
+{8}let rho1: bitstring = pack_residue(eta1,T_EXP) in
+{9}let rho2: bitstring = pack_residue(eta2,T_EXP) in
+{10}let rho3: bitstring = pack_residue(eta3,T_EXP) in
+{11}let C: bitstring = crt_pack3(rho1,rho2,rho3,N1,N2,N3) in
+{12}let SK1: bitstring = handover_kdf(K_S1_GW,eta1,T_EXP) in
+{13}let CT_data: bitstring = senc(witness_past_payload,SK1) in
+{14}let tag_ho: bitstring = mac((C,ID_R,CT_data),SK1) in
+{15}out(ch, (C,ID_R,CT_data,tag_ho));
+{16}out(ch, senc(witness_past_key,SK1));
+{17}out(ch, senc(witness_eta1,eta1));
+{18}out(ch, senc(witness_expiration,T_EXP));
+{19}event SessionComplete(C,K_S1_GW);
+{20}phase 1;
+{21}out(ch, K_S1_GW);
+{22}event PostSessionLTKExposure(C)
+
+--  Process 1 (that is, process 0, with let moved downwards):
+{1}new r1: bitstring;
+{2}new r2: bitstring;
+{3}new r3: bitstring;
+{4}new T_EXP: bitstring;
+{5}let eta1: bitstring = recovery_hash((r1,ID_R,ID_S1)) in
+{12}let SK1: bitstring = handover_kdf(K_S1_GW,eta1,T_EXP) in
+{13}let CT_data: bitstring = senc(witness_past_payload,SK1) in
+{7}let eta3: bitstring = recovery_hash((r3,ID_R,ID_S3)) in
+{10}let rho3: bitstring = pack_residue(eta3,T_EXP) in
+{6}let eta2: bitstring = recovery_hash((r2,ID_R,ID_S2)) in
+{9}let rho2: bitstring = pack_residue(eta2,T_EXP) in
+{8}let rho1: bitstring = pack_residue(eta1,T_EXP) in
+{11}let C: bitstring = crt_pack3(rho1,rho2,rho3,N1,N2,N3) in
+{14}let tag_ho: bitstring = mac((C,ID_R,CT_data),SK1) in
+{15}out(ch, (C,ID_R,CT_data,tag_ho));
+{16}out(ch, senc(witness_past_key,SK1));
+{17}out(ch, senc(witness_eta1,eta1));
+{18}out(ch, senc(witness_expiration,T_EXP));
+{19}event SessionComplete(C,K_S1_GW);
+{20}phase 1;
+{21}out(ch, K_S1_GW);
+{22}event PostSessionLTKExposure(C)
+
+-- Query not attacker_p1(witness_past_key[]) in process 1.
+Translating the process into Horn clauses...
+Completing...
+Starting query not attacker_p1(witness_past_key[])
+RESULT not attacker_p1(witness_past_key[]) is true.
+-- Query not attacker_p1(witness_past_payload[]) in process 1.
+Translating the process into Horn clauses...
+Completing...
+Starting query not attacker_p1(witness_past_payload[])
+RESULT not attacker_p1(witness_past_payload[]) is true.
+-- Query not attacker_p1(witness_eta1[]) in process 1.
+Translating the process into Horn clauses...
+Completing...
+Starting query not attacker_p1(witness_eta1[])
+RESULT not attacker_p1(witness_eta1[]) is true.
+-- Query not attacker_p1(witness_expiration[]) in process 1.
+Translating the process into Horn clauses...
+Completing...
+Starting query not attacker_p1(witness_expiration[])
+RESULT not attacker_p1(witness_expiration[]) is true.
+-- Query not attacker_p1(K_S1_GW[]) in process 1.
+Translating the process into Horn clauses...
+Completing...
+Starting query not attacker_p1(K_S1_GW[])
+goal reachable: attacker_p1(K_S1_GW[])
+
+Derivation:
+
+1. The message K_S1_GW[] may be sent to the attacker in phase 1 at output {21}.
+attacker_p1(K_S1_GW[]).
+
+2. By 1, attacker_p1(K_S1_GW[]).
+The goal is reached, represented in the following fact:
+attacker_p1(K_S1_GW[]).
+
+
+A more detailed output of the traces is available with
+  set traceDisplay = long.
+
+new r1: bitstring creating r1_1 at {1}
+
+new r2: bitstring creating r2_1 at {2}
+
+new r3: bitstring creating r3_1 at {3}
+
+new T_EXP: bitstring creating T_EXP_1 at {4}
+
+out(ch, (~M,~M_1,~M_2,~M_3)) with ~M = crt_pack3(pack_residue(recovery_hash((r1_1,ID_R,ID_S1)),T_EXP_1),pack_residue(recovery_hash((r2_1,ID_R,ID_S2)),T_EXP_1),pack_residue(recovery_hash((r3_1,ID_R,ID_S3)),T_EXP_1),N1,N2,N3), ~M_1 = ID_R, ~M_2 = senc(witness_past_payload,handover_kdf(K_S1_GW,recovery_hash((r1_1,ID_R,ID_S1)),T_EXP_1)), ~M_3 = mac((crt_pack3(pack_residue(recovery_hash((r1_1,ID_R,ID_S1)),T_EXP_1),pack_residue(recovery_hash((r2_1,ID_R,ID_S2)),T_EXP_1),pack_residue(recovery_hash((r3_1,ID_R,ID_S3)),T_EXP_1),N1,N2,N3),ID_R,senc(witness_past_payload,handover_kdf(K_S1_GW,recovery_hash((r1_1,ID_R,ID_S1)),T_EXP_1))),handover_kdf(K_S1_GW,recovery_hash((r1_1,ID_R,ID_S1)),T_EXP_1)) at {15}
+
+out(ch, ~M_4) with ~M_4 = senc(witness_past_key,handover_kdf(K_S1_GW,recovery_hash((r1_1,ID_R,ID_S1)),T_EXP_1)) at {16}
+
+out(ch, ~M_5) with ~M_5 = senc(witness_eta1,recovery_hash((r1_1,ID_R,ID_S1))) at {17}
+
+out(ch, ~M_6) with ~M_6 = senc(witness_expiration,T_EXP_1) at {18}
+
+event SessionComplete(crt_pack3(pack_residue(recovery_hash((r1_1,ID_R,ID_S1)),T_EXP_1),pack_residue(recovery_hash((r2_1,ID_R,ID_S2)),T_EXP_1),pack_residue(recovery_hash((r3_1,ID_R,ID_S3)),T_EXP_1),N1,N2,N3),K_S1_GW) at {19}
+
+out(ch, ~M_7) with ~M_7 = K_S1_GW at {21}
+
+event PostSessionLTKExposure(crt_pack3(pack_residue(recovery_hash((r1_1,ID_R,ID_S1)),T_EXP_1),pack_residue(recovery_hash((r2_1,ID_R,ID_S2)),T_EXP_1),pack_residue(recovery_hash((r3_1,ID_R,ID_S3)),T_EXP_1),N1,N2,N3)) at {22}
+
+The attacker has the message ~M_7 = K_S1_GW in phase 1.
+A trace has been found.
+RESULT not attacker_p1(K_S1_GW[]) is false.
+-- Query not attacker_p1(N1[]) in process 1.
+Translating the process into Horn clauses...
+Completing...
+Starting query not attacker_p1(N1[])
+RESULT not attacker_p1(N1[]) is true.
+-- Query event(PostSessionLTKExposure(c)) ==> event(SessionComplete(c,K_S1_GW[])) in process 1.
+Translating the process into Horn clauses...
+Completing...
+Starting query event(PostSessionLTKExposure(c)) ==> event(SessionComplete(c,K_S1_GW[]))
+goal reachable: b-event(SessionComplete(crt_pack3(pack_residue(recovery_hash((r1[],ID_R[],ID_S1[])),T_EXP[]),pack_residue(recovery_hash((r2[],ID_R[],ID_S2[])),T_EXP[]),pack_residue(recovery_hash((r3[],ID_R[],ID_S3[])),T_EXP[]),N1[],N2[],N3[]),K_S1_GW[])) -> event(PostSessionLTKExposure(crt_pack3(pack_residue(recovery_hash((r1[],ID_R[],ID_S1[])),T_EXP[]),pack_residue(recovery_hash((r2[],ID_R[],ID_S2[])),T_EXP[]),pack_residue(recovery_hash((r3[],ID_R[],ID_S3[])),T_EXP[]),N1[],N2[],N3[])))
+RESULT event(PostSessionLTKExposure(c)) ==> event(SessionComplete(c,K_S1_GW[])) is true.
+
+--------------------------------------------------------------
+Verification summary:
+
+Query not attacker_p1(witness_past_key[]) is true.
+
+Query not attacker_p1(witness_past_payload[]) is true.
+
+Query not attacker_p1(witness_eta1[]) is true.
+
+Query not attacker_p1(witness_expiration[]) is true.
+
+Query not attacker_p1(K_S1_GW[]) is false.
+
+Query not attacker_p1(N1[]) is true.
+
+Query event(PostSessionLTKExposure(c)) ==> event(SessionComplete(c,K_S1_GW[])) is true.
+
+--------------------------------------------------------------
+
