@@ -1,8 +1,8 @@
-# ProVerif Models and Results for the Satellite-Handover Protocol
+# Supplementary Material S1: ProVerif Models and Results
 
-Version: 1.0.0
+Version: 1.0.1
 
-This package accompanies the manuscript **“Zero-Round-Trip Authentication-Key Distribution for High-Mobility Satellite Handover in 6G Integrated Space-Terrestrial Networks.”** It contains five independent ProVerif models and the complete outputs used to support the formal-verification claims in the manuscript.
+This package accompanies the manuscript **“An Efficient Scheme for 0-RTT Handover Authentication and Key Distribution in 6G Integrated Satellite-Terrestrial Networks.”** It contains five independent ProVerif models and the complete outputs used to support the formal-verification claims in the manuscript.
 
 ## Requirements
 
@@ -58,4 +58,3 @@ The models do not verify numerical CRT arithmetic, operand bit lengths, real-tim
 ## Verification status
 
 All five models were re-executed with the official Windows ProVerif 2.05 binary. Every process exited normally, and all `RESULT` lines matched the archived outputs. See `verification_results.md` for the complete interpretation.
-
