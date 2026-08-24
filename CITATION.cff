@@ -1,8 +1,8 @@
 cff-version: 1.2.0
 message: "If you use these ProVerif models, please cite the archived software package and the associated manuscript."
-title: "ProVerif Models and Results for Zero-Round-Trip Authentication-Key Distribution in High-Mobility Satellite Handover"
+title: "Supplementary Material S1: ProVerif Models and Results for 0-RTT Handover Authentication and Key Distribution"
 type: software
-version: 1.0.0
+version: 1.0.1
 authors:
   - family-names: Wang
     given-names: Rui
@@ -16,4 +16,3 @@ keywords:
   - authentication
   - Chinese Remainder Theorem
   - formal verification
-
