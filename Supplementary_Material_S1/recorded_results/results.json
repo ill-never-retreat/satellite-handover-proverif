@@ -1,0 +1,156 @@
+[
+  {
+    "model": "CRT_baseline.pv",
+    "status": "executed",
+    "exit_code": 0,
+    "seconds": 0.6100000000001273,
+    "queries": [
+      "RESULT not attacker(witness_Sj[]) is true.",
+      "RESULT not attacker(witness_S1[]) is true.",
+      "RESULT not attacker(witness_S2[]) is true.",
+      "RESULT not attacker(witness_payload1[]) is true.",
+      "RESULT not attacker(witness_payload2[]) is true.",
+      "RESULT not attacker(witness_rho1[]) is true.",
+      "RESULT not attacker(witness_rho2[]) is true.",
+      "RESULT not attacker(witness_eta1[]) is true.",
+      "RESULT not attacker(witness_eta2[]) is true.",
+      "RESULT not attacker(witness_expiration[]) is true.",
+      "RESULT not attacker(N1[]) is true.",
+      "RESULT not attacker(N2[]) is true.",
+      "RESULT inj-event(EndAccess(r,s,n)) ==> inj-event(BegAccess(r,s,n)) is true.",
+      "RESULT inj-event(EndHandover(r,s,c,ct,k)) ==> inj-event(BegHandover(r,s,c,ct,k)) cannot be proved.",
+      "RESULT (but event(EndHandover(r,s,c,ct,k)) ==> event(BegHandover(r,s,c,ct,k)) is true.)",
+      "RESULT event(EndHandover(r,s,c,ct,k)) ==> event(BegHandover(r,s,c,ct,k)) is true.",
+      "RESULT event(EndHandover(r,s,c,ct,k)) ==> event(GWIssue(r,s,c,k)) is true."
+    ],
+    "tail": ""
+  },
+  {
+    "model": "CRT_candidates_m2.pv",
+    "status": "executed",
+    "exit_code": 0,
+    "seconds": 0.032000000000152795,
+    "queries": [
+      "RESULT not attacker(w1[]) is true.",
+      "RESULT not attacker(w2[]) is true.",
+      "RESULT event(End(r_2,s,c_3,ct_2,k)) ==> event(Begin(r_2,s,c_3,ct_2,k)) is true.",
+      "RESULT event(End(r_2,s,c_3,ct_2,k)) ==> event(Issue(r_2,s,c_3,k)) is true."
+    ],
+    "tail": ""
+  },
+  {
+    "model": "CRT_candidates_m3.pv",
+    "status": "executed",
+    "exit_code": 0,
+    "seconds": 0.04599999999982174,
+    "queries": [
+      "RESULT not attacker(w1[]) is true.",
+      "RESULT not attacker(w2[]) is true.",
+      "RESULT not attacker(w3[]) is true.",
+      "RESULT event(End(r_3,s,c_4,ct_3,k)) ==> event(Begin(r_3,s,c_4,ct_3,k)) is true.",
+      "RESULT event(End(r_3,s,c_4,ct_3,k)) ==> event(Issue(r_3,s,c_4,k)) is true."
+    ],
+    "tail": ""
+  },
+  {
+    "model": "CRT_candidates_m4.pv",
+    "status": "executed",
+    "exit_code": 0,
+    "seconds": 0.11000000000012733,
+    "queries": [
+      "RESULT not attacker(w1[]) is true.",
+      "RESULT not attacker(w2[]) is true.",
+      "RESULT not attacker(w3[]) is true.",
+      "RESULT not attacker(w4[]) is true.",
+      "RESULT event(End(r_4,s,c_5,ct_4,k)) ==> event(Begin(r_4,s,c_5,ct_4,k)) is true.",
+      "RESULT event(End(r_4,s,c_5,ct_4,k)) ==> event(Issue(r_4,s,c_5,k)) is true."
+    ],
+    "tail": ""
+  },
+  {
+    "model": "CRT_candidates_m5.pv",
+    "status": "executed",
+    "exit_code": 0,
+    "seconds": 0.15599999999994907,
+    "queries": [
+      "RESULT not attacker(w1[]) is true.",
+      "RESULT not attacker(w2[]) is true.",
+      "RESULT not attacker(w3[]) is true.",
+      "RESULT not attacker(w4[]) is true.",
+      "RESULT not attacker(w5[]) is true.",
+      "RESULT event(End(r_5,s,c_6,ct_5,k)) ==> event(Begin(r_5,s,c_6,ct_5,k)) is true.",
+      "RESULT event(End(r_5,s,c_6,ct_5,k)) ==> event(Issue(r_5,s,c_6,k)) is true."
+    ],
+    "tail": ""
+  },
+  {
+    "model": "CRT_modulus_exposure.pv",
+    "status": "executed",
+    "exit_code": 0,
+    "seconds": 0.6880000000001019,
+    "queries": [
+      "RESULT not attacker(witness_Sj[]) is true.",
+      "RESULT not attacker(witness_S1[]) is true.",
+      "RESULT not attacker(witness_S2[]) is true.",
+      "RESULT not attacker(witness_payload1[]) is true.",
+      "RESULT not attacker(witness_payload2[]) is true.",
+      "RESULT not attacker(witness_rho1[]) is false.",
+      "RESULT not attacker(witness_rho2[]) is true.",
+      "RESULT not attacker(witness_eta1[]) is false.",
+      "RESULT not attacker(witness_eta2[]) is true.",
+      "RESULT not attacker(witness_expiration[]) is false.",
+      "RESULT not attacker(N1[]) is false.",
+      "RESULT not attacker(N2[]) is true.",
+      "RESULT inj-event(EndAccess(r,s,n)) ==> inj-event(BegAccess(r,s,n)) is true.",
+      "RESULT inj-event(EndHandover(r,s,c,ct,k)) ==> inj-event(BegHandover(r,s,c,ct,k)) cannot be proved.",
+      "RESULT (but event(EndHandover(r,s,c,ct,k)) ==> event(BegHandover(r,s,c,ct,k)) is true.)",
+      "RESULT event(EndHandover(r,s,c,ct,k)) ==> event(BegHandover(r,s,c,ct,k)) is true.",
+      "RESULT event(EndHandover(r,s,c,ct,k)) ==> event(GWIssue(r,s,c,k)) is true."
+    ],
+    "tail": ""
+  },
+  {
+    "model": "CRT_non_target_joint_exposure.pv",
+    "status": "executed",
+    "exit_code": 0,
+    "seconds": 0.1089999999999236,
+    "queries": [
+      "RESULT not attacker(w1[]) is false.",
+      "RESULT not attacker(w2[]) is true.",
+      "RESULT not attacker(w3[]) is true.",
+      "RESULT event(End(r_3,s,c_4,ct_3,k)) ==> event(Begin(r_3,s,c_4,ct_3,k)) is false.",
+      "RESULT event(End(r_3,s,c_4,ct_3,k)) ==> event(Issue(r_3,s,c_4,k)) is false.",
+      "RESULT event(End(r_3,ID_S2[],c_4,ct_3,k)) ==> event(Begin(r_3,ID_S2[],c_4,ct_3,k)) is true.",
+      "RESULT event(End(r_3,ID_S2[],c_4,ct_3,k)) ==> event(Issue(r_3,ID_S2[],c_4,k)) is true.",
+      "RESULT event(End(r_3,ID_S3[],c_4,ct_3,k)) ==> event(Begin(r_3,ID_S3[],c_4,ct_3,k)) is true.",
+      "RESULT event(End(r_3,ID_S3[],c_4,ct_3,k)) ==> event(Issue(r_3,ID_S3[],c_4,k)) is true."
+    ],
+    "tail": ""
+  },
+  {
+    "model": "CRT_serving_compromise.pv",
+    "status": "executed",
+    "exit_code": 0,
+    "seconds": 0.5160000000000764,
+    "queries": [
+      "RESULT not attacker(witness_Sj[]) is false.",
+      "RESULT not attacker(witness_S1[]) is true.",
+      "RESULT not attacker(witness_S2[]) is true.",
+      "RESULT not attacker(witness_payload1[]) is true.",
+      "RESULT not attacker(witness_payload2[]) is true.",
+      "RESULT not attacker(witness_rho1[]) is true.",
+      "RESULT not attacker(witness_rho2[]) is true.",
+      "RESULT not attacker(witness_eta1[]) is true.",
+      "RESULT not attacker(witness_eta2[]) is true.",
+      "RESULT not attacker(witness_expiration[]) is true.",
+      "RESULT not attacker(N1[]) is true.",
+      "RESULT not attacker(N2[]) is true.",
+      "RESULT inj-event(EndAccess(r,s,n)) ==> inj-event(BegAccess(r,s,n)) is true.",
+      "RESULT inj-event(EndHandover(r,s,c,ct,k)) ==> inj-event(BegHandover(r,s,c,ct,k)) cannot be proved.",
+      "RESULT (but event(EndHandover(r,s,c,ct,k)) ==> event(BegHandover(r,s,c,ct,k)) is true.)",
+      "RESULT event(EndHandover(r,s,c,ct,k)) ==> event(BegHandover(r,s,c,ct,k)) is true.",
+      "RESULT event(EndHandover(r,s,c,ct,k)) ==> event(GWIssue(r,s,c,k)) is true."
+    ],
+    "tail": ""
+  }
+]

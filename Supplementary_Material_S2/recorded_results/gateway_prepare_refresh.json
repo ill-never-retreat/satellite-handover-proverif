@@ -1,0 +1,383 @@
+{
+  "platform": {
+    "python": "3.12.14 (main, Aug 25 2026, 14:01:42) [MSC v.1944 64 bit (AMD64)]",
+    "os": "Windows-11-10.0.26200-SP0",
+    "machine": "AMD64",
+    "cpu": "12th Gen Intel(R) Core(TM) i9-12900H",
+    "cryptography": "50.0.2",
+    "clock": "perf_counter_ns",
+    "batches": 9,
+    "loops_per_batch": 100,
+    "warmup_calls": 20,
+    "measured_at_utc": "2026-10-09T08:49:10.191286+00:00",
+    "authenticated_input": "PREFIX || satellite-down || N_R || CT_Sj || CT_R || tag_R",
+    "limitations": "desktop batch throughput, not flight hardware or network latency"
+  },
+  "benchmark": [
+    {
+      "tag_bits": 128,
+      "m": 2,
+      "gateway_prepare": {
+        "median_us": 79.305,
+        "min_us": 74.768,
+        "max_us": 84.873,
+        "batch_means_us": [
+          81.598,
+          76.665,
+          77.384,
+          77.113,
+          82.121,
+          84.873,
+          79.305,
+          80.898,
+          74.768
+        ],
+        "loops_per_batch": 100,
+        "batches": 9
+      }
+    },
+    {
+      "tag_bits": 128,
+      "m": 3,
+      "gateway_prepare": {
+        "median_us": 112.804,
+        "min_us": 95.752,
+        "max_us": 187.273,
+        "batch_means_us": [
+          112.804,
+          106.742,
+          95.752,
+          98.636,
+          99.059,
+          172.799,
+          116.749,
+          186.952,
+          187.273
+        ],
+        "loops_per_batch": 100,
+        "batches": 9
+      }
+    },
+    {
+      "tag_bits": 128,
+      "m": 4,
+      "gateway_prepare": {
+        "median_us": 115.73,
+        "min_us": 108.696,
+        "max_us": 184.924,
+        "batch_means_us": [
+          184.924,
+          124.459,
+          117.879,
+          112.017,
+          120.096,
+          115.73,
+          109.058,
+          108.696,
+          115.346
+        ],
+        "loops_per_batch": 100,
+        "batches": 9
+      }
+    },
+    {
+      "tag_bits": 128,
+      "m": 5,
+      "gateway_prepare": {
+        "median_us": 140.215,
+        "min_us": 129.91,
+        "max_us": 150.164,
+        "batch_means_us": [
+          130.819,
+          132.665,
+          150.164,
+          140.215,
+          145.723,
+          133.816,
+          129.91,
+          147.35,
+          144.474
+        ],
+        "loops_per_batch": 100,
+        "batches": 9
+      }
+    },
+    {
+      "tag_bits": 128,
+      "m": 6,
+      "gateway_prepare": {
+        "median_us": 159.39,
+        "min_us": 145.214,
+        "max_us": 172.832,
+        "batch_means_us": [
+          150.813,
+          145.214,
+          161.422,
+          158.984,
+          158.603,
+          159.39,
+          164.091,
+          164.293,
+          172.832
+        ],
+        "loops_per_batch": 100,
+        "batches": 9
+      }
+    },
+    {
+      "tag_bits": 128,
+      "m": 8,
+      "gateway_prepare": {
+        "median_us": 205.086,
+        "min_us": 191.975,
+        "max_us": 219.854,
+        "batch_means_us": [
+          205.947,
+          205.086,
+          191.975,
+          194.891,
+          199.406,
+          219.854,
+          214.605,
+          203.319,
+          208.814
+        ],
+        "loops_per_batch": 100,
+        "batches": 9
+      }
+    },
+    {
+      "tag_bits": 128,
+      "m": 10,
+      "gateway_prepare": {
+        "median_us": 241.983,
+        "min_us": 232.583,
+        "max_us": 268.61,
+        "batch_means_us": [
+          259.718,
+          241.397,
+          268.61,
+          241.983,
+          236.499,
+          232.583,
+          257.511,
+          250.952,
+          241.701
+        ],
+        "loops_per_batch": 100,
+        "batches": 9
+      }
+    },
+    {
+      "tag_bits": 128,
+      "m": 16,
+      "gateway_prepare": {
+        "median_us": 396.122,
+        "min_us": 377.04,
+        "max_us": 425.283,
+        "batch_means_us": [
+          382.826,
+          396.828,
+          397.994,
+          391.319,
+          381.413,
+          377.04,
+          425.283,
+          396.122,
+          408.18
+        ],
+        "loops_per_batch": 100,
+        "batches": 9
+      }
+    },
+    {
+      "tag_bits": 80,
+      "m": 2,
+      "gateway_prepare": {
+        "median_us": 68.504,
+        "min_us": 65.122,
+        "max_us": 84.525,
+        "batch_means_us": [
+          70.861,
+          68.862,
+          65.122,
+          67.616,
+          66.364,
+          67.727,
+          68.504,
+          84.525,
+          72.198
+        ],
+        "loops_per_batch": 100,
+        "batches": 9
+      }
+    },
+    {
+      "tag_bits": 80,
+      "m": 3,
+      "gateway_prepare": {
+        "median_us": 90.693,
+        "min_us": 81.962,
+        "max_us": 97.158,
+        "batch_means_us": [
+          89.639,
+          89.272,
+          93.116,
+          95.863,
+          87.648,
+          95.534,
+          97.158,
+          81.962,
+          90.693
+        ],
+        "loops_per_batch": 100,
+        "batches": 9
+      }
+    },
+    {
+      "tag_bits": 80,
+      "m": 4,
+      "gateway_prepare": {
+        "median_us": 105.5,
+        "min_us": 97.412,
+        "max_us": 120.266,
+        "batch_means_us": [
+          105.914,
+          98.903,
+          99.011,
+          98.78,
+          106.782,
+          105.5,
+          120.266,
+          107.686,
+          97.412
+        ],
+        "loops_per_batch": 100,
+        "batches": 9
+      }
+    },
+    {
+      "tag_bits": 80,
+      "m": 5,
+      "gateway_prepare": {
+        "median_us": 118.095,
+        "min_us": 109.486,
+        "max_us": 132.546,
+        "batch_means_us": [
+          126.297,
+          114.169,
+          131.605,
+          132.546,
+          111.281,
+          117.239,
+          126.192,
+          109.486,
+          118.095
+        ],
+        "loops_per_batch": 100,
+        "batches": 9
+      }
+    },
+    {
+      "tag_bits": 80,
+      "m": 6,
+      "gateway_prepare": {
+        "median_us": 129.805,
+        "min_us": 120.047,
+        "max_us": 142.31,
+        "batch_means_us": [
+          129.805,
+          142.31,
+          141.281,
+          129.588,
+          120.047,
+          129.568,
+          131.803,
+          138.012,
+          129.779
+        ],
+        "loops_per_batch": 100,
+        "batches": 9
+      }
+    },
+    {
+      "tag_bits": 80,
+      "m": 8,
+      "gateway_prepare": {
+        "median_us": 163.121,
+        "min_us": 143.6,
+        "max_us": 179.92,
+        "batch_means_us": [
+          177.57,
+          157.161,
+          156.431,
+          143.6,
+          165.581,
+          179.92,
+          163.121,
+          157.549,
+          166.695
+        ],
+        "loops_per_batch": 100,
+        "batches": 9
+      }
+    },
+    {
+      "tag_bits": 80,
+      "m": 10,
+      "gateway_prepare": {
+        "median_us": 182.969,
+        "min_us": 169.248,
+        "max_us": 201.385,
+        "batch_means_us": [
+          199.548,
+          179.585,
+          178.653,
+          169.248,
+          180.937,
+          182.969,
+          201.385,
+          187.447,
+          184.322
+        ],
+        "loops_per_batch": 100,
+        "batches": 9
+      }
+    },
+    {
+      "tag_bits": 80,
+      "m": 16,
+      "gateway_prepare": {
+        "median_us": 316.714,
+        "min_us": 295.6,
+        "max_us": 403.649,
+        "batch_means_us": [
+          403.649,
+          362.527,
+          318.036,
+          296.04,
+          323.439,
+          307.63,
+          312.645,
+          316.714,
+          295.6
+        ],
+        "loops_per_batch": 100,
+        "batches": 9
+      }
+    }
+  ],
+  "baseline_results_sha256": "D1B55FFBB14C28B88BF77C84ABD0A59A43D3A8E1310FE4EB808AEBF7F26B6912",
+  "script_sha256": "E6DC1DCCB754CB5E034FAE297F20CD5D288D5D6F35597BE7855C6B7AE185049D",
+  "preserved": [
+    "mod",
+    "crt",
+    "router_packet",
+    "target_accept_crypto",
+    "state",
+    "assertions",
+    "simulation",
+    "simulation_assumptions"
+  ],
+  "interpretation": "Gateway preparation is a separate corrected-encoding measurement cohort. Differences from earlier timings cannot be attributed to encoding alone."
+}

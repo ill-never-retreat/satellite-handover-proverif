@@ -1,60 +1,42 @@
-# Supplementary Material S1: ProVerif Models and Results
+# Proactive Key Distribution for 0-RTT Handover Authentication
 
-Version: 1.0.1
+Companion reproducibility materials for **Proactive Key Distribution for 0-RTT Handover Authentication in 6G Integrated Satellite-Terrestrial Networks**.
 
-This package accompanies the manuscript **“An Efficient Scheme for 0-RTT Handover Authentication and Key Distribution in 6G Integrated Satellite-Terrestrial Networks.”** It contains five independent ProVerif models and the complete outputs used to support the formal-verification claims in the manuscript.
+## Current materials
 
-## Requirements
+- [Supplementary Material S1](Supplementary_Material_S1/README.md): eight ProVerif 2.05 models, complete recorded outputs, model-to-claim mapping and a reproduction runner.
+- [Supplementary Material S2](Supplementary_Material_S2/README.md): cryptographic software benchmarks, a synthetic availability/loss study, raw batch timings and selected implementation/state checks.
+- [Verification results](verification_results.md): an index to the recorded results and their interpretation.
+- `SHA256SUMS.txt`: checksums of the repository files, excluding the checksum file itself and generated reproduction outputs.
 
-- ProVerif 2.05
-- No additional libraries or model includes
+## Reproduction
 
-Official ProVerif releases and documentation are available at <https://bblanche.gitlabpages.inria.fr/proverif/>.
-
-## Files
-
-- `CRT_baseline.pv`: baseline three-candidate execution with two exercised targets.
-- `CRT_modulus_exposure.pv`: isolated disclosure of one target modulus while the corresponding target link key remains protected.
-- `CRT_serving_compromise.pv`: historical serving-satellite link-key disclosure while fresh target link keys remain protected.
-- `CRT_post_session_link_key_exposure.pv`: phase-separated post-session disclosure of the selected target link key while its modulus remains protected.
-- `CRT_post_session_joint_exposure.pv`: negative boundary experiment that discloses both the selected target link key and target modulus after session completion.
-- `*.result.txt`: complete ProVerif 2.05 outputs for the corresponding model.
-- `verification_results.md`: consolidated result matrix and interpretation.
-- `SHA256SUMS.txt`: SHA-256 hashes of the frozen package files.
-- `run_all.ps1` and `run_all.sh`: convenience scripts that write fresh outputs as `*.rerun.result.txt`.
-- `CITATION.cff`: citation metadata for the archived software package.
-
-## Running the models
-
-With `proverif` on the executable path:
+Install ProVerif 2.05 from its [official distribution](https://bblanche.gitlabpages.inria.fr/proverif/), and use Python 3.
 
 ```text
-proverif CRT_baseline.pv
-proverif CRT_modulus_exposure.pv
-proverif CRT_serving_compromise.pv
-proverif CRT_post_session_link_key_exposure.pv
-proverif CRT_post_session_joint_exposure.pv
+python Supplementary_Material_S1/run_models.py --proverif /path/to/proverif
 ```
 
-The PowerShell helper accepts an explicit executable path:
+For S2, follow its README for the two measurement environments (`cryptography` 50.0.1 and 50.0.2). The recorded arithmetic/endpoint and gateway-preparation cohorts must not be treated as a controlled before/after speed comparison. Reproduction writes into each supplement's `reproduced_results/`, leaving recorded measurements unchanged.
 
 ```text
-.\run_all.ps1 -ProVerifExecutable C:\path\to\proverif.exe
+python -m pip install cryptography==50.0.2
+python Supplementary_Material_S2/refresh_gateway_prepare.py
+python Supplementary_Material_S2/validate_protocol.py
 ```
 
-## Expected result boundaries
+The root `run_all.ps1` and `run_all.sh` helpers invoke the current S1 corpus. Their defaults require both Python and ProVerif on the executable path.
 
-Several negative or non-proved results are intentional and should not be read as unexpected execution failures:
+## Interpretation
 
-- In the isolated-modulus model, the disclosed modulus exposes its matching residue, recovery tag, and hidden expiration, but not the target authentication key while the target link key remains protected.
-- In the serving-compromise model, the historical serving-session witness is exposed by construction, while fresh target-session witnesses remain secret.
-- In the joint post-session exposure model, the historical key and protected payload become derivable after both the target link key and modulus are released; this is the stated boundary of conditional forward secrecy.
-- The three full protocol models establish non-injective handover correspondence, but ProVerif does not prove the injective handover query under the table abstraction. Replay-acceptance uniqueness is established separately by the target-local atomic state-machine argument in the manuscript.
+0-RTT refers to successful target authentication and key activation from one router-to-target message **after candidate preparation**. It does not mean zero propagation time, explicit router-observed confirmation, or completion of radio procedures in zero time.
 
-## Scope of the symbolic abstraction
+The artifacts support the stated fresh-target secrecy/authentication and target-local replay results at their respective abstraction levels. Injective handover correspondence is not proved by the full symbolic table models. Deliberate disclosure models include expected failed secrecy/correspondence queries. No forward-secrecy guarantee is claimed. S2 is desktop software and synthetic numerical evidence, not flight-hardware, over-the-air or calibrated constellation testing.
 
-The models do not verify numerical CRT arithmetic, operand bit lengths, real-time inequalities, orbital target ranking, implementation-level secure erasure, or the atomic uniqueness of the replay cache. The two post-session exposure models are focused phase-separated boundary experiments rather than complete reimplementations of the full protocol flow.
+## Historical archive
 
-## Verification status
+The [v1.0.1 release](https://github.com/ill-never-retreat/satellite-handover-proverif/releases/tag/v1.0.1) remains available. `legacy/pre_revision/` preserves the repository files at commit `54ec22a03d7c9316811164517a0cb39dfb1f49f5`; those files are historical artifacts, not the current corpus. Use the two supplement directories above for the materials accompanying the current manuscript.
 
-All five models were re-executed with the official Windows ProVerif 2.05 binary. Every process exited normally, and all `RESULT` lines matched the archived outputs. See `verification_results.md` for the complete interpretation.
+## License and citation
+
+The repository retains its MIT license. See `CITATION.cff` for the software citation metadata. No manuscript, reviewer report, response letter or private deployment credential is included.

@@ -1,0 +1,140 @@
+Process 0 (that is, the initial process):
+{1}new tt: bitstring;
+{2}new r1: bitstring;
+{3}let e1: bitstring = tag(r1,ID_R,ID_S1) in
+{4}new r2: bitstring;
+{5}let e2: bitstring = tag(r2,ID_R,ID_S2) in
+{6}let c: bitstring = crt(residue(e1,tt),N1,residue(e2,tt),N2) in
+{7}insert valid(tt);
+{8}let k1: bitstring = sk(K1,e1,tt,ID_R,ID_S1) in
+{9}event Issue(ID_R,ID_S1,c,k1);
+{10}let ct1: bitstring = senc(w1,enc_key(k1)) in
+{11}event Begin(ID_R,ID_S1,c,ct1,k1);
+{12}out(ch, (c,ID_R,ct1,mac((c,ID_R,ct1),mac_key(k1))));
+{13}let k2: bitstring = sk(K2,e2,tt,ID_R,ID_S2) in
+{14}event Issue(ID_R,ID_S2,c,k2);
+{15}let ct2: bitstring = senc(w2,enc_key(k2)) in
+{16}event Begin(ID_R,ID_S2,c,ct2,k2);
+{17}out(ch, (c,ID_R,ct2,mac((c,ID_R,ct2),mac_key(k2))));
+(
+    {18}!
+    {19}in(ch, (c_1: bitstring,r: bitstring,ct: bitstring,tg: bitstring));
+    {20}let rr: bitstring = decode(c_1,N1) in
+    {21}let ee: bitstring = eta(rr) in
+    {22}let tt_1: bitstring = expiry(rr) in
+    {29}get valid(=tt_1) in
+    {23}let kk: bitstring = sk(K1,ee,tt_1,r,ID_S1) in
+    {24}if (tg = mac((c_1,r,ct),mac_key(kk))) then
+    {25}let plain: bitstring = sdec(ct,enc_key(kk)) in
+    {28}get accepted(=r,=ID_S1,=c_1) in
+        0
+    else
+        {26}insert accepted(r,ID_S1,c_1);
+        {27}event End(r,ID_S1,c_1,ct,kk)
+) | (
+    {30}!
+    {31}in(ch, (c_2: bitstring,r_1: bitstring,ct_1: bitstring,tg_1: bitstring));
+    {32}let rr_1: bitstring = decode(c_2,N2) in
+    {33}let ee_1: bitstring = eta(rr_1) in
+    {34}let tt_2: bitstring = expiry(rr_1) in
+    {41}get valid(=tt_2) in
+    {35}let kk_1: bitstring = sk(K2,ee_1,tt_2,r_1,ID_S2) in
+    {36}if (tg_1 = mac((c_2,r_1,ct_1),mac_key(kk_1))) then
+    {37}let plain_1: bitstring = sdec(ct_1,enc_key(kk_1)) in
+    {40}get accepted(=r_1,=ID_S2,=c_2) in
+        0
+    else
+        {38}insert accepted(r_1,ID_S2,c_2);
+        {39}event End(r_1,ID_S2,c_2,ct_1,kk_1)
+)
+
+--  Process 1 (that is, process 0, with let moved downwards):
+{1}new tt: bitstring;
+{2}new r1: bitstring;
+{4}new r2: bitstring;
+{7}insert valid(tt);
+{3}let e1: bitstring = tag(r1,ID_R,ID_S1) in
+{8}let k1: bitstring = sk(K1,e1,tt,ID_R,ID_S1) in
+{5}let e2: bitstring = tag(r2,ID_R,ID_S2) in
+{6}let c: bitstring = crt(residue(e1,tt),N1,residue(e2,tt),N2) in
+{9}event Issue(ID_R,ID_S1,c,k1);
+{10}let ct1: bitstring = senc(w1,enc_key(k1)) in
+{11}event Begin(ID_R,ID_S1,c,ct1,k1);
+{12}out(ch, (c,ID_R,ct1,mac((c,ID_R,ct1),mac_key(k1))));
+{13}let k2: bitstring = sk(K2,e2,tt,ID_R,ID_S2) in
+{14}event Issue(ID_R,ID_S2,c,k2);
+{15}let ct2: bitstring = senc(w2,enc_key(k2)) in
+{16}event Begin(ID_R,ID_S2,c,ct2,k2);
+{17}out(ch, (c,ID_R,ct2,mac((c,ID_R,ct2),mac_key(k2))));
+(
+    {18}!
+    {19}in(ch, (c_1: bitstring,r: bitstring,ct: bitstring,tg: bitstring));
+    {20}let rr: bitstring = decode(c_1,N1) in
+    {21}let ee: bitstring = eta(rr) in
+    {22}let tt_1: bitstring = expiry(rr) in
+    {29}get valid(=tt_1) in
+    {23}let kk: bitstring = sk(K1,ee,tt_1,r,ID_S1) in
+    {24}if (tg = mac((c_1,r,ct),mac_key(kk))) then
+    {25}let plain: bitstring = sdec(ct,enc_key(kk)) in
+    {28}get accepted(=r,=ID_S1,=c_1) in
+        0
+    else
+        {26}insert accepted(r,ID_S1,c_1);
+        {27}event End(r,ID_S1,c_1,ct,kk)
+) | (
+    {30}!
+    {31}in(ch, (c_2: bitstring,r_1: bitstring,ct_1: bitstring,tg_1: bitstring));
+    {32}let rr_1: bitstring = decode(c_2,N2) in
+    {33}let ee_1: bitstring = eta(rr_1) in
+    {34}let tt_2: bitstring = expiry(rr_1) in
+    {41}get valid(=tt_2) in
+    {35}let kk_1: bitstring = sk(K2,ee_1,tt_2,r_1,ID_S2) in
+    {36}if (tg_1 = mac((c_2,r_1,ct_1),mac_key(kk_1))) then
+    {37}let plain_1: bitstring = sdec(ct_1,enc_key(kk_1)) in
+    {40}get accepted(=r_1,=ID_S2,=c_2) in
+        0
+    else
+        {38}insert accepted(r_1,ID_S2,c_2);
+        {39}event End(r_1,ID_S2,c_2,ct_1,kk_1)
+)
+
+-- Query not attacker(w1[]) in process 1.
+Translating the process into Horn clauses...
+Completing...
+Starting query not attacker(w1[])
+RESULT not attacker(w1[]) is true.
+-- Query not attacker(w2[]) in process 1.
+Translating the process into Horn clauses...
+Completing...
+Starting query not attacker(w2[])
+RESULT not attacker(w2[]) is true.
+-- Query event(End(r_2,s,c_3,ct_2,k)) ==> event(Begin(r_2,s,c_3,ct_2,k)) in process 1.
+Translating the process into Horn clauses...
+Completing...
+200 rules inserted. Base: 152 rules (34 with conclusion selected). Queue: 17 rules.
+Starting query event(End(r_2,s,c_3,ct_2,k)) ==> event(Begin(r_2,s,c_3,ct_2,k))
+goal reachable: b-event(Begin(ID_R[],ID_S2[],crt(residue(tag(r1[],ID_R[],ID_S1[]),tt[]),N1[],residue(tag(r2[],ID_R[],ID_S2[]),tt[]),N2[]),senc(w2[],enc_key(sk(K2[],tag(r2[],ID_R[],ID_S2[]),tt[],ID_R[],ID_S2[]))),sk(K2[],tag(r2[],ID_R[],ID_S2[]),tt[],ID_R[],ID_S2[]))) && b-event(Begin(ID_R[],ID_S1[],crt(residue(tag(r1[],ID_R[],ID_S1[]),tt[]),N1[],residue(tag(r2[],ID_R[],ID_S2[]),tt[]),N2[]),senc(w1[],enc_key(sk(K1[],tag(r1[],ID_R[],ID_S1[]),tt[],ID_R[],ID_S1[]))),sk(K1[],tag(r1[],ID_R[],ID_S1[]),tt[],ID_R[],ID_S1[]))) -> event(End(ID_R[],ID_S2[],crt(residue(tag(r1[],ID_R[],ID_S1[]),tt[]),N1[],residue(tag(r2[],ID_R[],ID_S2[]),tt[]),N2[]),senc(w2[],enc_key(sk(K2[],tag(r2[],ID_R[],ID_S2[]),tt[],ID_R[],ID_S2[]))),sk(K2[],tag(r2[],ID_R[],ID_S2[]),tt[],ID_R[],ID_S2[])))
+goal reachable: b-event(Begin(ID_R[],ID_S2[],crt(residue(tag(r1[],ID_R[],ID_S1[]),tt[]),N1[],residue(tag(r2[],ID_R[],ID_S2[]),tt[]),N2[]),senc(w2[],enc_key(sk(K2[],tag(r2[],ID_R[],ID_S2[]),tt[],ID_R[],ID_S2[]))),sk(K2[],tag(r2[],ID_R[],ID_S2[]),tt[],ID_R[],ID_S2[]))) && b-event(Begin(ID_R[],ID_S1[],crt(residue(tag(r1[],ID_R[],ID_S1[]),tt[]),N1[],residue(tag(r2[],ID_R[],ID_S2[]),tt[]),N2[]),senc(w1[],enc_key(sk(K1[],tag(r1[],ID_R[],ID_S1[]),tt[],ID_R[],ID_S1[]))),sk(K1[],tag(r1[],ID_R[],ID_S1[]),tt[],ID_R[],ID_S1[]))) -> event(End(ID_R[],ID_S1[],crt(residue(tag(r1[],ID_R[],ID_S1[]),tt[]),N1[],residue(tag(r2[],ID_R[],ID_S2[]),tt[]),N2[]),senc(w1[],enc_key(sk(K1[],tag(r1[],ID_R[],ID_S1[]),tt[],ID_R[],ID_S1[]))),sk(K1[],tag(r1[],ID_R[],ID_S1[]),tt[],ID_R[],ID_S1[])))
+RESULT event(End(r_2,s,c_3,ct_2,k)) ==> event(Begin(r_2,s,c_3,ct_2,k)) is true.
+-- Query event(End(r_2,s,c_3,ct_2,k)) ==> event(Issue(r_2,s,c_3,k)) in process 1.
+Translating the process into Horn clauses...
+Completing...
+200 rules inserted. Base: 152 rules (34 with conclusion selected). Queue: 17 rules.
+Starting query event(End(r_2,s,c_3,ct_2,k)) ==> event(Issue(r_2,s,c_3,k))
+goal reachable: b-event(Issue(ID_R[],ID_S2[],crt(residue(tag(r1[],ID_R[],ID_S1[]),tt[]),N1[],residue(tag(r2[],ID_R[],ID_S2[]),tt[]),N2[]),sk(K2[],tag(r2[],ID_R[],ID_S2[]),tt[],ID_R[],ID_S2[]))) && b-event(Issue(ID_R[],ID_S1[],crt(residue(tag(r1[],ID_R[],ID_S1[]),tt[]),N1[],residue(tag(r2[],ID_R[],ID_S2[]),tt[]),N2[]),sk(K1[],tag(r1[],ID_R[],ID_S1[]),tt[],ID_R[],ID_S1[]))) -> event(End(ID_R[],ID_S2[],crt(residue(tag(r1[],ID_R[],ID_S1[]),tt[]),N1[],residue(tag(r2[],ID_R[],ID_S2[]),tt[]),N2[]),senc(w2[],enc_key(sk(K2[],tag(r2[],ID_R[],ID_S2[]),tt[],ID_R[],ID_S2[]))),sk(K2[],tag(r2[],ID_R[],ID_S2[]),tt[],ID_R[],ID_S2[])))
+goal reachable: b-event(Issue(ID_R[],ID_S2[],crt(residue(tag(r1[],ID_R[],ID_S1[]),tt[]),N1[],residue(tag(r2[],ID_R[],ID_S2[]),tt[]),N2[]),sk(K2[],tag(r2[],ID_R[],ID_S2[]),tt[],ID_R[],ID_S2[]))) && b-event(Issue(ID_R[],ID_S1[],crt(residue(tag(r1[],ID_R[],ID_S1[]),tt[]),N1[],residue(tag(r2[],ID_R[],ID_S2[]),tt[]),N2[]),sk(K1[],tag(r1[],ID_R[],ID_S1[]),tt[],ID_R[],ID_S1[]))) -> event(End(ID_R[],ID_S1[],crt(residue(tag(r1[],ID_R[],ID_S1[]),tt[]),N1[],residue(tag(r2[],ID_R[],ID_S2[]),tt[]),N2[]),senc(w1[],enc_key(sk(K1[],tag(r1[],ID_R[],ID_S1[]),tt[],ID_R[],ID_S1[]))),sk(K1[],tag(r1[],ID_R[],ID_S1[]),tt[],ID_R[],ID_S1[])))
+RESULT event(End(r_2,s,c_3,ct_2,k)) ==> event(Issue(r_2,s,c_3,k)) is true.
+
+--------------------------------------------------------------
+Verification summary:
+
+Query not attacker(w1[]) is true.
+
+Query not attacker(w2[]) is true.
+
+Query event(End(r_2,s,c_3,ct_2,k)) ==> event(Begin(r_2,s,c_3,ct_2,k)) is true.
+
+Query event(End(r_2,s,c_3,ct_2,k)) ==> event(Issue(r_2,s,c_3,k)) is true.
+
+--------------------------------------------------------------
+

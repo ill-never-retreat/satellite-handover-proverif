@@ -1,0 +1,214 @@
+(* ================================================================== *)
+(* Serving compromise: one token, two distinct target handovers      *)
+(* ================================================================== *)
+
+free ch: channel.
+free trc_lock1: channel [private].
+free trc_lock2: channel [private].
+free lock_token1: bitstring [private].
+free lock_token2: bitstring [private].
+
+(* Long-term roots. *)
+free K_R_GW: bitstring [private].
+free K_Sj_GW: bitstring [private].
+free K_S1_GW: bitstring [private].
+free K_S2_GW: bitstring [private].
+free K_S3_GW: bitstring [private].
+
+(* TPH-protected residue-recovery moduli. S1 and S2 are exercised. *)
+free N1: bitstring [private].
+free N2: bitstring [private].
+free N3: bitstring [private].
+
+free ID_R: bitstring.
+free ID_Sj: bitstring.
+free ID_S1: bitstring.
+free ID_S2: bitstring.
+free ID_S3: bitstring.
+
+(* Instrumentation witnesses. *)
+free witness_Sj: bitstring [private].
+free witness_S1: bitstring [private].
+free witness_S2: bitstring [private].
+free witness_payload1: bitstring [private].
+free witness_payload2: bitstring [private].
+free witness_rho1: bitstring [private].
+free witness_rho2: bitstring [private].
+free witness_eta1: bitstring [private].
+free witness_eta2: bitstring [private].
+free witness_expiration: bitstring [private].
+
+fun senc(bitstring, bitstring): bitstring.
+reduc forall m: bitstring, k: bitstring; sdec(senc(m,k),k) = m.
+fun mac(bitstring, bitstring): bitstring.
+fun recovery_hash(bitstring): bitstring.
+fun handover_kdf(bitstring, bitstring, bitstring): bitstring.
+fun access_kdf(bitstring, bitstring, bitstring): bitstring.
+
+fun pack_residue(bitstring, bitstring): bitstring.
+reduc forall eta: bitstring, t: bitstring;
+  get_eta(pack_residue(eta,t)) = eta.
+reduc forall eta: bitstring, t: bitstring;
+  get_time(pack_residue(eta,t)) = t.
+
+(* Symbolic projection of one unified CRT token over three candidates. *)
+fun crt_pack3(bitstring,bitstring,bitstring,bitstring,bitstring,bitstring): bitstring.
+fun crt_decode(bitstring,bitstring): bitstring
+reduc forall r1: bitstring, r2: bitstring, r3: bitstring,
+             n1: bitstring, n2: bitstring, n3: bitstring;
+  crt_decode(crt_pack3(r1,r2,r3,n1,n2,n3),n1) = r1
+otherwise forall r1: bitstring, r2: bitstring, r3: bitstring,
+             n1: bitstring, n2: bitstring, n3: bitstring;
+  crt_decode(crt_pack3(r1,r2,r3,n1,n2,n3),n2) = r2
+otherwise forall r1: bitstring, r2: bitstring, r3: bitstring,
+             n1: bitstring, n2: bitstring, n3: bitstring;
+  crt_decode(crt_pack3(r1,r2,r3,n1,n2,n3),n3) = r3.
+
+table valid_expiration(bitstring).
+table accepted_handover(bitstring,bitstring,bitstring).
+
+event BegAccess(bitstring,bitstring,bitstring).
+event EndAccess(bitstring,bitstring,bitstring).
+event GWIssue(bitstring,bitstring,bitstring,bitstring).
+event BegHandover(bitstring,bitstring,bitstring,bitstring,bitstring).
+event EndHandover(bitstring,bitstring,bitstring,bitstring,bitstring).
+
+query attacker(witness_Sj).
+query attacker(witness_S1).
+query attacker(witness_S2).
+query attacker(witness_payload1).
+query attacker(witness_payload2).
+query attacker(witness_rho1).
+query attacker(witness_rho2).
+query attacker(witness_eta1).
+query attacker(witness_eta2).
+query attacker(witness_expiration).
+query attacker(N1).
+query attacker(N2).
+query r: bitstring,s: bitstring,n: bitstring;
+  inj-event(EndAccess(r,s,n)) ==> inj-event(BegAccess(r,s,n)).
+query r: bitstring,s: bitstring,c: bitstring,ct: bitstring,k: bitstring;
+  inj-event(EndHandover(r,s,c,ct,k)) ==> inj-event(BegHandover(r,s,c,ct,k)).
+query r: bitstring,s: bitstring,c: bitstring,ct: bitstring,k: bitstring;
+  event(EndHandover(r,s,c,ct,k)) ==> event(BegHandover(r,s,c,ct,k)).
+query r: bitstring,s: bitstring,c: bitstring,ct: bitstring,k: bitstring;
+  event(EndHandover(r,s,c,ct,k)) ==> event(GWIssue(r,s,c,k)).
+
+let router =
+  new N_R: bitstring;
+  new T_R: bitstring;
+  let tag1 = mac((ID_R,N_R,T_R),K_R_GW) in
+  event BegAccess(ID_R,ID_Sj,N_R);
+  out(ch,(ID_R,N_R,T_R,tag1));
+  in(ch,mr: bitstring);
+  let (ct_r: bitstring,tag_r: bitstring) = mr in
+  if tag_r = mac(ct_r,K_R_GW) then
+    let (=N_R,C: bitstring,T_EXP: bitstring,SK1: bitstring,SK2: bitstring,
+         SK3: bitstring,SKj: bitstring) = sdec(ct_r,K_R_GW) in
+    event EndAccess(ID_R,ID_Sj,N_R);
+    out(ch,senc(witness_Sj,SKj));
+    let CT_data1 = senc(witness_payload1,SK1) in
+    let tag_ho1 = mac((C,ID_R,CT_data1),SK1) in
+    event BegHandover(ID_R,ID_S1,C,CT_data1,SK1);
+    out(ch,(C,ID_R,CT_data1,tag_ho1));
+    let CT_data2 = senc(witness_payload2,SK2) in
+    let tag_ho2 = mac((C,ID_R,CT_data2),SK2) in
+    event BegHandover(ID_R,ID_S2,C,CT_data2,SK2);
+    out(ch,(C,ID_R,CT_data2,tag_ho2)).
+
+let serving_satellite =
+  in(ch,m1: bitstring);
+  let (id_r: bitstring,n_r: bitstring,t_r: bitstring,tag1: bitstring) = m1 in
+  let tag2 = mac((ID_Sj,m1),K_Sj_GW) in
+  out(ch,(ID_Sj,m1,tag2));
+  in(ch,mdown: bitstring);
+  let (=n_r,ct_sj: bitstring,mr: bitstring,tag_down: bitstring) = mdown in
+  if tag_down = mac((n_r,ct_sj,mr),K_Sj_GW) then
+    let (=id_r,SKj: bitstring) = sdec(ct_sj,K_Sj_GW) in
+    out(ch,mr).
+
+let gateway =
+  in(ch,m2: bitstring);
+  let (id_sj: bitstring,m1: bitstring,tag2: bitstring) = m2 in
+  if tag2 = mac((id_sj,m1),K_Sj_GW) then
+    let (id_r: bitstring,n_r: bitstring,t_r: bitstring,tag1: bitstring) = m1 in
+    if tag1 = mac((id_r,n_r,t_r),K_R_GW) then
+      new r1: bitstring;
+      new r2: bitstring;
+      new r3: bitstring;
+      new T_GW: bitstring;
+      new T_EXP: bitstring;
+      let eta1 = recovery_hash((r1,id_r,ID_S1)) in
+      let eta2 = recovery_hash((r2,id_r,ID_S2)) in
+      let eta3 = recovery_hash((r3,id_r,ID_S3)) in
+      let rho1 = pack_residue(eta1,T_EXP) in
+      let rho2 = pack_residue(eta2,T_EXP) in
+      let rho3 = pack_residue(eta3,T_EXP) in
+      let C = crt_pack3(rho1,rho2,rho3,N1,N2,N3) in
+      let SK1 = handover_kdf(K_S1_GW,eta1,T_EXP) in
+      let SK2 = handover_kdf(K_S2_GW,eta2,T_EXP) in
+      let SK3 = handover_kdf(K_S3_GW,eta3,T_EXP) in
+      let SKj = access_kdf(K_Sj_GW,n_r,T_GW) in
+      insert valid_expiration(T_EXP);
+      event GWIssue(id_r,ID_S1,C,SK1);
+      event GWIssue(id_r,ID_S2,C,SK2);
+      out(ch,senc(witness_rho1,rho1));
+      out(ch,senc(witness_rho2,rho2));
+      out(ch,senc(witness_eta1,eta1));
+      out(ch,senc(witness_eta2,eta2));
+      out(ch,senc(witness_expiration,T_EXP));
+      let ct_r = senc((n_r,C,T_EXP,SK1,SK2,SK3,SKj),K_R_GW) in
+      let mr = (ct_r,mac(ct_r,K_R_GW)) in
+      let ct_sj = senc((id_r,SKj),K_Sj_GW) in
+      out(ch,(n_r,ct_sj,mr,mac((n_r,ct_sj,mr),K_Sj_GW))).
+
+let target_satellite_S1 =
+  in(ch,mho: bitstring);
+  let (C: bitstring,id_r: bitstring,CT_data: bitstring,tag_ho: bitstring) = mho in
+  get accepted_handover(=id_r,=ID_S1,=C) in
+    0
+  else
+    let rho1 = crt_decode(C,N1) in
+    let eta1 = get_eta(rho1) in
+    let T_EXP = get_time(rho1) in
+    get valid_expiration(=T_EXP) in
+      let SK1 = handover_kdf(K_S1_GW,eta1,T_EXP) in
+      if tag_ho = mac((C,id_r,CT_data),SK1) then
+        let (=witness_payload1) = sdec(CT_data,SK1) in
+        in(trc_lock1,=lock_token1);
+        get accepted_handover(=id_r,=ID_S1,=C) in
+          out(trc_lock1,lock_token1)
+        else
+          insert accepted_handover(id_r,ID_S1,C);
+          event EndHandover(id_r,ID_S1,C,CT_data,SK1);
+          out(ch,senc(witness_S1,SK1));
+          out(trc_lock1,lock_token1).
+
+let target_satellite_S2 =
+  in(ch,mho: bitstring);
+  let (C: bitstring,id_r: bitstring,CT_data: bitstring,tag_ho: bitstring) = mho in
+  get accepted_handover(=id_r,=ID_S2,=C) in
+    0
+  else
+    let rho2 = crt_decode(C,N2) in
+    let eta2 = get_eta(rho2) in
+    let T_EXP = get_time(rho2) in
+    get valid_expiration(=T_EXP) in
+      let SK2 = handover_kdf(K_S2_GW,eta2,T_EXP) in
+      if tag_ho = mac((C,id_r,CT_data),SK2) then
+        let (=witness_payload2) = sdec(CT_data,SK2) in
+        in(trc_lock2,=lock_token2);
+        get accepted_handover(=id_r,=ID_S2,=C) in
+          out(trc_lock2,lock_token2)
+        else
+          insert accepted_handover(id_r,ID_S2,C);
+          event EndHandover(id_r,ID_S2,C,CT_data,SK2);
+          out(ch,senc(witness_S2,SK2));
+          out(trc_lock2,lock_token2).
+
+process
+  out(ch,K_Sj_GW) |
+  out(trc_lock1,lock_token1) |
+  out(trc_lock2,lock_token2) |
+  (!router) | (!serving_satellite) | (!gateway) |
+  (!target_satellite_S1) | (!target_satellite_S2)

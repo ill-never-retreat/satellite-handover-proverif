@@ -1,0 +1,83 @@
+(* ================================================================== *)
+(* Conditional forward-secrecy experiment: post-session disclosure    *)
+(* of the target satellite--gateway link key while N1 remains private *)
+(* ================================================================== *)
+
+free ch: channel.
+
+free K_S1_GW: bitstring [private].
+free N1: bitstring [private].
+free N2: bitstring [private].
+free N3: bitstring [private].
+
+free ID_R: bitstring.
+free ID_S1: bitstring.
+free ID_S2: bitstring.
+free ID_S3: bitstring.
+
+(* A witness encrypted under the completed historical handover key. *)
+free witness_past_key: bitstring [private].
+free witness_past_payload: bitstring [private].
+free witness_eta1: bitstring [private].
+free witness_expiration: bitstring [private].
+
+fun senc(bitstring, bitstring): bitstring.
+reduc forall m: bitstring, k: bitstring; sdec(senc(m,k),k) = m.
+fun mac(bitstring, bitstring): bitstring.
+fun recovery_hash(bitstring): bitstring.
+fun handover_kdf(bitstring, bitstring, bitstring): bitstring.
+
+fun pack_residue(bitstring, bitstring): bitstring.
+reduc forall eta: bitstring, t: bitstring;
+  get_eta(pack_residue(eta,t)) = eta.
+reduc forall eta: bitstring, t: bitstring;
+  get_time(pack_residue(eta,t)) = t.
+
+fun crt_pack3(bitstring,bitstring,bitstring,bitstring,bitstring,bitstring): bitstring.
+fun crt_decode(bitstring,bitstring): bitstring
+reduc forall r1: bitstring, r2: bitstring, r3: bitstring,
+             n1: bitstring, n2: bitstring, n3: bitstring;
+  crt_decode(crt_pack3(r1,r2,r3,n1,n2,n3),n1) = r1
+otherwise forall r1: bitstring, r2: bitstring, r3: bitstring,
+             n1: bitstring, n2: bitstring, n3: bitstring;
+  crt_decode(crt_pack3(r1,r2,r3,n1,n2,n3),n2) = r2
+otherwise forall r1: bitstring, r2: bitstring, r3: bitstring,
+             n1: bitstring, n2: bitstring, n3: bitstring;
+  crt_decode(crt_pack3(r1,r2,r3,n1,n2,n3),n3) = r3.
+
+event SessionComplete(bitstring,bitstring).
+event PostSessionLTKExposure(bitstring).
+
+query attacker(witness_past_key).
+query attacker(witness_past_payload).
+query attacker(witness_eta1).
+query attacker(witness_expiration).
+query attacker(K_S1_GW).
+query attacker(N1).
+query c: bitstring;
+  event(PostSessionLTKExposure(c)) ==> event(SessionComplete(c,K_S1_GW)).
+
+process
+  new r1: bitstring;
+  new r2: bitstring;
+  new r3: bitstring;
+  new T_EXP: bitstring;
+  let eta1 = recovery_hash((r1,ID_R,ID_S1)) in
+  let eta2 = recovery_hash((r2,ID_R,ID_S2)) in
+  let eta3 = recovery_hash((r3,ID_R,ID_S3)) in
+  let rho1 = pack_residue(eta1,T_EXP) in
+  let rho2 = pack_residue(eta2,T_EXP) in
+  let rho3 = pack_residue(eta3,T_EXP) in
+  let C = crt_pack3(rho1,rho2,rho3,N1,N2,N3) in
+  let SK1 = handover_kdf(K_S1_GW,eta1,T_EXP) in
+  let CT_data = senc(witness_past_payload,SK1) in
+  let tag_ho = mac((C,ID_R,CT_data),SK1) in
+  out(ch,(C,ID_R,CT_data,tag_ho));
+  out(ch,senc(witness_past_key,SK1));
+  out(ch,senc(witness_eta1,eta1));
+  out(ch,senc(witness_expiration,T_EXP));
+  event SessionComplete(C,K_S1_GW);
+  phase 1;
+  out(ch,K_S1_GW);
+  event PostSessionLTKExposure(C);
+  0

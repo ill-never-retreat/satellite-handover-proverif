@@ -1,0 +1,678 @@
+Process 0 (that is, the initial process):
+{1}out(ch, (K1,N1));
+{2}new tt: bitstring;
+{3}new r1: bitstring;
+{4}let e1: bitstring = tag(r1,ID_R,ID_S1) in
+{5}new r2: bitstring;
+{6}let e2: bitstring = tag(r2,ID_R,ID_S2) in
+{7}new r3: bitstring;
+{8}let e3: bitstring = tag(r3,ID_R,ID_S3) in
+{9}let c: bitstring = crt(residue(e1,tt),N1,residue(e2,tt),N2,residue(e3,tt),N3) in
+{10}insert valid(tt);
+{11}let k1: bitstring = sk(K1,e1,tt,ID_R,ID_S1) in
+{12}event Issue(ID_R,ID_S1,c,k1);
+{13}let ct1: bitstring = senc(w1,enc_key(k1)) in
+{14}event Begin(ID_R,ID_S1,c,ct1,k1);
+{15}out(ch, (c,ID_R,ct1,mac((c,ID_R,ct1),mac_key(k1))));
+{16}let k2: bitstring = sk(K2,e2,tt,ID_R,ID_S2) in
+{17}event Issue(ID_R,ID_S2,c,k2);
+{18}let ct2: bitstring = senc(w2,enc_key(k2)) in
+{19}event Begin(ID_R,ID_S2,c,ct2,k2);
+{20}out(ch, (c,ID_R,ct2,mac((c,ID_R,ct2),mac_key(k2))));
+{21}let k3: bitstring = sk(K3,e3,tt,ID_R,ID_S3) in
+{22}event Issue(ID_R,ID_S3,c,k3);
+{23}let ct3: bitstring = senc(w3,enc_key(k3)) in
+{24}event Begin(ID_R,ID_S3,c,ct3,k3);
+{25}out(ch, (c,ID_R,ct3,mac((c,ID_R,ct3),mac_key(k3))));
+(
+    {26}!
+    {27}in(ch, (c_1: bitstring,r: bitstring,ct: bitstring,tg: bitstring));
+    {28}let rr: bitstring = decode(c_1,N1) in
+    {29}let ee: bitstring = eta(rr) in
+    {30}let tt_1: bitstring = expiry(rr) in
+    {37}get valid(=tt_1) in
+    {31}let kk: bitstring = sk(K1,ee,tt_1,r,ID_S1) in
+    {32}if (tg = mac((c_1,r,ct),mac_key(kk))) then
+    {33}let plain: bitstring = sdec(ct,enc_key(kk)) in
+    {36}get accepted(=r,=ID_S1,=c_1) in
+        0
+    else
+        {34}insert accepted(r,ID_S1,c_1);
+        {35}event End(r,ID_S1,c_1,ct,kk)
+) | (
+    {38}!
+    {39}in(ch, (c_2: bitstring,r_1: bitstring,ct_1: bitstring,tg_1: bitstring));
+    {40}let rr_1: bitstring = decode(c_2,N2) in
+    {41}let ee_1: bitstring = eta(rr_1) in
+    {42}let tt_2: bitstring = expiry(rr_1) in
+    {49}get valid(=tt_2) in
+    {43}let kk_1: bitstring = sk(K2,ee_1,tt_2,r_1,ID_S2) in
+    {44}if (tg_1 = mac((c_2,r_1,ct_1),mac_key(kk_1))) then
+    {45}let plain_1: bitstring = sdec(ct_1,enc_key(kk_1)) in
+    {48}get accepted(=r_1,=ID_S2,=c_2) in
+        0
+    else
+        {46}insert accepted(r_1,ID_S2,c_2);
+        {47}event End(r_1,ID_S2,c_2,ct_1,kk_1)
+) | (
+    {50}!
+    {51}in(ch, (c_3: bitstring,r_2: bitstring,ct_2: bitstring,tg_2: bitstring));
+    {52}let rr_2: bitstring = decode(c_3,N3) in
+    {53}let ee_2: bitstring = eta(rr_2) in
+    {54}let tt_3: bitstring = expiry(rr_2) in
+    {61}get valid(=tt_3) in
+    {55}let kk_2: bitstring = sk(K3,ee_2,tt_3,r_2,ID_S3) in
+    {56}if (tg_2 = mac((c_3,r_2,ct_2),mac_key(kk_2))) then
+    {57}let plain_2: bitstring = sdec(ct_2,enc_key(kk_2)) in
+    {60}get accepted(=r_2,=ID_S3,=c_3) in
+        0
+    else
+        {58}insert accepted(r_2,ID_S3,c_3);
+        {59}event End(r_2,ID_S3,c_3,ct_2,kk_2)
+)
+
+--  Process 1 (that is, process 0, with let moved downwards):
+{1}out(ch, (K1,N1));
+{2}new tt: bitstring;
+{3}new r1: bitstring;
+{5}new r2: bitstring;
+{7}new r3: bitstring;
+{10}insert valid(tt);
+{4}let e1: bitstring = tag(r1,ID_R,ID_S1) in
+{11}let k1: bitstring = sk(K1,e1,tt,ID_R,ID_S1) in
+{8}let e3: bitstring = tag(r3,ID_R,ID_S3) in
+{6}let e2: bitstring = tag(r2,ID_R,ID_S2) in
+{9}let c: bitstring = crt(residue(e1,tt),N1,residue(e2,tt),N2,residue(e3,tt),N3) in
+{12}event Issue(ID_R,ID_S1,c,k1);
+{13}let ct1: bitstring = senc(w1,enc_key(k1)) in
+{14}event Begin(ID_R,ID_S1,c,ct1,k1);
+{15}out(ch, (c,ID_R,ct1,mac((c,ID_R,ct1),mac_key(k1))));
+{16}let k2: bitstring = sk(K2,e2,tt,ID_R,ID_S2) in
+{17}event Issue(ID_R,ID_S2,c,k2);
+{18}let ct2: bitstring = senc(w2,enc_key(k2)) in
+{19}event Begin(ID_R,ID_S2,c,ct2,k2);
+{20}out(ch, (c,ID_R,ct2,mac((c,ID_R,ct2),mac_key(k2))));
+{21}let k3: bitstring = sk(K3,e3,tt,ID_R,ID_S3) in
+{22}event Issue(ID_R,ID_S3,c,k3);
+{23}let ct3: bitstring = senc(w3,enc_key(k3)) in
+{24}event Begin(ID_R,ID_S3,c,ct3,k3);
+{25}out(ch, (c,ID_R,ct3,mac((c,ID_R,ct3),mac_key(k3))));
+(
+    {26}!
+    {27}in(ch, (c_1: bitstring,r: bitstring,ct: bitstring,tg: bitstring));
+    {28}let rr: bitstring = decode(c_1,N1) in
+    {29}let ee: bitstring = eta(rr) in
+    {30}let tt_1: bitstring = expiry(rr) in
+    {37}get valid(=tt_1) in
+    {31}let kk: bitstring = sk(K1,ee,tt_1,r,ID_S1) in
+    {32}if (tg = mac((c_1,r,ct),mac_key(kk))) then
+    {33}let plain: bitstring = sdec(ct,enc_key(kk)) in
+    {36}get accepted(=r,=ID_S1,=c_1) in
+        0
+    else
+        {34}insert accepted(r,ID_S1,c_1);
+        {35}event End(r,ID_S1,c_1,ct,kk)
+) | (
+    {38}!
+    {39}in(ch, (c_2: bitstring,r_1: bitstring,ct_1: bitstring,tg_1: bitstring));
+    {40}let rr_1: bitstring = decode(c_2,N2) in
+    {41}let ee_1: bitstring = eta(rr_1) in
+    {42}let tt_2: bitstring = expiry(rr_1) in
+    {49}get valid(=tt_2) in
+    {43}let kk_1: bitstring = sk(K2,ee_1,tt_2,r_1,ID_S2) in
+    {44}if (tg_1 = mac((c_2,r_1,ct_1),mac_key(kk_1))) then
+    {45}let plain_1: bitstring = sdec(ct_1,enc_key(kk_1)) in
+    {48}get accepted(=r_1,=ID_S2,=c_2) in
+        0
+    else
+        {46}insert accepted(r_1,ID_S2,c_2);
+        {47}event End(r_1,ID_S2,c_2,ct_1,kk_1)
+) | (
+    {50}!
+    {51}in(ch, (c_3: bitstring,r_2: bitstring,ct_2: bitstring,tg_2: bitstring));
+    {52}let rr_2: bitstring = decode(c_3,N3) in
+    {53}let ee_2: bitstring = eta(rr_2) in
+    {54}let tt_3: bitstring = expiry(rr_2) in
+    {61}get valid(=tt_3) in
+    {55}let kk_2: bitstring = sk(K3,ee_2,tt_3,r_2,ID_S3) in
+    {56}if (tg_2 = mac((c_3,r_2,ct_2),mac_key(kk_2))) then
+    {57}let plain_2: bitstring = sdec(ct_2,enc_key(kk_2)) in
+    {60}get accepted(=r_2,=ID_S3,=c_3) in
+        0
+    else
+        {58}insert accepted(r_2,ID_S3,c_3);
+        {59}event End(r_2,ID_S3,c_3,ct_2,kk_2)
+)
+
+-- Query not attacker(w1[]) in process 1.
+Translating the process into Horn clauses...
+Completing...
+200 rules inserted. Base: 162 rules (42 with conclusion selected). Queue: 21 rules.
+Starting query not attacker(w1[])
+goal reachable: attacker(w1[])
+
+Derivation:
+
+1. The attacker initially knows ID_S1[].
+attacker(ID_S1[]).
+
+2. The attacker initially knows ID_R[].
+attacker(ID_R[]).
+
+3. The message (K1[],N1[]) may be sent to the attacker at output {1}.
+attacker((K1[],N1[])).
+
+4. By 3, the attacker may know (K1[],N1[]).
+Using the function 2-proj-2-tuple the attacker may obtain N1[].
+attacker(N1[]).
+
+5. The message (crt(residue(tag(r1[],ID_R[],ID_S1[]),tt[]),N1[],residue(tag(r2[],ID_R[],ID_S2[]),tt[]),N2[],residue(tag(r3[],ID_R[],ID_S3[]),tt[]),N3[]),ID_R[],senc(w1[],enc_key(sk(K1[],tag(r1[],ID_R[],ID_S1[]),tt[],ID_R[],ID_S1[]))),mac((crt(residue(tag(r1[],ID_R[],ID_S1[]),tt[]),N1[],residue(tag(r2[],ID_R[],ID_S2[]),tt[]),N2[],residue(tag(r3[],ID_R[],ID_S3[]),tt[]),N3[]),ID_R[],senc(w1[],enc_key(sk(K1[],tag(r1[],ID_R[],ID_S1[]),tt[],ID_R[],ID_S1[])))),mac_key(sk(K1[],tag(r1[],ID_R[],ID_S1[]),tt[],ID_R[],ID_S1[])))) may be sent to the attacker at output {15}.
+attacker((crt(residue(tag(r1[],ID_R[],ID_S1[]),tt[]),N1[],residue(tag(r2[],ID_R[],ID_S2[]),tt[]),N2[],residue(tag(r3[],ID_R[],ID_S3[]),tt[]),N3[]),ID_R[],senc(w1[],enc_key(sk(K1[],tag(r1[],ID_R[],ID_S1[]),tt[],ID_R[],ID_S1[]))),mac((crt(residue(tag(r1[],ID_R[],ID_S1[]),tt[]),N1[],residue(tag(r2[],ID_R[],ID_S2[]),tt[]),N2[],residue(tag(r3[],ID_R[],ID_S3[]),tt[]),N3[]),ID_R[],senc(w1[],enc_key(sk(K1[],tag(r1[],ID_R[],ID_S1[]),tt[],ID_R[],ID_S1[])))),mac_key(sk(K1[],tag(r1[],ID_R[],ID_S1[]),tt[],ID_R[],ID_S1[]))))).
+
+6. By 5, the attacker may know (crt(residue(tag(r1[],ID_R[],ID_S1[]),tt[]),N1[],residue(tag(r2[],ID_R[],ID_S2[]),tt[]),N2[],residue(tag(r3[],ID_R[],ID_S3[]),tt[]),N3[]),ID_R[],senc(w1[],enc_key(sk(K1[],tag(r1[],ID_R[],ID_S1[]),tt[],ID_R[],ID_S1[]))),mac((crt(residue(tag(r1[],ID_R[],ID_S1[]),tt[]),N1[],residue(tag(r2[],ID_R[],ID_S2[]),tt[]),N2[],residue(tag(r3[],ID_R[],ID_S3[]),tt[]),N3[]),ID_R[],senc(w1[],enc_key(sk(K1[],tag(r1[],ID_R[],ID_S1[]),tt[],ID_R[],ID_S1[])))),mac_key(sk(K1[],tag(r1[],ID_R[],ID_S1[]),tt[],ID_R[],ID_S1[])))).
+Using the function 1-proj-4-tuple the attacker may obtain crt(residue(tag(r1[],ID_R[],ID_S1[]),tt[]),N1[],residue(tag(r2[],ID_R[],ID_S2[]),tt[]),N2[],residue(tag(r3[],ID_R[],ID_S3[]),tt[]),N3[]).
+attacker(crt(residue(tag(r1[],ID_R[],ID_S1[]),tt[]),N1[],residue(tag(r2[],ID_R[],ID_S2[]),tt[]),N2[],residue(tag(r3[],ID_R[],ID_S3[]),tt[]),N3[])).
+
+7. By 6, the attacker may know crt(residue(tag(r1[],ID_R[],ID_S1[]),tt[]),N1[],residue(tag(r2[],ID_R[],ID_S2[]),tt[]),N2[],residue(tag(r3[],ID_R[],ID_S3[]),tt[]),N3[]).
+By 4, the attacker may know N1[].
+Using the function decode the attacker may obtain residue(tag(r1[],ID_R[],ID_S1[]),tt[]).
+attacker(residue(tag(r1[],ID_R[],ID_S1[]),tt[])).
+
+8. By 7, the attacker may know residue(tag(r1[],ID_R[],ID_S1[]),tt[]).
+Using the function expiry the attacker may obtain tt[].
+attacker(tt[]).
+
+9. By 7, the attacker may know residue(tag(r1[],ID_R[],ID_S1[]),tt[]).
+Using the function eta the attacker may obtain tag(r1[],ID_R[],ID_S1[]).
+attacker(tag(r1[],ID_R[],ID_S1[])).
+
+10. By 3, the attacker may know (K1[],N1[]).
+Using the function 1-proj-2-tuple the attacker may obtain K1[].
+attacker(K1[]).
+
+11. By 10, the attacker may know K1[].
+By 9, the attacker may know tag(r1[],ID_R[],ID_S1[]).
+By 8, the attacker may know tt[].
+By 2, the attacker may know ID_R[].
+By 1, the attacker may know ID_S1[].
+Using the function sk the attacker may obtain sk(K1[],tag(r1[],ID_R[],ID_S1[]),tt[],ID_R[],ID_S1[]).
+attacker(sk(K1[],tag(r1[],ID_R[],ID_S1[]),tt[],ID_R[],ID_S1[])).
+
+12. By 11, the attacker may know sk(K1[],tag(r1[],ID_R[],ID_S1[]),tt[],ID_R[],ID_S1[]).
+Using the function enc_key the attacker may obtain enc_key(sk(K1[],tag(r1[],ID_R[],ID_S1[]),tt[],ID_R[],ID_S1[])).
+attacker(enc_key(sk(K1[],tag(r1[],ID_R[],ID_S1[]),tt[],ID_R[],ID_S1[]))).
+
+13. By 5, the attacker may know (crt(residue(tag(r1[],ID_R[],ID_S1[]),tt[]),N1[],residue(tag(r2[],ID_R[],ID_S2[]),tt[]),N2[],residue(tag(r3[],ID_R[],ID_S3[]),tt[]),N3[]),ID_R[],senc(w1[],enc_key(sk(K1[],tag(r1[],ID_R[],ID_S1[]),tt[],ID_R[],ID_S1[]))),mac((crt(residue(tag(r1[],ID_R[],ID_S1[]),tt[]),N1[],residue(tag(r2[],ID_R[],ID_S2[]),tt[]),N2[],residue(tag(r3[],ID_R[],ID_S3[]),tt[]),N3[]),ID_R[],senc(w1[],enc_key(sk(K1[],tag(r1[],ID_R[],ID_S1[]),tt[],ID_R[],ID_S1[])))),mac_key(sk(K1[],tag(r1[],ID_R[],ID_S1[]),tt[],ID_R[],ID_S1[])))).
+Using the function 3-proj-4-tuple the attacker may obtain senc(w1[],enc_key(sk(K1[],tag(r1[],ID_R[],ID_S1[]),tt[],ID_R[],ID_S1[]))).
+attacker(senc(w1[],enc_key(sk(K1[],tag(r1[],ID_R[],ID_S1[]),tt[],ID_R[],ID_S1[])))).
+
+14. By 13, the attacker may know senc(w1[],enc_key(sk(K1[],tag(r1[],ID_R[],ID_S1[]),tt[],ID_R[],ID_S1[]))).
+By 12, the attacker may know enc_key(sk(K1[],tag(r1[],ID_R[],ID_S1[]),tt[],ID_R[],ID_S1[])).
+Using the function sdec the attacker may obtain w1[].
+attacker(w1[]).
+
+15. By 14, attacker(w1[]).
+The goal is reached, represented in the following fact:
+attacker(w1[]).
+
+
+A more detailed output of the traces is available with
+  set traceDisplay = long.
+
+out(ch, (~M,~M_1)) with ~M = K1, ~M_1 = N1 at {1}
+
+new tt: bitstring creating tt_4 at {2}
+
+new r1: bitstring creating r1_1 at {3}
+
+new r2: bitstring creating r2_1 at {5}
+
+new r3: bitstring creating r3_1 at {7}
+
+insert valid(tt_4) at {10}
+
+event Issue(ID_R,ID_S1,crt(residue(tag(r1_1,ID_R,ID_S1),tt_4),N1,residue(tag(r2_1,ID_R,ID_S2),tt_4),N2,residue(tag(r3_1,ID_R,ID_S3),tt_4),N3),sk(K1,tag(r1_1,ID_R,ID_S1),tt_4,ID_R,ID_S1)) at {12}
+
+event Begin(ID_R,ID_S1,crt(residue(tag(r1_1,ID_R,ID_S1),tt_4),N1,residue(tag(r2_1,ID_R,ID_S2),tt_4),N2,residue(tag(r3_1,ID_R,ID_S3),tt_4),N3),senc(w1,enc_key(sk(K1,tag(r1_1,ID_R,ID_S1),tt_4,ID_R,ID_S1))),sk(K1,tag(r1_1,ID_R,ID_S1),tt_4,ID_R,ID_S1)) at {14}
+
+out(ch, (~M_2,~M_3,~M_4,~M_5)) with ~M_2 = crt(residue(tag(r1_1,ID_R,ID_S1),tt_4),N1,residue(tag(r2_1,ID_R,ID_S2),tt_4),N2,residue(tag(r3_1,ID_R,ID_S3),tt_4),N3), ~M_3 = ID_R, ~M_4 = senc(w1,enc_key(sk(K1,tag(r1_1,ID_R,ID_S1),tt_4,ID_R,ID_S1))), ~M_5 = mac((crt(residue(tag(r1_1,ID_R,ID_S1),tt_4),N1,residue(tag(r2_1,ID_R,ID_S2),tt_4),N2,residue(tag(r3_1,ID_R,ID_S3),tt_4),N3),ID_R,senc(w1,enc_key(sk(K1,tag(r1_1,ID_R,ID_S1),tt_4,ID_R,ID_S1)))),mac_key(sk(K1,tag(r1_1,ID_R,ID_S1),tt_4,ID_R,ID_S1))) at {15}
+
+event Issue(ID_R,ID_S2,crt(residue(tag(r1_1,ID_R,ID_S1),tt_4),N1,residue(tag(r2_1,ID_R,ID_S2),tt_4),N2,residue(tag(r3_1,ID_R,ID_S3),tt_4),N3),sk(K2,tag(r2_1,ID_R,ID_S2),tt_4,ID_R,ID_S2)) at {17}
+
+event Begin(ID_R,ID_S2,crt(residue(tag(r1_1,ID_R,ID_S1),tt_4),N1,residue(tag(r2_1,ID_R,ID_S2),tt_4),N2,residue(tag(r3_1,ID_R,ID_S3),tt_4),N3),senc(w2,enc_key(sk(K2,tag(r2_1,ID_R,ID_S2),tt_4,ID_R,ID_S2))),sk(K2,tag(r2_1,ID_R,ID_S2),tt_4,ID_R,ID_S2)) at {19}
+
+out(ch, (~M_6,~M_7,~M_8,~M_9)) with ~M_6 = crt(residue(tag(r1_1,ID_R,ID_S1),tt_4),N1,residue(tag(r2_1,ID_R,ID_S2),tt_4),N2,residue(tag(r3_1,ID_R,ID_S3),tt_4),N3), ~M_7 = ID_R, ~M_8 = senc(w2,enc_key(sk(K2,tag(r2_1,ID_R,ID_S2),tt_4,ID_R,ID_S2))), ~M_9 = mac((crt(residue(tag(r1_1,ID_R,ID_S1),tt_4),N1,residue(tag(r2_1,ID_R,ID_S2),tt_4),N2,residue(tag(r3_1,ID_R,ID_S3),tt_4),N3),ID_R,senc(w2,enc_key(sk(K2,tag(r2_1,ID_R,ID_S2),tt_4,ID_R,ID_S2)))),mac_key(sk(K2,tag(r2_1,ID_R,ID_S2),tt_4,ID_R,ID_S2))) at {20}
+
+event Issue(ID_R,ID_S3,crt(residue(tag(r1_1,ID_R,ID_S1),tt_4),N1,residue(tag(r2_1,ID_R,ID_S2),tt_4),N2,residue(tag(r3_1,ID_R,ID_S3),tt_4),N3),sk(K3,tag(r3_1,ID_R,ID_S3),tt_4,ID_R,ID_S3)) at {22}
+
+event Begin(ID_R,ID_S3,crt(residue(tag(r1_1,ID_R,ID_S1),tt_4),N1,residue(tag(r2_1,ID_R,ID_S2),tt_4),N2,residue(tag(r3_1,ID_R,ID_S3),tt_4),N3),senc(w3,enc_key(sk(K3,tag(r3_1,ID_R,ID_S3),tt_4,ID_R,ID_S3))),sk(K3,tag(r3_1,ID_R,ID_S3),tt_4,ID_R,ID_S3)) at {24}
+
+out(ch, (~M_10,~M_11,~M_12,~M_13)) with ~M_10 = crt(residue(tag(r1_1,ID_R,ID_S1),tt_4),N1,residue(tag(r2_1,ID_R,ID_S2),tt_4),N2,residue(tag(r3_1,ID_R,ID_S3),tt_4),N3), ~M_11 = ID_R, ~M_12 = senc(w3,enc_key(sk(K3,tag(r3_1,ID_R,ID_S3),tt_4,ID_R,ID_S3))), ~M_13 = mac((crt(residue(tag(r1_1,ID_R,ID_S1),tt_4),N1,residue(tag(r2_1,ID_R,ID_S2),tt_4),N2,residue(tag(r3_1,ID_R,ID_S3),tt_4),N3),ID_R,senc(w3,enc_key(sk(K3,tag(r3_1,ID_R,ID_S3),tt_4,ID_R,ID_S3)))),mac_key(sk(K3,tag(r3_1,ID_R,ID_S3),tt_4,ID_R,ID_S3))) at {25}
+
+The attacker has the message sdec(~M_4,enc_key(sk(~M,eta(decode(~M_2,~M_1)),expiry(decode(~M_2,~M_1)),ID_R,ID_S1))) = w1.
+A trace has been found.
+RESULT not attacker(w1[]) is false.
+-- Query not attacker(w2[]) in process 1.
+Translating the process into Horn clauses...
+Completing...
+200 rules inserted. Base: 162 rules (42 with conclusion selected). Queue: 21 rules.
+Starting query not attacker(w2[])
+RESULT not attacker(w2[]) is true.
+-- Query not attacker(w3[]) in process 1.
+Translating the process into Horn clauses...
+Completing...
+200 rules inserted. Base: 162 rules (42 with conclusion selected). Queue: 21 rules.
+Starting query not attacker(w3[])
+RESULT not attacker(w3[]) is true.
+-- Query event(End(r_3,s,c_4,ct_3,k)) ==> event(Begin(r_3,s,c_4,ct_3,k)) in process 1.
+Translating the process into Horn clauses...
+Completing...
+200 rules inserted. Base: 161 rules (38 with conclusion selected). Queue: 43 rules.
+400 rules inserted. Base: 276 rules (45 with conclusion selected). Queue: 23 rules.
+Starting query event(End(r_3,s,c_4,ct_3,k)) ==> event(Begin(r_3,s,c_4,ct_3,k))
+goal reachable: n1 ≠ N1[] && n2 ≠ N1[] && attacker(r1_1) && attacker(n1) && attacker(r2_1) && attacker(n2) && attacker(plain_3) && attacker(x) && attacker(r_3) && b-event(Begin(ID_R[],ID_S3[],crt(residue(tag(r1[],ID_R[],ID_S1[]),tt[]),N1[],residue(tag(r2[],ID_R[],ID_S2[]),tt[]),N2[],residue(tag(r3[],ID_R[],ID_S3[]),tt[]),N3[]),senc(w3[],enc_key(sk(K3[],tag(r3[],ID_R[],ID_S3[]),tt[],ID_R[],ID_S3[]))),sk(K3[],tag(r3[],ID_R[],ID_S3[]),tt[],ID_R[],ID_S3[]))) && b-event(Begin(ID_R[],ID_S2[],crt(residue(tag(r1[],ID_R[],ID_S1[]),tt[]),N1[],residue(tag(r2[],ID_R[],ID_S2[]),tt[]),N2[],residue(tag(r3[],ID_R[],ID_S3[]),tt[]),N3[]),senc(w2[],enc_key(sk(K2[],tag(r2[],ID_R[],ID_S2[]),tt[],ID_R[],ID_S2[]))),sk(K2[],tag(r2[],ID_R[],ID_S2[]),tt[],ID_R[],ID_S2[]))) && b-event(Begin(ID_R[],ID_S1[],crt(residue(tag(r1[],ID_R[],ID_S1[]),tt[]),N1[],residue(tag(r2[],ID_R[],ID_S2[]),tt[]),N2[],residue(tag(r3[],ID_R[],ID_S3[]),tt[]),N3[]),senc(w1[],enc_key(sk(K1[],tag(r1[],ID_R[],ID_S1[]),tt[],ID_R[],ID_S1[]))),sk(K1[],tag(r1[],ID_R[],ID_S1[]),tt[],ID_R[],ID_S1[]))) -> event(End(r_3,ID_S1[],crt(r1_1,n1,r2_1,n2,residue(x,tt[]),N1[]),senc(plain_3,enc_key(sk(K1[],x,tt[],r_3,ID_S1[]))),sk(K1[],x,tt[],r_3,ID_S1[])))
+
+Derivation:
+
+1. The attacker initially knows ID_S1[].
+attacker(ID_S1[]).
+
+2. We assume as hypothesis that
+attacker(r_3).
+
+3. The message (K1[],N1[]) may be sent to the attacker at output {1}.
+attacker((K1[],N1[])).
+
+4. By 3, the attacker may know (K1[],N1[]).
+Using the function 2-proj-2-tuple the attacker may obtain N1[].
+attacker(N1[]).
+
+5. The event Begin(ID_R[],ID_S1[],crt(residue(tag(r1[],ID_R[],ID_S1[]),tt[]),N1[],residue(tag(r2[],ID_R[],ID_S2[]),tt[]),N2[],residue(tag(r3[],ID_R[],ID_S3[]),tt[]),N3[]),senc(w1[],enc_key(sk(K1[],tag(r1[],ID_R[],ID_S1[]),tt[],ID_R[],ID_S1[]))),sk(K1[],tag(r1[],ID_R[],ID_S1[]),tt[],ID_R[],ID_S1[])) may be executed at {14}.
+So the message (crt(residue(tag(r1[],ID_R[],ID_S1[]),tt[]),N1[],residue(tag(r2[],ID_R[],ID_S2[]),tt[]),N2[],residue(tag(r3[],ID_R[],ID_S3[]),tt[]),N3[]),ID_R[],senc(w1[],enc_key(sk(K1[],tag(r1[],ID_R[],ID_S1[]),tt[],ID_R[],ID_S1[]))),mac((crt(residue(tag(r1[],ID_R[],ID_S1[]),tt[]),N1[],residue(tag(r2[],ID_R[],ID_S2[]),tt[]),N2[],residue(tag(r3[],ID_R[],ID_S3[]),tt[]),N3[]),ID_R[],senc(w1[],enc_key(sk(K1[],tag(r1[],ID_R[],ID_S1[]),tt[],ID_R[],ID_S1[])))),mac_key(sk(K1[],tag(r1[],ID_R[],ID_S1[]),tt[],ID_R[],ID_S1[])))) may be sent to the attacker at output {15}.
+attacker((crt(residue(tag(r1[],ID_R[],ID_S1[]),tt[]),N1[],residue(tag(r2[],ID_R[],ID_S2[]),tt[]),N2[],residue(tag(r3[],ID_R[],ID_S3[]),tt[]),N3[]),ID_R[],senc(w1[],enc_key(sk(K1[],tag(r1[],ID_R[],ID_S1[]),tt[],ID_R[],ID_S1[]))),mac((crt(residue(tag(r1[],ID_R[],ID_S1[]),tt[]),N1[],residue(tag(r2[],ID_R[],ID_S2[]),tt[]),N2[],residue(tag(r3[],ID_R[],ID_S3[]),tt[]),N3[]),ID_R[],senc(w1[],enc_key(sk(K1[],tag(r1[],ID_R[],ID_S1[]),tt[],ID_R[],ID_S1[])))),mac_key(sk(K1[],tag(r1[],ID_R[],ID_S1[]),tt[],ID_R[],ID_S1[]))))).
+
+6. By 5, the attacker may know (crt(residue(tag(r1[],ID_R[],ID_S1[]),tt[]),N1[],residue(tag(r2[],ID_R[],ID_S2[]),tt[]),N2[],residue(tag(r3[],ID_R[],ID_S3[]),tt[]),N3[]),ID_R[],senc(w1[],enc_key(sk(K1[],tag(r1[],ID_R[],ID_S1[]),tt[],ID_R[],ID_S1[]))),mac((crt(residue(tag(r1[],ID_R[],ID_S1[]),tt[]),N1[],residue(tag(r2[],ID_R[],ID_S2[]),tt[]),N2[],residue(tag(r3[],ID_R[],ID_S3[]),tt[]),N3[]),ID_R[],senc(w1[],enc_key(sk(K1[],tag(r1[],ID_R[],ID_S1[]),tt[],ID_R[],ID_S1[])))),mac_key(sk(K1[],tag(r1[],ID_R[],ID_S1[]),tt[],ID_R[],ID_S1[])))).
+Using the function 1-proj-4-tuple the attacker may obtain crt(residue(tag(r1[],ID_R[],ID_S1[]),tt[]),N1[],residue(tag(r2[],ID_R[],ID_S2[]),tt[]),N2[],residue(tag(r3[],ID_R[],ID_S3[]),tt[]),N3[]).
+attacker(crt(residue(tag(r1[],ID_R[],ID_S1[]),tt[]),N1[],residue(tag(r2[],ID_R[],ID_S2[]),tt[]),N2[],residue(tag(r3[],ID_R[],ID_S3[]),tt[]),N3[])).
+
+7. By 6, the attacker may know crt(residue(tag(r1[],ID_R[],ID_S1[]),tt[]),N1[],residue(tag(r2[],ID_R[],ID_S2[]),tt[]),N2[],residue(tag(r3[],ID_R[],ID_S3[]),tt[]),N3[]).
+By 4, the attacker may know N1[].
+Using the function decode the attacker may obtain residue(tag(r1[],ID_R[],ID_S1[]),tt[]).
+attacker(residue(tag(r1[],ID_R[],ID_S1[]),tt[])).
+
+8. By 7, the attacker may know residue(tag(r1[],ID_R[],ID_S1[]),tt[]).
+Using the function expiry the attacker may obtain tt[].
+attacker(tt[]).
+
+9. We assume as hypothesis that
+attacker(x).
+
+10. By 3, the attacker may know (K1[],N1[]).
+Using the function 1-proj-2-tuple the attacker may obtain K1[].
+attacker(K1[]).
+
+11. By 10, the attacker may know K1[].
+By 9, the attacker may know x.
+By 8, the attacker may know tt[].
+By 2, the attacker may know r_3.
+By 1, the attacker may know ID_S1[].
+Using the function sk the attacker may obtain sk(K1[],x,tt[],r_3,ID_S1[]).
+attacker(sk(K1[],x,tt[],r_3,ID_S1[])).
+
+12. By 11, the attacker may know sk(K1[],x,tt[],r_3,ID_S1[]).
+Using the function mac_key the attacker may obtain mac_key(sk(K1[],x,tt[],r_3,ID_S1[])).
+attacker(mac_key(sk(K1[],x,tt[],r_3,ID_S1[]))).
+
+13. By 11, the attacker may know sk(K1[],x,tt[],r_3,ID_S1[]).
+Using the function enc_key the attacker may obtain enc_key(sk(K1[],x,tt[],r_3,ID_S1[])).
+attacker(enc_key(sk(K1[],x,tt[],r_3,ID_S1[]))).
+
+14. We assume as hypothesis that
+attacker(plain_3).
+
+15. By 14, the attacker may know plain_3.
+By 13, the attacker may know enc_key(sk(K1[],x,tt[],r_3,ID_S1[])).
+Using the function senc the attacker may obtain senc(plain_3,enc_key(sk(K1[],x,tt[],r_3,ID_S1[]))).
+attacker(senc(plain_3,enc_key(sk(K1[],x,tt[],r_3,ID_S1[])))).
+
+16. By 9, the attacker may know x.
+By 8, the attacker may know tt[].
+Using the function residue the attacker may obtain residue(x,tt[]).
+attacker(residue(x,tt[])).
+
+17. We assume as hypothesis that
+attacker(n2).
+
+18. We assume as hypothesis that
+attacker(r2_1).
+
+19. We assume as hypothesis that
+attacker(n1).
+
+20. We assume as hypothesis that
+attacker(r1_1).
+
+21. By 20, the attacker may know r1_1.
+By 19, the attacker may know n1.
+By 18, the attacker may know r2_1.
+By 17, the attacker may know n2.
+By 16, the attacker may know residue(x,tt[]).
+By 4, the attacker may know N1[].
+Using the function crt the attacker may obtain crt(r1_1,n1,r2_1,n2,residue(x,tt[]),N1[]).
+attacker(crt(r1_1,n1,r2_1,n2,residue(x,tt[]),N1[])).
+
+22. By 21, the attacker may know crt(r1_1,n1,r2_1,n2,residue(x,tt[]),N1[]).
+By 2, the attacker may know r_3.
+By 15, the attacker may know senc(plain_3,enc_key(sk(K1[],x,tt[],r_3,ID_S1[]))).
+Using the function 3-tuple the attacker may obtain (crt(r1_1,n1,r2_1,n2,residue(x,tt[]),N1[]),r_3,senc(plain_3,enc_key(sk(K1[],x,tt[],r_3,ID_S1[])))).
+attacker((crt(r1_1,n1,r2_1,n2,residue(x,tt[]),N1[]),r_3,senc(plain_3,enc_key(sk(K1[],x,tt[],r_3,ID_S1[]))))).
+
+23. By 22, the attacker may know (crt(r1_1,n1,r2_1,n2,residue(x,tt[]),N1[]),r_3,senc(plain_3,enc_key(sk(K1[],x,tt[],r_3,ID_S1[])))).
+By 12, the attacker may know mac_key(sk(K1[],x,tt[],r_3,ID_S1[])).
+Using the function mac the attacker may obtain mac((crt(r1_1,n1,r2_1,n2,residue(x,tt[]),N1[]),r_3,senc(plain_3,enc_key(sk(K1[],x,tt[],r_3,ID_S1[])))),mac_key(sk(K1[],x,tt[],r_3,ID_S1[]))).
+attacker(mac((crt(r1_1,n1,r2_1,n2,residue(x,tt[]),N1[]),r_3,senc(plain_3,enc_key(sk(K1[],x,tt[],r_3,ID_S1[])))),mac_key(sk(K1[],x,tt[],r_3,ID_S1[])))).
+
+24. By 21, the attacker may know crt(r1_1,n1,r2_1,n2,residue(x,tt[]),N1[]).
+By 2, the attacker may know r_3.
+By 15, the attacker may know senc(plain_3,enc_key(sk(K1[],x,tt[],r_3,ID_S1[]))).
+By 23, the attacker may know mac((crt(r1_1,n1,r2_1,n2,residue(x,tt[]),N1[]),r_3,senc(plain_3,enc_key(sk(K1[],x,tt[],r_3,ID_S1[])))),mac_key(sk(K1[],x,tt[],r_3,ID_S1[]))).
+Using the function 4-tuple the attacker may obtain (crt(r1_1,n1,r2_1,n2,residue(x,tt[]),N1[]),r_3,senc(plain_3,enc_key(sk(K1[],x,tt[],r_3,ID_S1[]))),mac((crt(r1_1,n1,r2_1,n2,residue(x,tt[]),N1[]),r_3,senc(plain_3,enc_key(sk(K1[],x,tt[],r_3,ID_S1[])))),mac_key(sk(K1[],x,tt[],r_3,ID_S1[])))).
+attacker((crt(r1_1,n1,r2_1,n2,residue(x,tt[]),N1[]),r_3,senc(plain_3,enc_key(sk(K1[],x,tt[],r_3,ID_S1[]))),mac((crt(r1_1,n1,r2_1,n2,residue(x,tt[]),N1[]),r_3,senc(plain_3,enc_key(sk(K1[],x,tt[],r_3,ID_S1[])))),mac_key(sk(K1[],x,tt[],r_3,ID_S1[]))))).
+
+25. The entry valid(tt[]) may be inserted in a table at insert {10}.
+table(valid(tt[])).
+
+26. The event Begin(ID_R[],ID_S1[],crt(residue(tag(r1[],ID_R[],ID_S1[]),tt[]),N1[],residue(tag(r2[],ID_R[],ID_S2[]),tt[]),N2[],residue(tag(r3[],ID_R[],ID_S3[]),tt[]),N3[]),senc(w1[],enc_key(sk(K1[],tag(r1[],ID_R[],ID_S1[]),tt[],ID_R[],ID_S1[]))),sk(K1[],tag(r1[],ID_R[],ID_S1[]),tt[],ID_R[],ID_S1[])) may be executed at {14}.
+The event Begin(ID_R[],ID_S2[],crt(residue(tag(r1[],ID_R[],ID_S1[]),tt[]),N1[],residue(tag(r2[],ID_R[],ID_S2[]),tt[]),N2[],residue(tag(r3[],ID_R[],ID_S3[]),tt[]),N3[]),senc(w2[],enc_key(sk(K2[],tag(r2[],ID_R[],ID_S2[]),tt[],ID_R[],ID_S2[]))),sk(K2[],tag(r2[],ID_R[],ID_S2[]),tt[],ID_R[],ID_S2[])) may be executed at {19}.
+The event Begin(ID_R[],ID_S3[],crt(residue(tag(r1[],ID_R[],ID_S1[]),tt[]),N1[],residue(tag(r2[],ID_R[],ID_S2[]),tt[]),N2[],residue(tag(r3[],ID_R[],ID_S3[]),tt[]),N3[]),senc(w3[],enc_key(sk(K3[],tag(r3[],ID_R[],ID_S3[]),tt[],ID_R[],ID_S3[]))),sk(K3[],tag(r3[],ID_R[],ID_S3[]),tt[],ID_R[],ID_S3[])) may be executed at {24}.
+The message (crt(r1_1,n1,r2_1,n2,residue(x,tt[]),N1[]),r_3,senc(plain_3,enc_key(sk(K1[],x,tt[],r_3,ID_S1[]))),mac((crt(r1_1,n1,r2_1,n2,residue(x,tt[]),N1[]),r_3,senc(plain_3,enc_key(sk(K1[],x,tt[],r_3,ID_S1[])))),mac_key(sk(K1[],x,tt[],r_3,ID_S1[])))) that the attacker may have by 24 may be received at input {27}.
+The entry valid(tt[]) that may be in a table by 25 may be read at get {37}.
+We have n1 ≠ N1[] && n2 ≠ N1[].
+So event End(r_3,ID_S1[],crt(r1_1,n1,r2_1,n2,residue(x,tt[]),N1[]),senc(plain_3,enc_key(sk(K1[],x,tt[],r_3,ID_S1[]))),sk(K1[],x,tt[],r_3,ID_S1[])) may be executed at {35}.
+event(End(r_3,ID_S1[],crt(r1_1,n1,r2_1,n2,residue(x,tt[]),N1[]),senc(plain_3,enc_key(sk(K1[],x,tt[],r_3,ID_S1[]))),sk(K1[],x,tt[],r_3,ID_S1[]))).
+
+27. By 26, event(End(r_3,ID_S1[],crt(r1_1,n1,r2_1,n2,residue(x,tt[]),N1[]),senc(plain_3,enc_key(sk(K1[],x,tt[],r_3,ID_S1[]))),sk(K1[],x,tt[],r_3,ID_S1[]))).
+The goal is reached, represented in the following fact:
+event(End(r_3,ID_S1[],crt(r1_1,n1,r2_1,n2,residue(x,tt[]),N1[]),senc(plain_3,enc_key(sk(K1[],x,tt[],r_3,ID_S1[]))),sk(K1[],x,tt[],r_3,ID_S1[]))).
+
+
+A more detailed output of the traces is available with
+  set traceDisplay = long.
+
+out(ch, (~M,~M_1)) with ~M = K1, ~M_1 = N1 at {1}
+
+new tt: bitstring creating tt_4 at {2}
+
+new r1: bitstring creating r1_2 at {3}
+
+new r2: bitstring creating r2_2 at {5}
+
+new r3: bitstring creating r3_1 at {7}
+
+insert valid(tt_4) at {10}
+
+event Issue(ID_R,ID_S1,crt(residue(tag(r1_2,ID_R,ID_S1),tt_4),N1,residue(tag(r2_2,ID_R,ID_S2),tt_4),N2,residue(tag(r3_1,ID_R,ID_S3),tt_4),N3),sk(K1,tag(r1_2,ID_R,ID_S1),tt_4,ID_R,ID_S1)) at {12}
+
+event Begin(ID_R,ID_S1,crt(residue(tag(r1_2,ID_R,ID_S1),tt_4),N1,residue(tag(r2_2,ID_R,ID_S2),tt_4),N2,residue(tag(r3_1,ID_R,ID_S3),tt_4),N3),senc(w1,enc_key(sk(K1,tag(r1_2,ID_R,ID_S1),tt_4,ID_R,ID_S1))),sk(K1,tag(r1_2,ID_R,ID_S1),tt_4,ID_R,ID_S1)) at {14}
+
+out(ch, (~M_2,~M_3,~M_4,~M_5)) with ~M_2 = crt(residue(tag(r1_2,ID_R,ID_S1),tt_4),N1,residue(tag(r2_2,ID_R,ID_S2),tt_4),N2,residue(tag(r3_1,ID_R,ID_S3),tt_4),N3), ~M_3 = ID_R, ~M_4 = senc(w1,enc_key(sk(K1,tag(r1_2,ID_R,ID_S1),tt_4,ID_R,ID_S1))), ~M_5 = mac((crt(residue(tag(r1_2,ID_R,ID_S1),tt_4),N1,residue(tag(r2_2,ID_R,ID_S2),tt_4),N2,residue(tag(r3_1,ID_R,ID_S3),tt_4),N3),ID_R,senc(w1,enc_key(sk(K1,tag(r1_2,ID_R,ID_S1),tt_4,ID_R,ID_S1)))),mac_key(sk(K1,tag(r1_2,ID_R,ID_S1),tt_4,ID_R,ID_S1))) at {15}
+
+event Issue(ID_R,ID_S2,crt(residue(tag(r1_2,ID_R,ID_S1),tt_4),N1,residue(tag(r2_2,ID_R,ID_S2),tt_4),N2,residue(tag(r3_1,ID_R,ID_S3),tt_4),N3),sk(K2,tag(r2_2,ID_R,ID_S2),tt_4,ID_R,ID_S2)) at {17}
+
+event Begin(ID_R,ID_S2,crt(residue(tag(r1_2,ID_R,ID_S1),tt_4),N1,residue(tag(r2_2,ID_R,ID_S2),tt_4),N2,residue(tag(r3_1,ID_R,ID_S3),tt_4),N3),senc(w2,enc_key(sk(K2,tag(r2_2,ID_R,ID_S2),tt_4,ID_R,ID_S2))),sk(K2,tag(r2_2,ID_R,ID_S2),tt_4,ID_R,ID_S2)) at {19}
+
+out(ch, (~M_6,~M_7,~M_8,~M_9)) with ~M_6 = crt(residue(tag(r1_2,ID_R,ID_S1),tt_4),N1,residue(tag(r2_2,ID_R,ID_S2),tt_4),N2,residue(tag(r3_1,ID_R,ID_S3),tt_4),N3), ~M_7 = ID_R, ~M_8 = senc(w2,enc_key(sk(K2,tag(r2_2,ID_R,ID_S2),tt_4,ID_R,ID_S2))), ~M_9 = mac((crt(residue(tag(r1_2,ID_R,ID_S1),tt_4),N1,residue(tag(r2_2,ID_R,ID_S2),tt_4),N2,residue(tag(r3_1,ID_R,ID_S3),tt_4),N3),ID_R,senc(w2,enc_key(sk(K2,tag(r2_2,ID_R,ID_S2),tt_4,ID_R,ID_S2)))),mac_key(sk(K2,tag(r2_2,ID_R,ID_S2),tt_4,ID_R,ID_S2))) at {20}
+
+event Issue(ID_R,ID_S3,crt(residue(tag(r1_2,ID_R,ID_S1),tt_4),N1,residue(tag(r2_2,ID_R,ID_S2),tt_4),N2,residue(tag(r3_1,ID_R,ID_S3),tt_4),N3),sk(K3,tag(r3_1,ID_R,ID_S3),tt_4,ID_R,ID_S3)) at {22}
+
+event Begin(ID_R,ID_S3,crt(residue(tag(r1_2,ID_R,ID_S1),tt_4),N1,residue(tag(r2_2,ID_R,ID_S2),tt_4),N2,residue(tag(r3_1,ID_R,ID_S3),tt_4),N3),senc(w3,enc_key(sk(K3,tag(r3_1,ID_R,ID_S3),tt_4,ID_R,ID_S3))),sk(K3,tag(r3_1,ID_R,ID_S3),tt_4,ID_R,ID_S3)) at {24}
+
+out(ch, (~M_10,~M_11,~M_12,~M_13)) with ~M_10 = crt(residue(tag(r1_2,ID_R,ID_S1),tt_4),N1,residue(tag(r2_2,ID_R,ID_S2),tt_4),N2,residue(tag(r3_1,ID_R,ID_S3),tt_4),N3), ~M_11 = ID_R, ~M_12 = senc(w3,enc_key(sk(K3,tag(r3_1,ID_R,ID_S3),tt_4,ID_R,ID_S3))), ~M_13 = mac((crt(residue(tag(r1_2,ID_R,ID_S1),tt_4),N1,residue(tag(r2_2,ID_R,ID_S2),tt_4),N2,residue(tag(r3_1,ID_R,ID_S3),tt_4),N3),ID_R,senc(w3,enc_key(sk(K3,tag(r3_1,ID_R,ID_S3),tt_4,ID_R,ID_S3)))),mac_key(sk(K3,tag(r3_1,ID_R,ID_S3),tt_4,ID_R,ID_S3))) at {25}
+
+in(ch, (crt(a,a_1,a_2,a_3,residue(a_4,expiry(decode(~M_2,~M_1))),~M_1),a_5,senc(a_6,enc_key(sk(~M,a_4,expiry(decode(~M_2,~M_1)),a_5,ID_S1))),mac((crt(a,a_1,a_2,a_3,residue(a_4,expiry(decode(~M_2,~M_1))),~M_1),a_5,senc(a_6,enc_key(sk(~M,a_4,expiry(decode(~M_2,~M_1)),a_5,ID_S1)))),mac_key(sk(~M,a_4,expiry(decode(~M_2,~M_1)),a_5,ID_S1))))) with crt(a,a_1,a_2,a_3,residue(a_4,expiry(decode(~M_2,~M_1))),~M_1) = crt(a,a_1,a_2,a_3,residue(a_4,tt_4),N1), senc(a_6,enc_key(sk(~M,a_4,expiry(decode(~M_2,~M_1)),a_5,ID_S1))) = senc(a_6,enc_key(sk(K1,a_4,tt_4,a_5,ID_S1))), mac((crt(a,a_1,a_2,a_3,residue(a_4,expiry(decode(~M_2,~M_1))),~M_1),a_5,senc(a_6,enc_key(sk(~M,a_4,expiry(decode(~M_2,~M_1)),a_5,ID_S1)))),mac_key(sk(~M,a_4,expiry(decode(~M_2,~M_1)),a_5,ID_S1))) = mac((crt(a,a_1,a_2,a_3,residue(a_4,tt_4),N1),a_5,senc(a_6,enc_key(sk(K1,a_4,tt_4,a_5,ID_S1)))),mac_key(sk(K1,a_4,tt_4,a_5,ID_S1))) at {27} in copy a_7
+
+get valid(tt_4) at {37} in copy a_7
+
+get accepted(=a_5,=ID_S1,=crt(a,a_1,a_2,a_3,residue(a_4,tt_4),N1)): else branch taken at {36} in copy a_7
+
+insert accepted(a_5,ID_S1,crt(a,a_1,a_2,a_3,residue(a_4,tt_4),N1)) at {34} in copy a_7
+
+event End(a_5,ID_S1,crt(a,a_1,a_2,a_3,residue(a_4,tt_4),N1),senc(a_6,enc_key(sk(K1,a_4,tt_4,a_5,ID_S1))),sk(K1,a_4,tt_4,a_5,ID_S1)) at {35} in copy a_7 (goal)
+
+The event End(a_5,ID_S1,crt(a,a_1,a_2,a_3,residue(a_4,tt_4),N1),senc(a_6,enc_key(sk(K1,a_4,tt_4,a_5,ID_S1))),sk(K1,a_4,tt_4,a_5,ID_S1)) is executed at {35} in copy a_7.
+A trace has been found.
+RESULT event(End(r_3,s,c_4,ct_3,k)) ==> event(Begin(r_3,s,c_4,ct_3,k)) is false.
+-- Query event(End(r_3,s,c_4,ct_3,k)) ==> event(Issue(r_3,s,c_4,k)) in process 1.
+Translating the process into Horn clauses...
+Completing...
+200 rules inserted. Base: 161 rules (38 with conclusion selected). Queue: 43 rules.
+400 rules inserted. Base: 276 rules (45 with conclusion selected). Queue: 23 rules.
+Starting query event(End(r_3,s,c_4,ct_3,k)) ==> event(Issue(r_3,s,c_4,k))
+goal reachable: n1 ≠ N1[] && n2 ≠ N1[] && attacker(r1_1) && attacker(n1) && attacker(r2_1) && attacker(n2) && attacker(plain_3) && attacker(x) && attacker(r_3) && b-event(Issue(ID_R[],ID_S3[],crt(residue(tag(r1[],ID_R[],ID_S1[]),tt[]),N1[],residue(tag(r2[],ID_R[],ID_S2[]),tt[]),N2[],residue(tag(r3[],ID_R[],ID_S3[]),tt[]),N3[]),sk(K3[],tag(r3[],ID_R[],ID_S3[]),tt[],ID_R[],ID_S3[]))) && b-event(Issue(ID_R[],ID_S2[],crt(residue(tag(r1[],ID_R[],ID_S1[]),tt[]),N1[],residue(tag(r2[],ID_R[],ID_S2[]),tt[]),N2[],residue(tag(r3[],ID_R[],ID_S3[]),tt[]),N3[]),sk(K2[],tag(r2[],ID_R[],ID_S2[]),tt[],ID_R[],ID_S2[]))) && b-event(Issue(ID_R[],ID_S1[],crt(residue(tag(r1[],ID_R[],ID_S1[]),tt[]),N1[],residue(tag(r2[],ID_R[],ID_S2[]),tt[]),N2[],residue(tag(r3[],ID_R[],ID_S3[]),tt[]),N3[]),sk(K1[],tag(r1[],ID_R[],ID_S1[]),tt[],ID_R[],ID_S1[]))) -> event(End(r_3,ID_S1[],crt(r1_1,n1,r2_1,n2,residue(x,tt[]),N1[]),senc(plain_3,enc_key(sk(K1[],x,tt[],r_3,ID_S1[]))),sk(K1[],x,tt[],r_3,ID_S1[])))
+
+Derivation:
+
+1. The attacker initially knows ID_S1[].
+attacker(ID_S1[]).
+
+2. We assume as hypothesis that
+attacker(r_3).
+
+3. The message (K1[],N1[]) may be sent to the attacker at output {1}.
+attacker((K1[],N1[])).
+
+4. By 3, the attacker may know (K1[],N1[]).
+Using the function 2-proj-2-tuple the attacker may obtain N1[].
+attacker(N1[]).
+
+5. The event Issue(ID_R[],ID_S1[],crt(residue(tag(r1[],ID_R[],ID_S1[]),tt[]),N1[],residue(tag(r2[],ID_R[],ID_S2[]),tt[]),N2[],residue(tag(r3[],ID_R[],ID_S3[]),tt[]),N3[]),sk(K1[],tag(r1[],ID_R[],ID_S1[]),tt[],ID_R[],ID_S1[])) may be executed at {12}.
+So the message (crt(residue(tag(r1[],ID_R[],ID_S1[]),tt[]),N1[],residue(tag(r2[],ID_R[],ID_S2[]),tt[]),N2[],residue(tag(r3[],ID_R[],ID_S3[]),tt[]),N3[]),ID_R[],senc(w1[],enc_key(sk(K1[],tag(r1[],ID_R[],ID_S1[]),tt[],ID_R[],ID_S1[]))),mac((crt(residue(tag(r1[],ID_R[],ID_S1[]),tt[]),N1[],residue(tag(r2[],ID_R[],ID_S2[]),tt[]),N2[],residue(tag(r3[],ID_R[],ID_S3[]),tt[]),N3[]),ID_R[],senc(w1[],enc_key(sk(K1[],tag(r1[],ID_R[],ID_S1[]),tt[],ID_R[],ID_S1[])))),mac_key(sk(K1[],tag(r1[],ID_R[],ID_S1[]),tt[],ID_R[],ID_S1[])))) may be sent to the attacker at output {15}.
+attacker((crt(residue(tag(r1[],ID_R[],ID_S1[]),tt[]),N1[],residue(tag(r2[],ID_R[],ID_S2[]),tt[]),N2[],residue(tag(r3[],ID_R[],ID_S3[]),tt[]),N3[]),ID_R[],senc(w1[],enc_key(sk(K1[],tag(r1[],ID_R[],ID_S1[]),tt[],ID_R[],ID_S1[]))),mac((crt(residue(tag(r1[],ID_R[],ID_S1[]),tt[]),N1[],residue(tag(r2[],ID_R[],ID_S2[]),tt[]),N2[],residue(tag(r3[],ID_R[],ID_S3[]),tt[]),N3[]),ID_R[],senc(w1[],enc_key(sk(K1[],tag(r1[],ID_R[],ID_S1[]),tt[],ID_R[],ID_S1[])))),mac_key(sk(K1[],tag(r1[],ID_R[],ID_S1[]),tt[],ID_R[],ID_S1[]))))).
+
+6. By 5, the attacker may know (crt(residue(tag(r1[],ID_R[],ID_S1[]),tt[]),N1[],residue(tag(r2[],ID_R[],ID_S2[]),tt[]),N2[],residue(tag(r3[],ID_R[],ID_S3[]),tt[]),N3[]),ID_R[],senc(w1[],enc_key(sk(K1[],tag(r1[],ID_R[],ID_S1[]),tt[],ID_R[],ID_S1[]))),mac((crt(residue(tag(r1[],ID_R[],ID_S1[]),tt[]),N1[],residue(tag(r2[],ID_R[],ID_S2[]),tt[]),N2[],residue(tag(r3[],ID_R[],ID_S3[]),tt[]),N3[]),ID_R[],senc(w1[],enc_key(sk(K1[],tag(r1[],ID_R[],ID_S1[]),tt[],ID_R[],ID_S1[])))),mac_key(sk(K1[],tag(r1[],ID_R[],ID_S1[]),tt[],ID_R[],ID_S1[])))).
+Using the function 1-proj-4-tuple the attacker may obtain crt(residue(tag(r1[],ID_R[],ID_S1[]),tt[]),N1[],residue(tag(r2[],ID_R[],ID_S2[]),tt[]),N2[],residue(tag(r3[],ID_R[],ID_S3[]),tt[]),N3[]).
+attacker(crt(residue(tag(r1[],ID_R[],ID_S1[]),tt[]),N1[],residue(tag(r2[],ID_R[],ID_S2[]),tt[]),N2[],residue(tag(r3[],ID_R[],ID_S3[]),tt[]),N3[])).
+
+7. By 6, the attacker may know crt(residue(tag(r1[],ID_R[],ID_S1[]),tt[]),N1[],residue(tag(r2[],ID_R[],ID_S2[]),tt[]),N2[],residue(tag(r3[],ID_R[],ID_S3[]),tt[]),N3[]).
+By 4, the attacker may know N1[].
+Using the function decode the attacker may obtain residue(tag(r1[],ID_R[],ID_S1[]),tt[]).
+attacker(residue(tag(r1[],ID_R[],ID_S1[]),tt[])).
+
+8. By 7, the attacker may know residue(tag(r1[],ID_R[],ID_S1[]),tt[]).
+Using the function expiry the attacker may obtain tt[].
+attacker(tt[]).
+
+9. We assume as hypothesis that
+attacker(x).
+
+10. By 3, the attacker may know (K1[],N1[]).
+Using the function 1-proj-2-tuple the attacker may obtain K1[].
+attacker(K1[]).
+
+11. By 10, the attacker may know K1[].
+By 9, the attacker may know x.
+By 8, the attacker may know tt[].
+By 2, the attacker may know r_3.
+By 1, the attacker may know ID_S1[].
+Using the function sk the attacker may obtain sk(K1[],x,tt[],r_3,ID_S1[]).
+attacker(sk(K1[],x,tt[],r_3,ID_S1[])).
+
+12. By 11, the attacker may know sk(K1[],x,tt[],r_3,ID_S1[]).
+Using the function mac_key the attacker may obtain mac_key(sk(K1[],x,tt[],r_3,ID_S1[])).
+attacker(mac_key(sk(K1[],x,tt[],r_3,ID_S1[]))).
+
+13. By 11, the attacker may know sk(K1[],x,tt[],r_3,ID_S1[]).
+Using the function enc_key the attacker may obtain enc_key(sk(K1[],x,tt[],r_3,ID_S1[])).
+attacker(enc_key(sk(K1[],x,tt[],r_3,ID_S1[]))).
+
+14. We assume as hypothesis that
+attacker(plain_3).
+
+15. By 14, the attacker may know plain_3.
+By 13, the attacker may know enc_key(sk(K1[],x,tt[],r_3,ID_S1[])).
+Using the function senc the attacker may obtain senc(plain_3,enc_key(sk(K1[],x,tt[],r_3,ID_S1[]))).
+attacker(senc(plain_3,enc_key(sk(K1[],x,tt[],r_3,ID_S1[])))).
+
+16. By 9, the attacker may know x.
+By 8, the attacker may know tt[].
+Using the function residue the attacker may obtain residue(x,tt[]).
+attacker(residue(x,tt[])).
+
+17. We assume as hypothesis that
+attacker(n2).
+
+18. We assume as hypothesis that
+attacker(r2_1).
+
+19. We assume as hypothesis that
+attacker(n1).
+
+20. We assume as hypothesis that
+attacker(r1_1).
+
+21. By 20, the attacker may know r1_1.
+By 19, the attacker may know n1.
+By 18, the attacker may know r2_1.
+By 17, the attacker may know n2.
+By 16, the attacker may know residue(x,tt[]).
+By 4, the attacker may know N1[].
+Using the function crt the attacker may obtain crt(r1_1,n1,r2_1,n2,residue(x,tt[]),N1[]).
+attacker(crt(r1_1,n1,r2_1,n2,residue(x,tt[]),N1[])).
+
+22. By 21, the attacker may know crt(r1_1,n1,r2_1,n2,residue(x,tt[]),N1[]).
+By 2, the attacker may know r_3.
+By 15, the attacker may know senc(plain_3,enc_key(sk(K1[],x,tt[],r_3,ID_S1[]))).
+Using the function 3-tuple the attacker may obtain (crt(r1_1,n1,r2_1,n2,residue(x,tt[]),N1[]),r_3,senc(plain_3,enc_key(sk(K1[],x,tt[],r_3,ID_S1[])))).
+attacker((crt(r1_1,n1,r2_1,n2,residue(x,tt[]),N1[]),r_3,senc(plain_3,enc_key(sk(K1[],x,tt[],r_3,ID_S1[]))))).
+
+23. By 22, the attacker may know (crt(r1_1,n1,r2_1,n2,residue(x,tt[]),N1[]),r_3,senc(plain_3,enc_key(sk(K1[],x,tt[],r_3,ID_S1[])))).
+By 12, the attacker may know mac_key(sk(K1[],x,tt[],r_3,ID_S1[])).
+Using the function mac the attacker may obtain mac((crt(r1_1,n1,r2_1,n2,residue(x,tt[]),N1[]),r_3,senc(plain_3,enc_key(sk(K1[],x,tt[],r_3,ID_S1[])))),mac_key(sk(K1[],x,tt[],r_3,ID_S1[]))).
+attacker(mac((crt(r1_1,n1,r2_1,n2,residue(x,tt[]),N1[]),r_3,senc(plain_3,enc_key(sk(K1[],x,tt[],r_3,ID_S1[])))),mac_key(sk(K1[],x,tt[],r_3,ID_S1[])))).
+
+24. By 21, the attacker may know crt(r1_1,n1,r2_1,n2,residue(x,tt[]),N1[]).
+By 2, the attacker may know r_3.
+By 15, the attacker may know senc(plain_3,enc_key(sk(K1[],x,tt[],r_3,ID_S1[]))).
+By 23, the attacker may know mac((crt(r1_1,n1,r2_1,n2,residue(x,tt[]),N1[]),r_3,senc(plain_3,enc_key(sk(K1[],x,tt[],r_3,ID_S1[])))),mac_key(sk(K1[],x,tt[],r_3,ID_S1[]))).
+Using the function 4-tuple the attacker may obtain (crt(r1_1,n1,r2_1,n2,residue(x,tt[]),N1[]),r_3,senc(plain_3,enc_key(sk(K1[],x,tt[],r_3,ID_S1[]))),mac((crt(r1_1,n1,r2_1,n2,residue(x,tt[]),N1[]),r_3,senc(plain_3,enc_key(sk(K1[],x,tt[],r_3,ID_S1[])))),mac_key(sk(K1[],x,tt[],r_3,ID_S1[])))).
+attacker((crt(r1_1,n1,r2_1,n2,residue(x,tt[]),N1[]),r_3,senc(plain_3,enc_key(sk(K1[],x,tt[],r_3,ID_S1[]))),mac((crt(r1_1,n1,r2_1,n2,residue(x,tt[]),N1[]),r_3,senc(plain_3,enc_key(sk(K1[],x,tt[],r_3,ID_S1[])))),mac_key(sk(K1[],x,tt[],r_3,ID_S1[]))))).
+
+25. The entry valid(tt[]) may be inserted in a table at insert {10}.
+table(valid(tt[])).
+
+26. The event Issue(ID_R[],ID_S1[],crt(residue(tag(r1[],ID_R[],ID_S1[]),tt[]),N1[],residue(tag(r2[],ID_R[],ID_S2[]),tt[]),N2[],residue(tag(r3[],ID_R[],ID_S3[]),tt[]),N3[]),sk(K1[],tag(r1[],ID_R[],ID_S1[]),tt[],ID_R[],ID_S1[])) may be executed at {12}.
+The event Issue(ID_R[],ID_S2[],crt(residue(tag(r1[],ID_R[],ID_S1[]),tt[]),N1[],residue(tag(r2[],ID_R[],ID_S2[]),tt[]),N2[],residue(tag(r3[],ID_R[],ID_S3[]),tt[]),N3[]),sk(K2[],tag(r2[],ID_R[],ID_S2[]),tt[],ID_R[],ID_S2[])) may be executed at {17}.
+The event Issue(ID_R[],ID_S3[],crt(residue(tag(r1[],ID_R[],ID_S1[]),tt[]),N1[],residue(tag(r2[],ID_R[],ID_S2[]),tt[]),N2[],residue(tag(r3[],ID_R[],ID_S3[]),tt[]),N3[]),sk(K3[],tag(r3[],ID_R[],ID_S3[]),tt[],ID_R[],ID_S3[])) may be executed at {22}.
+The message (crt(r1_1,n1,r2_1,n2,residue(x,tt[]),N1[]),r_3,senc(plain_3,enc_key(sk(K1[],x,tt[],r_3,ID_S1[]))),mac((crt(r1_1,n1,r2_1,n2,residue(x,tt[]),N1[]),r_3,senc(plain_3,enc_key(sk(K1[],x,tt[],r_3,ID_S1[])))),mac_key(sk(K1[],x,tt[],r_3,ID_S1[])))) that the attacker may have by 24 may be received at input {27}.
+The entry valid(tt[]) that may be in a table by 25 may be read at get {37}.
+We have n1 ≠ N1[] && n2 ≠ N1[].
+So event End(r_3,ID_S1[],crt(r1_1,n1,r2_1,n2,residue(x,tt[]),N1[]),senc(plain_3,enc_key(sk(K1[],x,tt[],r_3,ID_S1[]))),sk(K1[],x,tt[],r_3,ID_S1[])) may be executed at {35}.
+event(End(r_3,ID_S1[],crt(r1_1,n1,r2_1,n2,residue(x,tt[]),N1[]),senc(plain_3,enc_key(sk(K1[],x,tt[],r_3,ID_S1[]))),sk(K1[],x,tt[],r_3,ID_S1[]))).
+
+27. By 26, event(End(r_3,ID_S1[],crt(r1_1,n1,r2_1,n2,residue(x,tt[]),N1[]),senc(plain_3,enc_key(sk(K1[],x,tt[],r_3,ID_S1[]))),sk(K1[],x,tt[],r_3,ID_S1[]))).
+The goal is reached, represented in the following fact:
+event(End(r_3,ID_S1[],crt(r1_1,n1,r2_1,n2,residue(x,tt[]),N1[]),senc(plain_3,enc_key(sk(K1[],x,tt[],r_3,ID_S1[]))),sk(K1[],x,tt[],r_3,ID_S1[]))).
+
+
+A more detailed output of the traces is available with
+  set traceDisplay = long.
+
+out(ch, (~M,~M_1)) with ~M = K1, ~M_1 = N1 at {1}
+
+new tt: bitstring creating tt_4 at {2}
+
+new r1: bitstring creating r1_2 at {3}
+
+new r2: bitstring creating r2_2 at {5}
+
+new r3: bitstring creating r3_1 at {7}
+
+insert valid(tt_4) at {10}
+
+event Issue(ID_R,ID_S1,crt(residue(tag(r1_2,ID_R,ID_S1),tt_4),N1,residue(tag(r2_2,ID_R,ID_S2),tt_4),N2,residue(tag(r3_1,ID_R,ID_S3),tt_4),N3),sk(K1,tag(r1_2,ID_R,ID_S1),tt_4,ID_R,ID_S1)) at {12}
+
+event Begin(ID_R,ID_S1,crt(residue(tag(r1_2,ID_R,ID_S1),tt_4),N1,residue(tag(r2_2,ID_R,ID_S2),tt_4),N2,residue(tag(r3_1,ID_R,ID_S3),tt_4),N3),senc(w1,enc_key(sk(K1,tag(r1_2,ID_R,ID_S1),tt_4,ID_R,ID_S1))),sk(K1,tag(r1_2,ID_R,ID_S1),tt_4,ID_R,ID_S1)) at {14}
+
+out(ch, (~M_2,~M_3,~M_4,~M_5)) with ~M_2 = crt(residue(tag(r1_2,ID_R,ID_S1),tt_4),N1,residue(tag(r2_2,ID_R,ID_S2),tt_4),N2,residue(tag(r3_1,ID_R,ID_S3),tt_4),N3), ~M_3 = ID_R, ~M_4 = senc(w1,enc_key(sk(K1,tag(r1_2,ID_R,ID_S1),tt_4,ID_R,ID_S1))), ~M_5 = mac((crt(residue(tag(r1_2,ID_R,ID_S1),tt_4),N1,residue(tag(r2_2,ID_R,ID_S2),tt_4),N2,residue(tag(r3_1,ID_R,ID_S3),tt_4),N3),ID_R,senc(w1,enc_key(sk(K1,tag(r1_2,ID_R,ID_S1),tt_4,ID_R,ID_S1)))),mac_key(sk(K1,tag(r1_2,ID_R,ID_S1),tt_4,ID_R,ID_S1))) at {15}
+
+event Issue(ID_R,ID_S2,crt(residue(tag(r1_2,ID_R,ID_S1),tt_4),N1,residue(tag(r2_2,ID_R,ID_S2),tt_4),N2,residue(tag(r3_1,ID_R,ID_S3),tt_4),N3),sk(K2,tag(r2_2,ID_R,ID_S2),tt_4,ID_R,ID_S2)) at {17}
+
+event Begin(ID_R,ID_S2,crt(residue(tag(r1_2,ID_R,ID_S1),tt_4),N1,residue(tag(r2_2,ID_R,ID_S2),tt_4),N2,residue(tag(r3_1,ID_R,ID_S3),tt_4),N3),senc(w2,enc_key(sk(K2,tag(r2_2,ID_R,ID_S2),tt_4,ID_R,ID_S2))),sk(K2,tag(r2_2,ID_R,ID_S2),tt_4,ID_R,ID_S2)) at {19}
+
+out(ch, (~M_6,~M_7,~M_8,~M_9)) with ~M_6 = crt(residue(tag(r1_2,ID_R,ID_S1),tt_4),N1,residue(tag(r2_2,ID_R,ID_S2),tt_4),N2,residue(tag(r3_1,ID_R,ID_S3),tt_4),N3), ~M_7 = ID_R, ~M_8 = senc(w2,enc_key(sk(K2,tag(r2_2,ID_R,ID_S2),tt_4,ID_R,ID_S2))), ~M_9 = mac((crt(residue(tag(r1_2,ID_R,ID_S1),tt_4),N1,residue(tag(r2_2,ID_R,ID_S2),tt_4),N2,residue(tag(r3_1,ID_R,ID_S3),tt_4),N3),ID_R,senc(w2,enc_key(sk(K2,tag(r2_2,ID_R,ID_S2),tt_4,ID_R,ID_S2)))),mac_key(sk(K2,tag(r2_2,ID_R,ID_S2),tt_4,ID_R,ID_S2))) at {20}
+
+event Issue(ID_R,ID_S3,crt(residue(tag(r1_2,ID_R,ID_S1),tt_4),N1,residue(tag(r2_2,ID_R,ID_S2),tt_4),N2,residue(tag(r3_1,ID_R,ID_S3),tt_4),N3),sk(K3,tag(r3_1,ID_R,ID_S3),tt_4,ID_R,ID_S3)) at {22}
+
+event Begin(ID_R,ID_S3,crt(residue(tag(r1_2,ID_R,ID_S1),tt_4),N1,residue(tag(r2_2,ID_R,ID_S2),tt_4),N2,residue(tag(r3_1,ID_R,ID_S3),tt_4),N3),senc(w3,enc_key(sk(K3,tag(r3_1,ID_R,ID_S3),tt_4,ID_R,ID_S3))),sk(K3,tag(r3_1,ID_R,ID_S3),tt_4,ID_R,ID_S3)) at {24}
+
+out(ch, (~M_10,~M_11,~M_12,~M_13)) with ~M_10 = crt(residue(tag(r1_2,ID_R,ID_S1),tt_4),N1,residue(tag(r2_2,ID_R,ID_S2),tt_4),N2,residue(tag(r3_1,ID_R,ID_S3),tt_4),N3), ~M_11 = ID_R, ~M_12 = senc(w3,enc_key(sk(K3,tag(r3_1,ID_R,ID_S3),tt_4,ID_R,ID_S3))), ~M_13 = mac((crt(residue(tag(r1_2,ID_R,ID_S1),tt_4),N1,residue(tag(r2_2,ID_R,ID_S2),tt_4),N2,residue(tag(r3_1,ID_R,ID_S3),tt_4),N3),ID_R,senc(w3,enc_key(sk(K3,tag(r3_1,ID_R,ID_S3),tt_4,ID_R,ID_S3)))),mac_key(sk(K3,tag(r3_1,ID_R,ID_S3),tt_4,ID_R,ID_S3))) at {25}
+
+in(ch, (crt(a,a_1,a_2,a_3,residue(a_4,expiry(decode(~M_2,~M_1))),~M_1),a_5,senc(a_6,enc_key(sk(~M,a_4,expiry(decode(~M_2,~M_1)),a_5,ID_S1))),mac((crt(a,a_1,a_2,a_3,residue(a_4,expiry(decode(~M_2,~M_1))),~M_1),a_5,senc(a_6,enc_key(sk(~M,a_4,expiry(decode(~M_2,~M_1)),a_5,ID_S1)))),mac_key(sk(~M,a_4,expiry(decode(~M_2,~M_1)),a_5,ID_S1))))) with crt(a,a_1,a_2,a_3,residue(a_4,expiry(decode(~M_2,~M_1))),~M_1) = crt(a,a_1,a_2,a_3,residue(a_4,tt_4),N1), senc(a_6,enc_key(sk(~M,a_4,expiry(decode(~M_2,~M_1)),a_5,ID_S1))) = senc(a_6,enc_key(sk(K1,a_4,tt_4,a_5,ID_S1))), mac((crt(a,a_1,a_2,a_3,residue(a_4,expiry(decode(~M_2,~M_1))),~M_1),a_5,senc(a_6,enc_key(sk(~M,a_4,expiry(decode(~M_2,~M_1)),a_5,ID_S1)))),mac_key(sk(~M,a_4,expiry(decode(~M_2,~M_1)),a_5,ID_S1))) = mac((crt(a,a_1,a_2,a_3,residue(a_4,tt_4),N1),a_5,senc(a_6,enc_key(sk(K1,a_4,tt_4,a_5,ID_S1)))),mac_key(sk(K1,a_4,tt_4,a_5,ID_S1))) at {27} in copy a_7
+
+get valid(tt_4) at {37} in copy a_7
+
+get accepted(=a_5,=ID_S1,=crt(a,a_1,a_2,a_3,residue(a_4,tt_4),N1)): else branch taken at {36} in copy a_7
+
+insert accepted(a_5,ID_S1,crt(a,a_1,a_2,a_3,residue(a_4,tt_4),N1)) at {34} in copy a_7
+
+event End(a_5,ID_S1,crt(a,a_1,a_2,a_3,residue(a_4,tt_4),N1),senc(a_6,enc_key(sk(K1,a_4,tt_4,a_5,ID_S1))),sk(K1,a_4,tt_4,a_5,ID_S1)) at {35} in copy a_7 (goal)
+
+The event End(a_5,ID_S1,crt(a,a_1,a_2,a_3,residue(a_4,tt_4),N1),senc(a_6,enc_key(sk(K1,a_4,tt_4,a_5,ID_S1))),sk(K1,a_4,tt_4,a_5,ID_S1)) is executed at {35} in copy a_7.
+A trace has been found.
+RESULT event(End(r_3,s,c_4,ct_3,k)) ==> event(Issue(r_3,s,c_4,k)) is false.
+-- Query event(End(r_3,ID_S2[],c_4,ct_3,k)) ==> event(Begin(r_3,ID_S2[],c_4,ct_3,k)) in process 1.
+Translating the process into Horn clauses...
+Completing...
+200 rules inserted. Base: 161 rules (38 with conclusion selected). Queue: 43 rules.
+400 rules inserted. Base: 276 rules (45 with conclusion selected). Queue: 23 rules.
+Starting query event(End(r_3,ID_S2[],c_4,ct_3,k)) ==> event(Begin(r_3,ID_S2[],c_4,ct_3,k))
+goal reachable: b-event(Begin(ID_R[],ID_S3[],crt(residue(tag(r1[],ID_R[],ID_S1[]),tt[]),N1[],residue(tag(r2[],ID_R[],ID_S2[]),tt[]),N2[],residue(tag(r3[],ID_R[],ID_S3[]),tt[]),N3[]),senc(w3[],enc_key(sk(K3[],tag(r3[],ID_R[],ID_S3[]),tt[],ID_R[],ID_S3[]))),sk(K3[],tag(r3[],ID_R[],ID_S3[]),tt[],ID_R[],ID_S3[]))) && b-event(Begin(ID_R[],ID_S2[],crt(residue(tag(r1[],ID_R[],ID_S1[]),tt[]),N1[],residue(tag(r2[],ID_R[],ID_S2[]),tt[]),N2[],residue(tag(r3[],ID_R[],ID_S3[]),tt[]),N3[]),senc(w2[],enc_key(sk(K2[],tag(r2[],ID_R[],ID_S2[]),tt[],ID_R[],ID_S2[]))),sk(K2[],tag(r2[],ID_R[],ID_S2[]),tt[],ID_R[],ID_S2[]))) && b-event(Begin(ID_R[],ID_S1[],crt(residue(tag(r1[],ID_R[],ID_S1[]),tt[]),N1[],residue(tag(r2[],ID_R[],ID_S2[]),tt[]),N2[],residue(tag(r3[],ID_R[],ID_S3[]),tt[]),N3[]),senc(w1[],enc_key(sk(K1[],tag(r1[],ID_R[],ID_S1[]),tt[],ID_R[],ID_S1[]))),sk(K1[],tag(r1[],ID_R[],ID_S1[]),tt[],ID_R[],ID_S1[]))) -> event(End(ID_R[],ID_S2[],crt(residue(tag(r1[],ID_R[],ID_S1[]),tt[]),N1[],residue(tag(r2[],ID_R[],ID_S2[]),tt[]),N2[],residue(tag(r3[],ID_R[],ID_S3[]),tt[]),N3[]),senc(w2[],enc_key(sk(K2[],tag(r2[],ID_R[],ID_S2[]),tt[],ID_R[],ID_S2[]))),sk(K2[],tag(r2[],ID_R[],ID_S2[]),tt[],ID_R[],ID_S2[])))
+RESULT event(End(r_3,ID_S2[],c_4,ct_3,k)) ==> event(Begin(r_3,ID_S2[],c_4,ct_3,k)) is true.
+-- Query event(End(r_3,ID_S2[],c_4,ct_3,k)) ==> event(Issue(r_3,ID_S2[],c_4,k)) in process 1.
+Translating the process into Horn clauses...
+Completing...
+200 rules inserted. Base: 161 rules (38 with conclusion selected). Queue: 43 rules.
+400 rules inserted. Base: 276 rules (45 with conclusion selected). Queue: 23 rules.
+Starting query event(End(r_3,ID_S2[],c_4,ct_3,k)) ==> event(Issue(r_3,ID_S2[],c_4,k))
+goal reachable: b-event(Issue(ID_R[],ID_S3[],crt(residue(tag(r1[],ID_R[],ID_S1[]),tt[]),N1[],residue(tag(r2[],ID_R[],ID_S2[]),tt[]),N2[],residue(tag(r3[],ID_R[],ID_S3[]),tt[]),N3[]),sk(K3[],tag(r3[],ID_R[],ID_S3[]),tt[],ID_R[],ID_S3[]))) && b-event(Issue(ID_R[],ID_S2[],crt(residue(tag(r1[],ID_R[],ID_S1[]),tt[]),N1[],residue(tag(r2[],ID_R[],ID_S2[]),tt[]),N2[],residue(tag(r3[],ID_R[],ID_S3[]),tt[]),N3[]),sk(K2[],tag(r2[],ID_R[],ID_S2[]),tt[],ID_R[],ID_S2[]))) && b-event(Issue(ID_R[],ID_S1[],crt(residue(tag(r1[],ID_R[],ID_S1[]),tt[]),N1[],residue(tag(r2[],ID_R[],ID_S2[]),tt[]),N2[],residue(tag(r3[],ID_R[],ID_S3[]),tt[]),N3[]),sk(K1[],tag(r1[],ID_R[],ID_S1[]),tt[],ID_R[],ID_S1[]))) -> event(End(ID_R[],ID_S2[],crt(residue(tag(r1[],ID_R[],ID_S1[]),tt[]),N1[],residue(tag(r2[],ID_R[],ID_S2[]),tt[]),N2[],residue(tag(r3[],ID_R[],ID_S3[]),tt[]),N3[]),senc(w2[],enc_key(sk(K2[],tag(r2[],ID_R[],ID_S2[]),tt[],ID_R[],ID_S2[]))),sk(K2[],tag(r2[],ID_R[],ID_S2[]),tt[],ID_R[],ID_S2[])))
+RESULT event(End(r_3,ID_S2[],c_4,ct_3,k)) ==> event(Issue(r_3,ID_S2[],c_4,k)) is true.
+-- Query event(End(r_3,ID_S3[],c_4,ct_3,k)) ==> event(Begin(r_3,ID_S3[],c_4,ct_3,k)) in process 1.
+Translating the process into Horn clauses...
+Completing...
+200 rules inserted. Base: 161 rules (38 with conclusion selected). Queue: 43 rules.
+400 rules inserted. Base: 276 rules (45 with conclusion selected). Queue: 23 rules.
+Starting query event(End(r_3,ID_S3[],c_4,ct_3,k)) ==> event(Begin(r_3,ID_S3[],c_4,ct_3,k))
+goal reachable: b-event(Begin(ID_R[],ID_S3[],crt(residue(tag(r1[],ID_R[],ID_S1[]),tt[]),N1[],residue(tag(r2[],ID_R[],ID_S2[]),tt[]),N2[],residue(tag(r3[],ID_R[],ID_S3[]),tt[]),N3[]),senc(w3[],enc_key(sk(K3[],tag(r3[],ID_R[],ID_S3[]),tt[],ID_R[],ID_S3[]))),sk(K3[],tag(r3[],ID_R[],ID_S3[]),tt[],ID_R[],ID_S3[]))) && b-event(Begin(ID_R[],ID_S2[],crt(residue(tag(r1[],ID_R[],ID_S1[]),tt[]),N1[],residue(tag(r2[],ID_R[],ID_S2[]),tt[]),N2[],residue(tag(r3[],ID_R[],ID_S3[]),tt[]),N3[]),senc(w2[],enc_key(sk(K2[],tag(r2[],ID_R[],ID_S2[]),tt[],ID_R[],ID_S2[]))),sk(K2[],tag(r2[],ID_R[],ID_S2[]),tt[],ID_R[],ID_S2[]))) && b-event(Begin(ID_R[],ID_S1[],crt(residue(tag(r1[],ID_R[],ID_S1[]),tt[]),N1[],residue(tag(r2[],ID_R[],ID_S2[]),tt[]),N2[],residue(tag(r3[],ID_R[],ID_S3[]),tt[]),N3[]),senc(w1[],enc_key(sk(K1[],tag(r1[],ID_R[],ID_S1[]),tt[],ID_R[],ID_S1[]))),sk(K1[],tag(r1[],ID_R[],ID_S1[]),tt[],ID_R[],ID_S1[]))) -> event(End(ID_R[],ID_S3[],crt(residue(tag(r1[],ID_R[],ID_S1[]),tt[]),N1[],residue(tag(r2[],ID_R[],ID_S2[]),tt[]),N2[],residue(tag(r3[],ID_R[],ID_S3[]),tt[]),N3[]),senc(w3[],enc_key(sk(K3[],tag(r3[],ID_R[],ID_S3[]),tt[],ID_R[],ID_S3[]))),sk(K3[],tag(r3[],ID_R[],ID_S3[]),tt[],ID_R[],ID_S3[])))
+RESULT event(End(r_3,ID_S3[],c_4,ct_3,k)) ==> event(Begin(r_3,ID_S3[],c_4,ct_3,k)) is true.
+-- Query event(End(r_3,ID_S3[],c_4,ct_3,k)) ==> event(Issue(r_3,ID_S3[],c_4,k)) in process 1.
+Translating the process into Horn clauses...
+Completing...
+200 rules inserted. Base: 161 rules (38 with conclusion selected). Queue: 43 rules.
+400 rules inserted. Base: 276 rules (45 with conclusion selected). Queue: 23 rules.
+Starting query event(End(r_3,ID_S3[],c_4,ct_3,k)) ==> event(Issue(r_3,ID_S3[],c_4,k))
+goal reachable: b-event(Issue(ID_R[],ID_S3[],crt(residue(tag(r1[],ID_R[],ID_S1[]),tt[]),N1[],residue(tag(r2[],ID_R[],ID_S2[]),tt[]),N2[],residue(tag(r3[],ID_R[],ID_S3[]),tt[]),N3[]),sk(K3[],tag(r3[],ID_R[],ID_S3[]),tt[],ID_R[],ID_S3[]))) && b-event(Issue(ID_R[],ID_S2[],crt(residue(tag(r1[],ID_R[],ID_S1[]),tt[]),N1[],residue(tag(r2[],ID_R[],ID_S2[]),tt[]),N2[],residue(tag(r3[],ID_R[],ID_S3[]),tt[]),N3[]),sk(K2[],tag(r2[],ID_R[],ID_S2[]),tt[],ID_R[],ID_S2[]))) && b-event(Issue(ID_R[],ID_S1[],crt(residue(tag(r1[],ID_R[],ID_S1[]),tt[]),N1[],residue(tag(r2[],ID_R[],ID_S2[]),tt[]),N2[],residue(tag(r3[],ID_R[],ID_S3[]),tt[]),N3[]),sk(K1[],tag(r1[],ID_R[],ID_S1[]),tt[],ID_R[],ID_S1[]))) -> event(End(ID_R[],ID_S3[],crt(residue(tag(r1[],ID_R[],ID_S1[]),tt[]),N1[],residue(tag(r2[],ID_R[],ID_S2[]),tt[]),N2[],residue(tag(r3[],ID_R[],ID_S3[]),tt[]),N3[]),senc(w3[],enc_key(sk(K3[],tag(r3[],ID_R[],ID_S3[]),tt[],ID_R[],ID_S3[]))),sk(K3[],tag(r3[],ID_R[],ID_S3[]),tt[],ID_R[],ID_S3[])))
+RESULT event(End(r_3,ID_S3[],c_4,ct_3,k)) ==> event(Issue(r_3,ID_S3[],c_4,k)) is true.
+
+--------------------------------------------------------------
+Verification summary:
+
+Query not attacker(w1[]) is false.
+
+Query not attacker(w2[]) is true.
+
+Query not attacker(w3[]) is true.
+
+Query event(End(r_3,s,c_4,ct_3,k)) ==> event(Begin(r_3,s,c_4,ct_3,k)) is false.
+
+Query event(End(r_3,s,c_4,ct_3,k)) ==> event(Issue(r_3,s,c_4,k)) is false.
+
+Query event(End(r_3,ID_S2[],c_4,ct_3,k)) ==> event(Begin(r_3,ID_S2[],c_4,ct_3,k)) is true.
+
+Query event(End(r_3,ID_S2[],c_4,ct_3,k)) ==> event(Issue(r_3,ID_S2[],c_4,k)) is true.
+
+Query event(End(r_3,ID_S3[],c_4,ct_3,k)) ==> event(Begin(r_3,ID_S3[],c_4,ct_3,k)) is true.
+
+Query event(End(r_3,ID_S3[],c_4,ct_3,k)) ==> event(Issue(r_3,ID_S3[],c_4,k)) is true.
+
+--------------------------------------------------------------
+

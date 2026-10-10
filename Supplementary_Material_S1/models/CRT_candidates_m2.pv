@@ -1,0 +1,71 @@
+(* Prepared-bundle abstraction: m=2, every candidate exercised. *)
+free ch: channel.
+free ID_R: bitstring.
+free ID_S1: bitstring.
+free K1: bitstring [private].
+free N1: bitstring [private].
+free w1: bitstring [private].
+free ID_S2: bitstring.
+free K2: bitstring [private].
+free N2: bitstring [private].
+free w2: bitstring [private].
+fun enc_key(bitstring): bitstring.
+fun mac_key(bitstring): bitstring.
+fun senc(bitstring,bitstring): bitstring.
+reduc forall x:bitstring,k:bitstring; sdec(senc(x,k),k)=x.
+fun mac(bitstring,bitstring): bitstring.
+fun tag(bitstring,bitstring,bitstring): bitstring.
+fun sk(bitstring,bitstring,bitstring,bitstring,bitstring): bitstring.
+fun residue(bitstring,bitstring): bitstring.
+reduc forall x:bitstring,t:bitstring; eta(residue(x,t))=x.
+reduc forall x:bitstring,t:bitstring; expiry(residue(x,t))=t.
+fun crt(bitstring,bitstring,bitstring,bitstring):bitstring.
+fun decode(bitstring,bitstring):bitstring
+reduc forall r1:bitstring,n1:bitstring,r2:bitstring,n2:bitstring; decode(crt(r1,n1,r2,n2),n1)=r1
+otherwise forall r1:bitstring,n1:bitstring,r2:bitstring,n2:bitstring; decode(crt(r1,n1,r2,n2),n2)=r2.
+table valid(bitstring).
+table accepted(bitstring,bitstring,bitstring).
+event Issue(bitstring,bitstring,bitstring,bitstring).
+event Begin(bitstring,bitstring,bitstring,bitstring,bitstring).
+event End(bitstring,bitstring,bitstring,bitstring,bitstring).
+query attacker(w1).
+query attacker(w2).
+query r:bitstring,s:bitstring,c:bitstring,ct:bitstring,k:bitstring; event(End(r,s,c,ct,k)) ==> event(Begin(r,s,c,ct,k)).
+query r:bitstring,s:bitstring,c:bitstring,ct:bitstring,k:bitstring; event(End(r,s,c,ct,k)) ==> event(Issue(r,s,c,k)).
+let target1 =
+ in(ch,(c:bitstring,r:bitstring,ct:bitstring,tg:bitstring));
+ let rr=decode(c,N1) in let ee=eta(rr) in let tt=expiry(rr) in
+ get valid(=tt) in
+ let kk=sk(K1,ee,tt,r,ID_S1) in
+ if tg=mac((c,r,ct),mac_key(kk)) then
+ let plain=sdec(ct,enc_key(kk)) in
+ get accepted(=r,=ID_S1,=c) in 0 else
+ insert accepted(r,ID_S1,c);
+ event End(r,ID_S1,c,ct,kk).
+let target2 =
+ in(ch,(c:bitstring,r:bitstring,ct:bitstring,tg:bitstring));
+ let rr=decode(c,N2) in let ee=eta(rr) in let tt=expiry(rr) in
+ get valid(=tt) in
+ let kk=sk(K2,ee,tt,r,ID_S2) in
+ if tg=mac((c,r,ct),mac_key(kk)) then
+ let plain=sdec(ct,enc_key(kk)) in
+ get accepted(=r,=ID_S2,=c) in 0 else
+ insert accepted(r,ID_S2,c);
+ event End(r,ID_S2,c,ct,kk).
+process
+ new tt:bitstring;
+new r1:bitstring; let e1=tag(r1,ID_R,ID_S1) in
+new r2:bitstring; let e2=tag(r2,ID_R,ID_S2) in
+let c=crt(residue(e1,tt),N1,residue(e2,tt),N2) in
+insert valid(tt);
+let k1=sk(K1,e1,tt,ID_R,ID_S1) in
+event Issue(ID_R,ID_S1,c,k1);
+let ct1=senc(w1,enc_key(k1)) in
+event Begin(ID_R,ID_S1,c,ct1,k1);
+out(ch,(c,ID_R,ct1,mac((c,ID_R,ct1),mac_key(k1))));
+let k2=sk(K2,e2,tt,ID_R,ID_S2) in
+event Issue(ID_R,ID_S2,c,k2);
+let ct2=senc(w2,enc_key(k2)) in
+event Begin(ID_R,ID_S2,c,ct2,k2);
+out(ch,(c,ID_R,ct2,mac((c,ID_R,ct2),mac_key(k2))));
+((!target1)|(!target2))

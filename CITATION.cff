@@ -1,18 +1,14 @@
-cff-version: 1.2.0
-message: "If you use these ProVerif models, please cite the archived software package and the associated manuscript."
-title: "Supplementary Material S1: ProVerif Models and Results for 0-RTT Handover Authentication and Key Distribution"
-type: software
-version: 1.0.1
-authors:
-  - family-names: Wang
-    given-names: Rui
-  - family-names: Xiong
-    given-names: Ling
-  - family-names: Liu
-    given-names: Jianwei
-keywords:
-  - ProVerif
-  - satellite handover
-  - authentication
-  - Chinese Remainder Theorem
-  - formal verification
+{
+  "cff-version": "1.2.0",
+  "message": "If you use these materials, please cite the software package and the associated manuscript.",
+  "title": "Reproducibility Materials for Proactive Key Distribution for 0-RTT Handover Authentication in 6G Integrated Satellite-Terrestrial Networks",
+  "type": "software",
+  "version": "1.1.0",
+  "repository-code": "https://github.com/ill-never-retreat/satellite-handover-proverif",
+  "authors": [
+    {"family-names": "Wang", "given-names": "Rui"},
+    {"family-names": "Xiong", "given-names": "Ling"},
+    {"family-names": "Liu", "given-names": "Jianwei"}
+  ],
+  "keywords": ["ProVerif", "satellite handover", "authentication", "Chinese Remainder Theorem", "reproducibility"]
+}

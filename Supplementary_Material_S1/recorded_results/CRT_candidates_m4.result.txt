@@ -1,0 +1,254 @@
+Process 0 (that is, the initial process):
+{1}new tt: bitstring;
+{2}new r1: bitstring;
+{3}let e1: bitstring = tag(r1,ID_R,ID_S1) in
+{4}new r2: bitstring;
+{5}let e2: bitstring = tag(r2,ID_R,ID_S2) in
+{6}new r3: bitstring;
+{7}let e3: bitstring = tag(r3,ID_R,ID_S3) in
+{8}new r4: bitstring;
+{9}let e4: bitstring = tag(r4,ID_R,ID_S4) in
+{10}let c: bitstring = crt(residue(e1,tt),N1,residue(e2,tt),N2,residue(e3,tt),N3,residue(e4,tt),N4) in
+{11}insert valid(tt);
+{12}let k1: bitstring = sk(K1,e1,tt,ID_R,ID_S1) in
+{13}event Issue(ID_R,ID_S1,c,k1);
+{14}let ct1: bitstring = senc(w1,enc_key(k1)) in
+{15}event Begin(ID_R,ID_S1,c,ct1,k1);
+{16}out(ch, (c,ID_R,ct1,mac((c,ID_R,ct1),mac_key(k1))));
+{17}let k2: bitstring = sk(K2,e2,tt,ID_R,ID_S2) in
+{18}event Issue(ID_R,ID_S2,c,k2);
+{19}let ct2: bitstring = senc(w2,enc_key(k2)) in
+{20}event Begin(ID_R,ID_S2,c,ct2,k2);
+{21}out(ch, (c,ID_R,ct2,mac((c,ID_R,ct2),mac_key(k2))));
+{22}let k3: bitstring = sk(K3,e3,tt,ID_R,ID_S3) in
+{23}event Issue(ID_R,ID_S3,c,k3);
+{24}let ct3: bitstring = senc(w3,enc_key(k3)) in
+{25}event Begin(ID_R,ID_S3,c,ct3,k3);
+{26}out(ch, (c,ID_R,ct3,mac((c,ID_R,ct3),mac_key(k3))));
+{27}let k4: bitstring = sk(K4,e4,tt,ID_R,ID_S4) in
+{28}event Issue(ID_R,ID_S4,c,k4);
+{29}let ct4: bitstring = senc(w4,enc_key(k4)) in
+{30}event Begin(ID_R,ID_S4,c,ct4,k4);
+{31}out(ch, (c,ID_R,ct4,mac((c,ID_R,ct4),mac_key(k4))));
+(
+    {32}!
+    {33}in(ch, (c_1: bitstring,r: bitstring,ct: bitstring,tg: bitstring));
+    {34}let rr: bitstring = decode(c_1,N1) in
+    {35}let ee: bitstring = eta(rr) in
+    {36}let tt_1: bitstring = expiry(rr) in
+    {43}get valid(=tt_1) in
+    {37}let kk: bitstring = sk(K1,ee,tt_1,r,ID_S1) in
+    {38}if (tg = mac((c_1,r,ct),mac_key(kk))) then
+    {39}let plain: bitstring = sdec(ct,enc_key(kk)) in
+    {42}get accepted(=r,=ID_S1,=c_1) in
+        0
+    else
+        {40}insert accepted(r,ID_S1,c_1);
+        {41}event End(r,ID_S1,c_1,ct,kk)
+) | (
+    {44}!
+    {45}in(ch, (c_2: bitstring,r_1: bitstring,ct_1: bitstring,tg_1: bitstring));
+    {46}let rr_1: bitstring = decode(c_2,N2) in
+    {47}let ee_1: bitstring = eta(rr_1) in
+    {48}let tt_2: bitstring = expiry(rr_1) in
+    {55}get valid(=tt_2) in
+    {49}let kk_1: bitstring = sk(K2,ee_1,tt_2,r_1,ID_S2) in
+    {50}if (tg_1 = mac((c_2,r_1,ct_1),mac_key(kk_1))) then
+    {51}let plain_1: bitstring = sdec(ct_1,enc_key(kk_1)) in
+    {54}get accepted(=r_1,=ID_S2,=c_2) in
+        0
+    else
+        {52}insert accepted(r_1,ID_S2,c_2);
+        {53}event End(r_1,ID_S2,c_2,ct_1,kk_1)
+) | (
+    {56}!
+    {57}in(ch, (c_3: bitstring,r_2: bitstring,ct_2: bitstring,tg_2: bitstring));
+    {58}let rr_2: bitstring = decode(c_3,N3) in
+    {59}let ee_2: bitstring = eta(rr_2) in
+    {60}let tt_3: bitstring = expiry(rr_2) in
+    {67}get valid(=tt_3) in
+    {61}let kk_2: bitstring = sk(K3,ee_2,tt_3,r_2,ID_S3) in
+    {62}if (tg_2 = mac((c_3,r_2,ct_2),mac_key(kk_2))) then
+    {63}let plain_2: bitstring = sdec(ct_2,enc_key(kk_2)) in
+    {66}get accepted(=r_2,=ID_S3,=c_3) in
+        0
+    else
+        {64}insert accepted(r_2,ID_S3,c_3);
+        {65}event End(r_2,ID_S3,c_3,ct_2,kk_2)
+) | (
+    {68}!
+    {69}in(ch, (c_4: bitstring,r_3: bitstring,ct_3: bitstring,tg_3: bitstring));
+    {70}let rr_3: bitstring = decode(c_4,N4) in
+    {71}let ee_3: bitstring = eta(rr_3) in
+    {72}let tt_4: bitstring = expiry(rr_3) in
+    {79}get valid(=tt_4) in
+    {73}let kk_3: bitstring = sk(K4,ee_3,tt_4,r_3,ID_S4) in
+    {74}if (tg_3 = mac((c_4,r_3,ct_3),mac_key(kk_3))) then
+    {75}let plain_3: bitstring = sdec(ct_3,enc_key(kk_3)) in
+    {78}get accepted(=r_3,=ID_S4,=c_4) in
+        0
+    else
+        {76}insert accepted(r_3,ID_S4,c_4);
+        {77}event End(r_3,ID_S4,c_4,ct_3,kk_3)
+)
+
+--  Process 1 (that is, process 0, with let moved downwards):
+{1}new tt: bitstring;
+{2}new r1: bitstring;
+{4}new r2: bitstring;
+{6}new r3: bitstring;
+{8}new r4: bitstring;
+{11}insert valid(tt);
+{3}let e1: bitstring = tag(r1,ID_R,ID_S1) in
+{12}let k1: bitstring = sk(K1,e1,tt,ID_R,ID_S1) in
+{9}let e4: bitstring = tag(r4,ID_R,ID_S4) in
+{7}let e3: bitstring = tag(r3,ID_R,ID_S3) in
+{5}let e2: bitstring = tag(r2,ID_R,ID_S2) in
+{10}let c: bitstring = crt(residue(e1,tt),N1,residue(e2,tt),N2,residue(e3,tt),N3,residue(e4,tt),N4) in
+{13}event Issue(ID_R,ID_S1,c,k1);
+{14}let ct1: bitstring = senc(w1,enc_key(k1)) in
+{15}event Begin(ID_R,ID_S1,c,ct1,k1);
+{16}out(ch, (c,ID_R,ct1,mac((c,ID_R,ct1),mac_key(k1))));
+{17}let k2: bitstring = sk(K2,e2,tt,ID_R,ID_S2) in
+{18}event Issue(ID_R,ID_S2,c,k2);
+{19}let ct2: bitstring = senc(w2,enc_key(k2)) in
+{20}event Begin(ID_R,ID_S2,c,ct2,k2);
+{21}out(ch, (c,ID_R,ct2,mac((c,ID_R,ct2),mac_key(k2))));
+{22}let k3: bitstring = sk(K3,e3,tt,ID_R,ID_S3) in
+{23}event Issue(ID_R,ID_S3,c,k3);
+{24}let ct3: bitstring = senc(w3,enc_key(k3)) in
+{25}event Begin(ID_R,ID_S3,c,ct3,k3);
+{26}out(ch, (c,ID_R,ct3,mac((c,ID_R,ct3),mac_key(k3))));
+{27}let k4: bitstring = sk(K4,e4,tt,ID_R,ID_S4) in
+{28}event Issue(ID_R,ID_S4,c,k4);
+{29}let ct4: bitstring = senc(w4,enc_key(k4)) in
+{30}event Begin(ID_R,ID_S4,c,ct4,k4);
+{31}out(ch, (c,ID_R,ct4,mac((c,ID_R,ct4),mac_key(k4))));
+(
+    {32}!
+    {33}in(ch, (c_1: bitstring,r: bitstring,ct: bitstring,tg: bitstring));
+    {34}let rr: bitstring = decode(c_1,N1) in
+    {35}let ee: bitstring = eta(rr) in
+    {36}let tt_1: bitstring = expiry(rr) in
+    {43}get valid(=tt_1) in
+    {37}let kk: bitstring = sk(K1,ee,tt_1,r,ID_S1) in
+    {38}if (tg = mac((c_1,r,ct),mac_key(kk))) then
+    {39}let plain: bitstring = sdec(ct,enc_key(kk)) in
+    {42}get accepted(=r,=ID_S1,=c_1) in
+        0
+    else
+        {40}insert accepted(r,ID_S1,c_1);
+        {41}event End(r,ID_S1,c_1,ct,kk)
+) | (
+    {44}!
+    {45}in(ch, (c_2: bitstring,r_1: bitstring,ct_1: bitstring,tg_1: bitstring));
+    {46}let rr_1: bitstring = decode(c_2,N2) in
+    {47}let ee_1: bitstring = eta(rr_1) in
+    {48}let tt_2: bitstring = expiry(rr_1) in
+    {55}get valid(=tt_2) in
+    {49}let kk_1: bitstring = sk(K2,ee_1,tt_2,r_1,ID_S2) in
+    {50}if (tg_1 = mac((c_2,r_1,ct_1),mac_key(kk_1))) then
+    {51}let plain_1: bitstring = sdec(ct_1,enc_key(kk_1)) in
+    {54}get accepted(=r_1,=ID_S2,=c_2) in
+        0
+    else
+        {52}insert accepted(r_1,ID_S2,c_2);
+        {53}event End(r_1,ID_S2,c_2,ct_1,kk_1)
+) | (
+    {56}!
+    {57}in(ch, (c_3: bitstring,r_2: bitstring,ct_2: bitstring,tg_2: bitstring));
+    {58}let rr_2: bitstring = decode(c_3,N3) in
+    {59}let ee_2: bitstring = eta(rr_2) in
+    {60}let tt_3: bitstring = expiry(rr_2) in
+    {67}get valid(=tt_3) in
+    {61}let kk_2: bitstring = sk(K3,ee_2,tt_3,r_2,ID_S3) in
+    {62}if (tg_2 = mac((c_3,r_2,ct_2),mac_key(kk_2))) then
+    {63}let plain_2: bitstring = sdec(ct_2,enc_key(kk_2)) in
+    {66}get accepted(=r_2,=ID_S3,=c_3) in
+        0
+    else
+        {64}insert accepted(r_2,ID_S3,c_3);
+        {65}event End(r_2,ID_S3,c_3,ct_2,kk_2)
+) | (
+    {68}!
+    {69}in(ch, (c_4: bitstring,r_3: bitstring,ct_3: bitstring,tg_3: bitstring));
+    {70}let rr_3: bitstring = decode(c_4,N4) in
+    {71}let ee_3: bitstring = eta(rr_3) in
+    {72}let tt_4: bitstring = expiry(rr_3) in
+    {79}get valid(=tt_4) in
+    {73}let kk_3: bitstring = sk(K4,ee_3,tt_4,r_3,ID_S4) in
+    {74}if (tg_3 = mac((c_4,r_3,ct_3),mac_key(kk_3))) then
+    {75}let plain_3: bitstring = sdec(ct_3,enc_key(kk_3)) in
+    {78}get accepted(=r_3,=ID_S4,=c_4) in
+        0
+    else
+        {76}insert accepted(r_3,ID_S4,c_4);
+        {77}event End(r_3,ID_S4,c_4,ct_3,kk_3)
+)
+
+-- Query not attacker(w1[]) in process 1.
+Translating the process into Horn clauses...
+Completing...
+200 rules inserted. Base: 172 rules (38 with conclusion selected). Queue: 36 rules.
+Starting query not attacker(w1[])
+RESULT not attacker(w1[]) is true.
+-- Query not attacker(w2[]) in process 1.
+Translating the process into Horn clauses...
+Completing...
+200 rules inserted. Base: 172 rules (38 with conclusion selected). Queue: 36 rules.
+Starting query not attacker(w2[])
+RESULT not attacker(w2[]) is true.
+-- Query not attacker(w3[]) in process 1.
+Translating the process into Horn clauses...
+Completing...
+200 rules inserted. Base: 172 rules (38 with conclusion selected). Queue: 36 rules.
+Starting query not attacker(w3[])
+RESULT not attacker(w3[]) is true.
+-- Query not attacker(w4[]) in process 1.
+Translating the process into Horn clauses...
+Completing...
+200 rules inserted. Base: 172 rules (38 with conclusion selected). Queue: 36 rules.
+Starting query not attacker(w4[])
+RESULT not attacker(w4[]) is true.
+-- Query event(End(r_4,s,c_5,ct_4,k)) ==> event(Begin(r_4,s,c_5,ct_4,k)) in process 1.
+Translating the process into Horn clauses...
+Completing...
+200 rules inserted. Base: 184 rules (36 with conclusion selected). Queue: 76 rules.
+400 rules inserted. Base: 328 rules (44 with conclusion selected). Queue: 72 rules.
+600 rules inserted. Base: 440 rules (44 with conclusion selected). Queue: 51 rules.
+Starting query event(End(r_4,s,c_5,ct_4,k)) ==> event(Begin(r_4,s,c_5,ct_4,k))
+goal reachable: b-event(Begin(ID_R[],ID_S4[],crt(residue(tag(r1[],ID_R[],ID_S1[]),tt[]),N1[],residue(tag(r2[],ID_R[],ID_S2[]),tt[]),N2[],residue(tag(r3[],ID_R[],ID_S3[]),tt[]),N3[],residue(tag(r4[],ID_R[],ID_S4[]),tt[]),N4[]),senc(w4[],enc_key(sk(K4[],tag(r4[],ID_R[],ID_S4[]),tt[],ID_R[],ID_S4[]))),sk(K4[],tag(r4[],ID_R[],ID_S4[]),tt[],ID_R[],ID_S4[]))) && b-event(Begin(ID_R[],ID_S3[],crt(residue(tag(r1[],ID_R[],ID_S1[]),tt[]),N1[],residue(tag(r2[],ID_R[],ID_S2[]),tt[]),N2[],residue(tag(r3[],ID_R[],ID_S3[]),tt[]),N3[],residue(tag(r4[],ID_R[],ID_S4[]),tt[]),N4[]),senc(w3[],enc_key(sk(K3[],tag(r3[],ID_R[],ID_S3[]),tt[],ID_R[],ID_S3[]))),sk(K3[],tag(r3[],ID_R[],ID_S3[]),tt[],ID_R[],ID_S3[]))) && b-event(Begin(ID_R[],ID_S2[],crt(residue(tag(r1[],ID_R[],ID_S1[]),tt[]),N1[],residue(tag(r2[],ID_R[],ID_S2[]),tt[]),N2[],residue(tag(r3[],ID_R[],ID_S3[]),tt[]),N3[],residue(tag(r4[],ID_R[],ID_S4[]),tt[]),N4[]),senc(w2[],enc_key(sk(K2[],tag(r2[],ID_R[],ID_S2[]),tt[],ID_R[],ID_S2[]))),sk(K2[],tag(r2[],ID_R[],ID_S2[]),tt[],ID_R[],ID_S2[]))) && b-event(Begin(ID_R[],ID_S1[],crt(residue(tag(r1[],ID_R[],ID_S1[]),tt[]),N1[],residue(tag(r2[],ID_R[],ID_S2[]),tt[]),N2[],residue(tag(r3[],ID_R[],ID_S3[]),tt[]),N3[],residue(tag(r4[],ID_R[],ID_S4[]),tt[]),N4[]),senc(w1[],enc_key(sk(K1[],tag(r1[],ID_R[],ID_S1[]),tt[],ID_R[],ID_S1[]))),sk(K1[],tag(r1[],ID_R[],ID_S1[]),tt[],ID_R[],ID_S1[]))) -> event(End(ID_R[],ID_S4[],crt(residue(tag(r1[],ID_R[],ID_S1[]),tt[]),N1[],residue(tag(r2[],ID_R[],ID_S2[]),tt[]),N2[],residue(tag(r3[],ID_R[],ID_S3[]),tt[]),N3[],residue(tag(r4[],ID_R[],ID_S4[]),tt[]),N4[]),senc(w4[],enc_key(sk(K4[],tag(r4[],ID_R[],ID_S4[]),tt[],ID_R[],ID_S4[]))),sk(K4[],tag(r4[],ID_R[],ID_S4[]),tt[],ID_R[],ID_S4[])))
+goal reachable: b-event(Begin(ID_R[],ID_S4[],crt(residue(tag(r1[],ID_R[],ID_S1[]),tt[]),N1[],residue(tag(r2[],ID_R[],ID_S2[]),tt[]),N2[],residue(tag(r3[],ID_R[],ID_S3[]),tt[]),N3[],residue(tag(r4[],ID_R[],ID_S4[]),tt[]),N4[]),senc(w4[],enc_key(sk(K4[],tag(r4[],ID_R[],ID_S4[]),tt[],ID_R[],ID_S4[]))),sk(K4[],tag(r4[],ID_R[],ID_S4[]),tt[],ID_R[],ID_S4[]))) && b-event(Begin(ID_R[],ID_S3[],crt(residue(tag(r1[],ID_R[],ID_S1[]),tt[]),N1[],residue(tag(r2[],ID_R[],ID_S2[]),tt[]),N2[],residue(tag(r3[],ID_R[],ID_S3[]),tt[]),N3[],residue(tag(r4[],ID_R[],ID_S4[]),tt[]),N4[]),senc(w3[],enc_key(sk(K3[],tag(r3[],ID_R[],ID_S3[]),tt[],ID_R[],ID_S3[]))),sk(K3[],tag(r3[],ID_R[],ID_S3[]),tt[],ID_R[],ID_S3[]))) && b-event(Begin(ID_R[],ID_S2[],crt(residue(tag(r1[],ID_R[],ID_S1[]),tt[]),N1[],residue(tag(r2[],ID_R[],ID_S2[]),tt[]),N2[],residue(tag(r3[],ID_R[],ID_S3[]),tt[]),N3[],residue(tag(r4[],ID_R[],ID_S4[]),tt[]),N4[]),senc(w2[],enc_key(sk(K2[],tag(r2[],ID_R[],ID_S2[]),tt[],ID_R[],ID_S2[]))),sk(K2[],tag(r2[],ID_R[],ID_S2[]),tt[],ID_R[],ID_S2[]))) && b-event(Begin(ID_R[],ID_S1[],crt(residue(tag(r1[],ID_R[],ID_S1[]),tt[]),N1[],residue(tag(r2[],ID_R[],ID_S2[]),tt[]),N2[],residue(tag(r3[],ID_R[],ID_S3[]),tt[]),N3[],residue(tag(r4[],ID_R[],ID_S4[]),tt[]),N4[]),senc(w1[],enc_key(sk(K1[],tag(r1[],ID_R[],ID_S1[]),tt[],ID_R[],ID_S1[]))),sk(K1[],tag(r1[],ID_R[],ID_S1[]),tt[],ID_R[],ID_S1[]))) -> event(End(ID_R[],ID_S3[],crt(residue(tag(r1[],ID_R[],ID_S1[]),tt[]),N1[],residue(tag(r2[],ID_R[],ID_S2[]),tt[]),N2[],residue(tag(r3[],ID_R[],ID_S3[]),tt[]),N3[],residue(tag(r4[],ID_R[],ID_S4[]),tt[]),N4[]),senc(w3[],enc_key(sk(K3[],tag(r3[],ID_R[],ID_S3[]),tt[],ID_R[],ID_S3[]))),sk(K3[],tag(r3[],ID_R[],ID_S3[]),tt[],ID_R[],ID_S3[])))
+goal reachable: b-event(Begin(ID_R[],ID_S4[],crt(residue(tag(r1[],ID_R[],ID_S1[]),tt[]),N1[],residue(tag(r2[],ID_R[],ID_S2[]),tt[]),N2[],residue(tag(r3[],ID_R[],ID_S3[]),tt[]),N3[],residue(tag(r4[],ID_R[],ID_S4[]),tt[]),N4[]),senc(w4[],enc_key(sk(K4[],tag(r4[],ID_R[],ID_S4[]),tt[],ID_R[],ID_S4[]))),sk(K4[],tag(r4[],ID_R[],ID_S4[]),tt[],ID_R[],ID_S4[]))) && b-event(Begin(ID_R[],ID_S3[],crt(residue(tag(r1[],ID_R[],ID_S1[]),tt[]),N1[],residue(tag(r2[],ID_R[],ID_S2[]),tt[]),N2[],residue(tag(r3[],ID_R[],ID_S3[]),tt[]),N3[],residue(tag(r4[],ID_R[],ID_S4[]),tt[]),N4[]),senc(w3[],enc_key(sk(K3[],tag(r3[],ID_R[],ID_S3[]),tt[],ID_R[],ID_S3[]))),sk(K3[],tag(r3[],ID_R[],ID_S3[]),tt[],ID_R[],ID_S3[]))) && b-event(Begin(ID_R[],ID_S2[],crt(residue(tag(r1[],ID_R[],ID_S1[]),tt[]),N1[],residue(tag(r2[],ID_R[],ID_S2[]),tt[]),N2[],residue(tag(r3[],ID_R[],ID_S3[]),tt[]),N3[],residue(tag(r4[],ID_R[],ID_S4[]),tt[]),N4[]),senc(w2[],enc_key(sk(K2[],tag(r2[],ID_R[],ID_S2[]),tt[],ID_R[],ID_S2[]))),sk(K2[],tag(r2[],ID_R[],ID_S2[]),tt[],ID_R[],ID_S2[]))) && b-event(Begin(ID_R[],ID_S1[],crt(residue(tag(r1[],ID_R[],ID_S1[]),tt[]),N1[],residue(tag(r2[],ID_R[],ID_S2[]),tt[]),N2[],residue(tag(r3[],ID_R[],ID_S3[]),tt[]),N3[],residue(tag(r4[],ID_R[],ID_S4[]),tt[]),N4[]),senc(w1[],enc_key(sk(K1[],tag(r1[],ID_R[],ID_S1[]),tt[],ID_R[],ID_S1[]))),sk(K1[],tag(r1[],ID_R[],ID_S1[]),tt[],ID_R[],ID_S1[]))) -> event(End(ID_R[],ID_S2[],crt(residue(tag(r1[],ID_R[],ID_S1[]),tt[]),N1[],residue(tag(r2[],ID_R[],ID_S2[]),tt[]),N2[],residue(tag(r3[],ID_R[],ID_S3[]),tt[]),N3[],residue(tag(r4[],ID_R[],ID_S4[]),tt[]),N4[]),senc(w2[],enc_key(sk(K2[],tag(r2[],ID_R[],ID_S2[]),tt[],ID_R[],ID_S2[]))),sk(K2[],tag(r2[],ID_R[],ID_S2[]),tt[],ID_R[],ID_S2[])))
+goal reachable: b-event(Begin(ID_R[],ID_S4[],crt(residue(tag(r1[],ID_R[],ID_S1[]),tt[]),N1[],residue(tag(r2[],ID_R[],ID_S2[]),tt[]),N2[],residue(tag(r3[],ID_R[],ID_S3[]),tt[]),N3[],residue(tag(r4[],ID_R[],ID_S4[]),tt[]),N4[]),senc(w4[],enc_key(sk(K4[],tag(r4[],ID_R[],ID_S4[]),tt[],ID_R[],ID_S4[]))),sk(K4[],tag(r4[],ID_R[],ID_S4[]),tt[],ID_R[],ID_S4[]))) && b-event(Begin(ID_R[],ID_S3[],crt(residue(tag(r1[],ID_R[],ID_S1[]),tt[]),N1[],residue(tag(r2[],ID_R[],ID_S2[]),tt[]),N2[],residue(tag(r3[],ID_R[],ID_S3[]),tt[]),N3[],residue(tag(r4[],ID_R[],ID_S4[]),tt[]),N4[]),senc(w3[],enc_key(sk(K3[],tag(r3[],ID_R[],ID_S3[]),tt[],ID_R[],ID_S3[]))),sk(K3[],tag(r3[],ID_R[],ID_S3[]),tt[],ID_R[],ID_S3[]))) && b-event(Begin(ID_R[],ID_S2[],crt(residue(tag(r1[],ID_R[],ID_S1[]),tt[]),N1[],residue(tag(r2[],ID_R[],ID_S2[]),tt[]),N2[],residue(tag(r3[],ID_R[],ID_S3[]),tt[]),N3[],residue(tag(r4[],ID_R[],ID_S4[]),tt[]),N4[]),senc(w2[],enc_key(sk(K2[],tag(r2[],ID_R[],ID_S2[]),tt[],ID_R[],ID_S2[]))),sk(K2[],tag(r2[],ID_R[],ID_S2[]),tt[],ID_R[],ID_S2[]))) && b-event(Begin(ID_R[],ID_S1[],crt(residue(tag(r1[],ID_R[],ID_S1[]),tt[]),N1[],residue(tag(r2[],ID_R[],ID_S2[]),tt[]),N2[],residue(tag(r3[],ID_R[],ID_S3[]),tt[]),N3[],residue(tag(r4[],ID_R[],ID_S4[]),tt[]),N4[]),senc(w1[],enc_key(sk(K1[],tag(r1[],ID_R[],ID_S1[]),tt[],ID_R[],ID_S1[]))),sk(K1[],tag(r1[],ID_R[],ID_S1[]),tt[],ID_R[],ID_S1[]))) -> event(End(ID_R[],ID_S1[],crt(residue(tag(r1[],ID_R[],ID_S1[]),tt[]),N1[],residue(tag(r2[],ID_R[],ID_S2[]),tt[]),N2[],residue(tag(r3[],ID_R[],ID_S3[]),tt[]),N3[],residue(tag(r4[],ID_R[],ID_S4[]),tt[]),N4[]),senc(w1[],enc_key(sk(K1[],tag(r1[],ID_R[],ID_S1[]),tt[],ID_R[],ID_S1[]))),sk(K1[],tag(r1[],ID_R[],ID_S1[]),tt[],ID_R[],ID_S1[])))
+RESULT event(End(r_4,s,c_5,ct_4,k)) ==> event(Begin(r_4,s,c_5,ct_4,k)) is true.
+-- Query event(End(r_4,s,c_5,ct_4,k)) ==> event(Issue(r_4,s,c_5,k)) in process 1.
+Translating the process into Horn clauses...
+Completing...
+200 rules inserted. Base: 184 rules (36 with conclusion selected). Queue: 76 rules.
+400 rules inserted. Base: 328 rules (44 with conclusion selected). Queue: 72 rules.
+600 rules inserted. Base: 440 rules (44 with conclusion selected). Queue: 51 rules.
+Starting query event(End(r_4,s,c_5,ct_4,k)) ==> event(Issue(r_4,s,c_5,k))
+goal reachable: b-event(Issue(ID_R[],ID_S4[],crt(residue(tag(r1[],ID_R[],ID_S1[]),tt[]),N1[],residue(tag(r2[],ID_R[],ID_S2[]),tt[]),N2[],residue(tag(r3[],ID_R[],ID_S3[]),tt[]),N3[],residue(tag(r4[],ID_R[],ID_S4[]),tt[]),N4[]),sk(K4[],tag(r4[],ID_R[],ID_S4[]),tt[],ID_R[],ID_S4[]))) && b-event(Issue(ID_R[],ID_S3[],crt(residue(tag(r1[],ID_R[],ID_S1[]),tt[]),N1[],residue(tag(r2[],ID_R[],ID_S2[]),tt[]),N2[],residue(tag(r3[],ID_R[],ID_S3[]),tt[]),N3[],residue(tag(r4[],ID_R[],ID_S4[]),tt[]),N4[]),sk(K3[],tag(r3[],ID_R[],ID_S3[]),tt[],ID_R[],ID_S3[]))) && b-event(Issue(ID_R[],ID_S2[],crt(residue(tag(r1[],ID_R[],ID_S1[]),tt[]),N1[],residue(tag(r2[],ID_R[],ID_S2[]),tt[]),N2[],residue(tag(r3[],ID_R[],ID_S3[]),tt[]),N3[],residue(tag(r4[],ID_R[],ID_S4[]),tt[]),N4[]),sk(K2[],tag(r2[],ID_R[],ID_S2[]),tt[],ID_R[],ID_S2[]))) && b-event(Issue(ID_R[],ID_S1[],crt(residue(tag(r1[],ID_R[],ID_S1[]),tt[]),N1[],residue(tag(r2[],ID_R[],ID_S2[]),tt[]),N2[],residue(tag(r3[],ID_R[],ID_S3[]),tt[]),N3[],residue(tag(r4[],ID_R[],ID_S4[]),tt[]),N4[]),sk(K1[],tag(r1[],ID_R[],ID_S1[]),tt[],ID_R[],ID_S1[]))) -> event(End(ID_R[],ID_S4[],crt(residue(tag(r1[],ID_R[],ID_S1[]),tt[]),N1[],residue(tag(r2[],ID_R[],ID_S2[]),tt[]),N2[],residue(tag(r3[],ID_R[],ID_S3[]),tt[]),N3[],residue(tag(r4[],ID_R[],ID_S4[]),tt[]),N4[]),senc(w4[],enc_key(sk(K4[],tag(r4[],ID_R[],ID_S4[]),tt[],ID_R[],ID_S4[]))),sk(K4[],tag(r4[],ID_R[],ID_S4[]),tt[],ID_R[],ID_S4[])))
+goal reachable: b-event(Issue(ID_R[],ID_S4[],crt(residue(tag(r1[],ID_R[],ID_S1[]),tt[]),N1[],residue(tag(r2[],ID_R[],ID_S2[]),tt[]),N2[],residue(tag(r3[],ID_R[],ID_S3[]),tt[]),N3[],residue(tag(r4[],ID_R[],ID_S4[]),tt[]),N4[]),sk(K4[],tag(r4[],ID_R[],ID_S4[]),tt[],ID_R[],ID_S4[]))) && b-event(Issue(ID_R[],ID_S3[],crt(residue(tag(r1[],ID_R[],ID_S1[]),tt[]),N1[],residue(tag(r2[],ID_R[],ID_S2[]),tt[]),N2[],residue(tag(r3[],ID_R[],ID_S3[]),tt[]),N3[],residue(tag(r4[],ID_R[],ID_S4[]),tt[]),N4[]),sk(K3[],tag(r3[],ID_R[],ID_S3[]),tt[],ID_R[],ID_S3[]))) && b-event(Issue(ID_R[],ID_S2[],crt(residue(tag(r1[],ID_R[],ID_S1[]),tt[]),N1[],residue(tag(r2[],ID_R[],ID_S2[]),tt[]),N2[],residue(tag(r3[],ID_R[],ID_S3[]),tt[]),N3[],residue(tag(r4[],ID_R[],ID_S4[]),tt[]),N4[]),sk(K2[],tag(r2[],ID_R[],ID_S2[]),tt[],ID_R[],ID_S2[]))) && b-event(Issue(ID_R[],ID_S1[],crt(residue(tag(r1[],ID_R[],ID_S1[]),tt[]),N1[],residue(tag(r2[],ID_R[],ID_S2[]),tt[]),N2[],residue(tag(r3[],ID_R[],ID_S3[]),tt[]),N3[],residue(tag(r4[],ID_R[],ID_S4[]),tt[]),N4[]),sk(K1[],tag(r1[],ID_R[],ID_S1[]),tt[],ID_R[],ID_S1[]))) -> event(End(ID_R[],ID_S3[],crt(residue(tag(r1[],ID_R[],ID_S1[]),tt[]),N1[],residue(tag(r2[],ID_R[],ID_S2[]),tt[]),N2[],residue(tag(r3[],ID_R[],ID_S3[]),tt[]),N3[],residue(tag(r4[],ID_R[],ID_S4[]),tt[]),N4[]),senc(w3[],enc_key(sk(K3[],tag(r3[],ID_R[],ID_S3[]),tt[],ID_R[],ID_S3[]))),sk(K3[],tag(r3[],ID_R[],ID_S3[]),tt[],ID_R[],ID_S3[])))
+goal reachable: b-event(Issue(ID_R[],ID_S4[],crt(residue(tag(r1[],ID_R[],ID_S1[]),tt[]),N1[],residue(tag(r2[],ID_R[],ID_S2[]),tt[]),N2[],residue(tag(r3[],ID_R[],ID_S3[]),tt[]),N3[],residue(tag(r4[],ID_R[],ID_S4[]),tt[]),N4[]),sk(K4[],tag(r4[],ID_R[],ID_S4[]),tt[],ID_R[],ID_S4[]))) && b-event(Issue(ID_R[],ID_S3[],crt(residue(tag(r1[],ID_R[],ID_S1[]),tt[]),N1[],residue(tag(r2[],ID_R[],ID_S2[]),tt[]),N2[],residue(tag(r3[],ID_R[],ID_S3[]),tt[]),N3[],residue(tag(r4[],ID_R[],ID_S4[]),tt[]),N4[]),sk(K3[],tag(r3[],ID_R[],ID_S3[]),tt[],ID_R[],ID_S3[]))) && b-event(Issue(ID_R[],ID_S2[],crt(residue(tag(r1[],ID_R[],ID_S1[]),tt[]),N1[],residue(tag(r2[],ID_R[],ID_S2[]),tt[]),N2[],residue(tag(r3[],ID_R[],ID_S3[]),tt[]),N3[],residue(tag(r4[],ID_R[],ID_S4[]),tt[]),N4[]),sk(K2[],tag(r2[],ID_R[],ID_S2[]),tt[],ID_R[],ID_S2[]))) && b-event(Issue(ID_R[],ID_S1[],crt(residue(tag(r1[],ID_R[],ID_S1[]),tt[]),N1[],residue(tag(r2[],ID_R[],ID_S2[]),tt[]),N2[],residue(tag(r3[],ID_R[],ID_S3[]),tt[]),N3[],residue(tag(r4[],ID_R[],ID_S4[]),tt[]),N4[]),sk(K1[],tag(r1[],ID_R[],ID_S1[]),tt[],ID_R[],ID_S1[]))) -> event(End(ID_R[],ID_S2[],crt(residue(tag(r1[],ID_R[],ID_S1[]),tt[]),N1[],residue(tag(r2[],ID_R[],ID_S2[]),tt[]),N2[],residue(tag(r3[],ID_R[],ID_S3[]),tt[]),N3[],residue(tag(r4[],ID_R[],ID_S4[]),tt[]),N4[]),senc(w2[],enc_key(sk(K2[],tag(r2[],ID_R[],ID_S2[]),tt[],ID_R[],ID_S2[]))),sk(K2[],tag(r2[],ID_R[],ID_S2[]),tt[],ID_R[],ID_S2[])))
+goal reachable: b-event(Issue(ID_R[],ID_S4[],crt(residue(tag(r1[],ID_R[],ID_S1[]),tt[]),N1[],residue(tag(r2[],ID_R[],ID_S2[]),tt[]),N2[],residue(tag(r3[],ID_R[],ID_S3[]),tt[]),N3[],residue(tag(r4[],ID_R[],ID_S4[]),tt[]),N4[]),sk(K4[],tag(r4[],ID_R[],ID_S4[]),tt[],ID_R[],ID_S4[]))) && b-event(Issue(ID_R[],ID_S3[],crt(residue(tag(r1[],ID_R[],ID_S1[]),tt[]),N1[],residue(tag(r2[],ID_R[],ID_S2[]),tt[]),N2[],residue(tag(r3[],ID_R[],ID_S3[]),tt[]),N3[],residue(tag(r4[],ID_R[],ID_S4[]),tt[]),N4[]),sk(K3[],tag(r3[],ID_R[],ID_S3[]),tt[],ID_R[],ID_S3[]))) && b-event(Issue(ID_R[],ID_S2[],crt(residue(tag(r1[],ID_R[],ID_S1[]),tt[]),N1[],residue(tag(r2[],ID_R[],ID_S2[]),tt[]),N2[],residue(tag(r3[],ID_R[],ID_S3[]),tt[]),N3[],residue(tag(r4[],ID_R[],ID_S4[]),tt[]),N4[]),sk(K2[],tag(r2[],ID_R[],ID_S2[]),tt[],ID_R[],ID_S2[]))) && b-event(Issue(ID_R[],ID_S1[],crt(residue(tag(r1[],ID_R[],ID_S1[]),tt[]),N1[],residue(tag(r2[],ID_R[],ID_S2[]),tt[]),N2[],residue(tag(r3[],ID_R[],ID_S3[]),tt[]),N3[],residue(tag(r4[],ID_R[],ID_S4[]),tt[]),N4[]),sk(K1[],tag(r1[],ID_R[],ID_S1[]),tt[],ID_R[],ID_S1[]))) -> event(End(ID_R[],ID_S1[],crt(residue(tag(r1[],ID_R[],ID_S1[]),tt[]),N1[],residue(tag(r2[],ID_R[],ID_S2[]),tt[]),N2[],residue(tag(r3[],ID_R[],ID_S3[]),tt[]),N3[],residue(tag(r4[],ID_R[],ID_S4[]),tt[]),N4[]),senc(w1[],enc_key(sk(K1[],tag(r1[],ID_R[],ID_S1[]),tt[],ID_R[],ID_S1[]))),sk(K1[],tag(r1[],ID_R[],ID_S1[]),tt[],ID_R[],ID_S1[])))
+RESULT event(End(r_4,s,c_5,ct_4,k)) ==> event(Issue(r_4,s,c_5,k)) is true.
+
+--------------------------------------------------------------
+Verification summary:
+
+Query not attacker(w1[]) is true.
+
+Query not attacker(w2[]) is true.
+
+Query not attacker(w3[]) is true.
+
+Query not attacker(w4[]) is true.
+
+Query event(End(r_4,s,c_5,ct_4,k)) ==> event(Begin(r_4,s,c_5,ct_4,k)) is true.
+
+Query event(End(r_4,s,c_5,ct_4,k)) ==> event(Issue(r_4,s,c_5,k)) is true.
+
+--------------------------------------------------------------
+

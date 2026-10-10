@@ -1,0 +1,616 @@
+{
+  "checks": {
+    "CRT_roundtrip": true,
+    "valid_decryption": true,
+    "tampered_ciphertext_rejected": true,
+    "tampered_MAC_rejected": true,
+    "credential_holder_retagged_identity_rejected": true,
+    "negative_control_unbound_identity_accepts": true,
+    "separate_traffic_keys": true,
+    "different_target_changes_master": true,
+    "satellite_downlink_specified_MAC_order": true,
+    "satellite_downlink_valid_decryption": true,
+    "router_downlink_bundle_consistent": true,
+    "satellite_downlink_nonce_tamper_rejected": true,
+    "satellite_downlink_ciphertext_tamper_rejected": true,
+    "satellite_downlink_router_ciphertext_tamper_rejected": true,
+    "satellite_downlink_router_MAC_tamper_rejected": true,
+    "satellite_downlink_MAC_tamper_rejected": true,
+    "satellite_downlink_old_order_rejected": true,
+    "satellite_downlink_role_substitution_rejected": true,
+    "principal_costs": true,
+    "state_invariant": true,
+    "negative_state_controls_fail": true,
+    "fallback_formula_not_rejected_familywise_005": true
+  },
+  "all_pass": true,
+  "satellite_downlink_configurations": 16,
+  "state_rerun": {
+    "states": 23,
+    "transitions": 51,
+    "max_acceptances_per_tuple": 1,
+    "negative_control_nonatomic_accepts": 2,
+    "negative_control_cache_lost_on_reboot": 2,
+    "scope": "finite numerical state abstraction, not ProVerif or unbounded machine proof"
+  },
+  "exact_binomial_tests": [
+    {
+      "m": 2,
+      "a": 0.3,
+      "p_loss": 0.0,
+      "observed_fallbacks": 9716,
+      "expected_fallbacks": 9799.999999999998,
+      "exact_equal_tail_p": 0.23755301250845473
+    },
+    {
+      "m": 2,
+      "a": 0.3,
+      "p_loss": 0.05,
+      "observed_fallbacks": 10614,
+      "expected_fallbacks": 10636.111249999998,
+      "exact_equal_tail_p": 0.7593119503313077
+    },
+    {
+      "m": 2,
+      "a": 0.3,
+      "p_loss": 0.1,
+      "observed_fallbacks": 11474,
+      "expected_fallbacks": 11460.980000000001,
+      "exact_equal_tail_p": 0.8582185932970033
+    },
+    {
+      "m": 2,
+      "a": 0.6,
+      "p_loss": 0.0,
+      "observed_fallbacks": 3209,
+      "expected_fallbacks": 3200.0000000000005,
+      "exact_equal_tail_p": 0.868099331315087
+    },
+    {
+      "m": 2,
+      "a": 0.6,
+      "p_loss": 0.05,
+      "observed_fallbacks": 4217,
+      "expected_fallbacks": 4204.445000000001,
+      "exact_equal_tail_p": 0.8330425715750346
+    },
+    {
+      "m": 2,
+      "a": 0.6,
+      "p_loss": 0.1,
+      "observed_fallbacks": 5319,
+      "expected_fallbacks": 5283.92,
+      "exact_equal_tail_p": 0.5785847477663217
+    },
+    {
+      "m": 2,
+      "a": 0.9,
+      "p_loss": 0.0,
+      "observed_fallbacks": 182,
+      "expected_fallbacks": 199.9999999999999,
+      "exact_equal_tail_p": 0.2111099990735679
+    },
+    {
+      "m": 2,
+      "a": 0.9,
+      "p_loss": 0.05,
+      "observed_fallbacks": 691,
+      "expected_fallbacks": 705.0012499999998,
+      "exact_equal_tail_p": 0.6077167215376664
+    },
+    {
+      "m": 2,
+      "a": 0.9,
+      "p_loss": 0.1,
+      "observed_fallbacks": 1522,
+      "expected_fallbacks": 1468.819999999999,
+      "exact_equal_tail_p": 0.15442458471194698
+    },
+    {
+      "m": 3,
+      "a": 0.3,
+      "p_loss": 0.0,
+      "observed_fallbacks": 6750,
+      "expected_fallbacks": 6859.999999999998,
+      "exact_equal_tail_p": 0.1026017345838564
+    },
+    {
+      "m": 3,
+      "a": 0.3,
+      "p_loss": 0.05,
+      "observed_fallbacks": 7792,
+      "expected_fallbacks": 7756.384129062499,
+      "exact_equal_tail_p": 0.6100476606254351
+    },
+    {
+      "m": 3,
+      "a": 0.3,
+      "p_loss": 0.1,
+      "observed_fallbacks": 8748,
+      "expected_fallbacks": 8675.96186,
+      "exact_equal_tail_p": 0.30740818545514026
+    },
+    {
+      "m": 3,
+      "a": 0.6,
+      "p_loss": 0.0,
+      "observed_fallbacks": 1276,
+      "expected_fallbacks": 1280.0000000000002,
+      "exact_equal_tail_p": 0.9227591021222887
+    },
+    {
+      "m": 3,
+      "a": 0.6,
+      "p_loss": 0.05,
+      "observed_fallbacks": 1956,
+      "expected_fallbacks": 1927.7380325000001,
+      "exact_equal_tail_p": 0.5047911748265373
+    },
+    {
+      "m": 3,
+      "a": 0.6,
+      "p_loss": 0.1,
+      "observed_fallbacks": 2708,
+      "expected_fallbacks": 2715.93488,
+      "exact_equal_tail_p": 0.8799635304051643
+    },
+    {
+      "m": 3,
+      "a": 0.9,
+      "p_loss": 0.0,
+      "observed_fallbacks": 18,
+      "expected_fallbacks": 19.999999999999986,
+      "exact_equal_tail_p": 0.7626750076308842
+    },
+    {
+      "m": 3,
+      "a": 0.9,
+      "p_loss": 0.05,
+      "observed_fallbacks": 151,
+      "expected_fallbacks": 132.36398468749994,
+      "exact_equal_tail_p": 0.11836369539620106
+    },
+    {
+      "m": 3,
+      "a": 0.9,
+      "p_loss": 0.1,
+      "observed_fallbacks": 402,
+      "expected_fallbacks": 398.0502199999996,
+      "exact_equal_tail_p": 0.855187235210337
+    },
+    {
+      "m": 4,
+      "a": 0.3,
+      "p_loss": 0.0,
+      "observed_fallbacks": 4803,
+      "expected_fallbacks": 4801.999999999999,
+      "exact_equal_tail_p": 0.9922517079863203
+    },
+    {
+      "m": 4,
+      "a": 0.3,
+      "p_loss": 0.05,
+      "observed_fallbacks": 5617,
+      "expected_fallbacks": 5656.343126118827,
+      "exact_equal_tail_p": 0.5424275878219993
+    },
+    {
+      "m": 4,
+      "a": 0.3,
+      "p_loss": 0.1,
+      "observed_fallbacks": 6567,
+      "expected_fallbacks": 6567.703128020001,
+      "exact_equal_tail_p": 0.9982469632034743
+    },
+    {
+      "m": 4,
+      "a": 0.6,
+      "p_loss": 0.0,
+      "observed_fallbacks": 533,
+      "expected_fallbacks": 512.0000000000001,
+      "exact_equal_tail_p": 0.35811064001462306
+    },
+    {
+      "m": 4,
+      "a": 0.6,
+      "p_loss": 0.05,
+      "observed_fallbacks": 876,
+      "expected_fallbacks": 883.8678879012501,
+      "exact_equal_tail_p": 0.8036755965569743
+    },
+    {
+      "m": 4,
+      "a": 0.6,
+      "p_loss": 0.1,
+      "observed_fallbacks": 1387,
+      "expected_fallbacks": 1395.9905283200003,
+      "exact_equal_tail_p": 0.8166520260570717
+    },
+    {
+      "m": 4,
+      "a": 0.9,
+      "p_loss": 0.0,
+      "observed_fallbacks": 2,
+      "expected_fallbacks": 1.9999999999999982,
+      "exact_equal_tail_p": 1.0
+    },
+    {
+      "m": 4,
+      "a": 0.9,
+      "p_loss": 0.05,
+      "observed_fallbacks": 29,
+      "expected_fallbacks": 24.85133812507811,
+      "exact_equal_tail_p": 0.45432999340297386
+    },
+    {
+      "m": 4,
+      "a": 0.9,
+      "p_loss": 0.1,
+      "observed_fallbacks": 108,
+      "expected_fallbacks": 107.87160961999986,
+      "exact_equal_tail_p": 1.0
+    },
+    {
+      "m": 5,
+      "a": 0.3,
+      "p_loss": 0.0,
+      "observed_fallbacks": 3367,
+      "expected_fallbacks": 3361.3999999999987,
+      "exact_equal_tail_p": 0.9215239882374131
+    },
+    {
+      "m": 5,
+      "a": 0.3,
+      "p_loss": 0.05,
+      "observed_fallbacks": 4164,
+      "expected_fallbacks": 4124.8882247221545,
+      "exact_equal_tail_p": 0.49921627925422085
+    },
+    {
+      "m": 5,
+      "a": 0.3,
+      "p_loss": 0.1,
+      "observed_fallbacks": 4837,
+      "expected_fallbacks": 4971.7512679111405,
+      "exact_equal_tail_p": 0.027680023319738435
+    },
+    {
+      "m": 5,
+      "a": 0.6,
+      "p_loss": 0.0,
+      "observed_fallbacks": 199,
+      "expected_fallbacks": 204.80000000000004,
+      "exact_equal_tail_p": 0.7170968232547275
+    },
+    {
+      "m": 5,
+      "a": 0.6,
+      "p_loss": 0.05,
+      "observed_fallbacks": 372,
+      "expected_fallbacks": 405.2534266027232,
+      "exact_equal_tail_p": 0.09730372825071197
+    },
+    {
+      "m": 5,
+      "a": 0.6,
+      "p_loss": 0.1,
+      "observed_fallbacks": 702,
+      "expected_fallbacks": 717.5391315564801,
+      "exact_equal_tail_p": 0.5701564431540072
+    },
+    {
+      "m": 5,
+      "a": 0.9,
+      "p_loss": 0.0,
+      "observed_fallbacks": 0,
+      "expected_fallbacks": 0.1999999999999998,
+      "exact_equal_tail_p": 1.0
+    },
+    {
+      "m": 5,
+      "a": 0.9,
+      "p_loss": 0.05,
+      "observed_fallbacks": 4,
+      "expected_fallbacks": 4.665838732983415,
+      "exact_equal_tail_p": 1.0
+    },
+    {
+      "m": 5,
+      "a": 0.9,
+      "p_loss": 0.1,
+      "observed_fallbacks": 23,
+      "expected_fallbacks": 29.23320620701995,
+      "exact_equal_tail_p": 0.2859985673380657
+    },
+    {
+      "m": 6,
+      "a": 0.3,
+      "p_loss": 0.0,
+      "observed_fallbacks": 2314,
+      "expected_fallbacks": 2352.979999999999,
+      "exact_equal_tail_p": 0.398829947129033
+    },
+    {
+      "m": 6,
+      "a": 0.3,
+      "p_loss": 0.05,
+      "observed_fallbacks": 2992,
+      "expected_fallbacks": 3008.0747378786305,
+      "exact_equal_tail_p": 0.7596078041507787
+    },
+    {
+      "m": 6,
+      "a": 0.3,
+      "p_loss": 0.1,
+      "observed_fallbacks": 3751,
+      "expected_fallbacks": 3763.615709808733,
+      "exact_equal_tail_p": 0.8278995814196685
+    },
+    {
+      "m": 6,
+      "a": 0.6,
+      "p_loss": 0.0,
+      "observed_fallbacks": 65,
+      "expected_fallbacks": 81.92000000000003,
+      "exact_equal_tail_p": 0.06217250763250006
+    },
+    {
+      "m": 6,
+      "a": 0.6,
+      "p_loss": 0.05,
+      "observed_fallbacks": 169,
+      "expected_fallbacks": 185.8086960973486,
+      "exact_equal_tail_p": 0.22710019618553468
+    },
+    {
+      "m": 6,
+      "a": 0.6,
+      "p_loss": 0.1,
+      "observed_fallbacks": 398,
+      "expected_fallbacks": 368.8151136200308,
+      "exact_equal_tail_p": 0.13429770902919813
+    },
+    {
+      "m": 6,
+      "a": 0.9,
+      "p_loss": 0.0,
+      "observed_fallbacks": 0,
+      "expected_fallbacks": 0.019999999999999973,
+      "exact_equal_tail_p": 1.0
+    },
+    {
+      "m": 6,
+      "a": 0.9,
+      "p_loss": 0.05,
+      "observed_fallbacks": 2,
+      "expected_fallbacks": 0.8760112221176359,
+      "exact_equal_tail_p": 0.4375031931180018
+    },
+    {
+      "m": 6,
+      "a": 0.9,
+      "p_loss": 0.1,
+      "observed_fallbacks": 5,
+      "expected_fallbacks": 7.922198882102404,
+      "exact_equal_tail_p": 0.3968255078418382
+    },
+    {
+      "m": 8,
+      "a": 0.3,
+      "p_loss": 0.0,
+      "observed_fallbacks": 1175,
+      "expected_fallbacks": 1152.9601999999995,
+      "exact_equal_tail_p": 0.5118007686176359
+    },
+    {
+      "m": 8,
+      "a": 0.3,
+      "p_loss": 0.05,
+      "observed_fallbacks": 1588,
+      "expected_fallbacks": 1599.7108780195852,
+      "exact_equal_tail_p": 0.7726689546771857
+    },
+    {
+      "m": 8,
+      "a": 0.3,
+      "p_loss": 0.1,
+      "observed_fallbacks": 2170,
+      "expected_fallbacks": 2156.736218890185,
+      "exact_equal_tail_p": 0.7689857811506204
+    },
+    {
+      "m": 8,
+      "a": 0.6,
+      "p_loss": 0.0,
+      "observed_fallbacks": 18,
+      "expected_fallbacks": 13.107200000000006,
+      "exact_equal_tail_p": 0.23090530215370997
+    },
+    {
+      "m": 8,
+      "a": 0.6,
+      "p_loss": 0.05,
+      "observed_fallbacks": 33,
+      "expected_fallbacks": 39.06112216315085,
+      "exact_equal_tail_p": 0.3757493613133986
+    },
+    {
+      "m": 8,
+      "a": 0.6,
+      "p_loss": 0.1,
+      "observed_fallbacks": 100,
+      "expected_fallbacks": 97.43947775795766,
+      "exact_equal_tail_p": 0.8217877121606064
+    },
+    {
+      "m": 8,
+      "a": 0.9,
+      "p_loss": 0.0,
+      "observed_fallbacks": 0,
+      "expected_fallbacks": 0.00019999999999999963,
+      "exact_equal_tail_p": 1.0
+    },
+    {
+      "m": 8,
+      "a": 0.9,
+      "p_loss": 0.05,
+      "observed_fallbacks": 1,
+      "expected_fallbacks": 0.03087945033034804,
+      "exact_equal_tail_p": 0.06081514606615164
+    },
+    {
+      "m": 8,
+      "a": 0.9,
+      "p_loss": 0.1,
+      "observed_fallbacks": 0,
+      "expected_fallbacks": 0.5818142081004822,
+      "exact_equal_tail_p": 1.0
+    },
+    {
+      "m": 10,
+      "a": 0.3,
+      "p_loss": 0.0,
+      "observed_fallbacks": 565,
+      "expected_fallbacks": 564.9504979999996,
+      "exact_equal_tail_p": 1.0
+    },
+    {
+      "m": 10,
+      "a": 0.3,
+      "p_loss": 0.05,
+      "observed_fallbacks": 866,
+      "expected_fallbacks": 850.7351433225742,
+      "exact_equal_tail_p": 0.602198733237545
+    },
+    {
+      "m": 10,
+      "a": 0.3,
+      "p_loss": 0.1,
+      "observed_fallbacks": 1324,
+      "expected_fallbacks": 1235.9155334988016,
+      "exact_equal_tail_p": 0.010810838370668888
+    },
+    {
+      "m": 10,
+      "a": 0.6,
+      "p_loss": 0.0,
+      "observed_fallbacks": 3,
+      "expected_fallbacks": 2.0971520000000012,
+      "exact_equal_tail_p": 0.6992019301411329
+    },
+    {
+      "m": 10,
+      "a": 0.6,
+      "p_loss": 0.05,
+      "observed_fallbacks": 7,
+      "expected_fallbacks": 8.211516988662439,
+      "exact_equal_tail_p": 0.8476246582383028
+    },
+    {
+      "m": 10,
+      "a": 0.6,
+      "p_loss": 0.1,
+      "observed_fallbacks": 25,
+      "expected_fallbacks": 25.743120265741382,
+      "exact_equal_tail_p": 0.9880046841722384
+    },
+    {
+      "m": 10,
+      "a": 0.9,
+      "p_loss": 0.0,
+      "observed_fallbacks": 0,
+      "expected_fallbacks": 1.9999999999999957e-06,
+      "exact_equal_tail_p": 1.0
+    },
+    {
+      "m": 10,
+      "a": 0.9,
+      "p_loss": 0.05,
+      "observed_fallbacks": 0,
+      "expected_fallbacks": 0.0010885025541104137,
+      "exact_equal_tail_p": 1.0
+    },
+    {
+      "m": 10,
+      "a": 0.9,
+      "p_loss": 0.1,
+      "observed_fallbacks": 0,
+      "expected_fallbacks": 0.04272901725710748,
+      "exact_equal_tail_p": 1.0
+    },
+    {
+      "m": 16,
+      "a": 0.3,
+      "p_loss": 0.0,
+      "observed_fallbacks": 58,
+      "expected_fallbacks": 66.46586113920193,
+      "exact_equal_tail_p": 0.32786305583720526
+    },
+    {
+      "m": 16,
+      "a": 0.3,
+      "p_loss": 0.05,
+      "observed_fallbacks": 131,
+      "expected_fallbacks": 127.9537446627096,
+      "exact_equal_tail_p": 0.8106075053772459
+    },
+    {
+      "m": 16,
+      "a": 0.3,
+      "p_loss": 0.1,
+      "observed_fallbacks": 234,
+      "expected_fallbacks": 232.57555589363653,
+      "exact_equal_tail_p": 0.9428656411009781
+    },
+    {
+      "m": 16,
+      "a": 0.6,
+      "p_loss": 0.0,
+      "observed_fallbacks": 0,
+      "expected_fallbacks": 0.008589934592000007,
+      "exact_equal_tail_p": 1.0
+    },
+    {
+      "m": 16,
+      "a": 0.6,
+      "p_loss": 0.05,
+      "observed_fallbacks": 1,
+      "expected_fallbacks": 0.0762885632322297,
+      "exact_equal_tail_p": 0.1469026694987253
+    },
+    {
+      "m": 16,
+      "a": 0.6,
+      "p_loss": 0.1,
+      "observed_fallbacks": 0,
+      "expected_fallbacks": 0.47472259128717625,
+      "exact_equal_tail_p": 1.0
+    },
+    {
+      "m": 16,
+      "a": 0.9,
+      "p_loss": 0.0,
+      "observed_fallbacks": 0,
+      "expected_fallbacks": 1.9999999999999927e-12,
+      "exact_equal_tail_p": 1.0
+    },
+    {
+      "m": 16,
+      "a": 0.9,
+      "p_loss": 0.05,
+      "observed_fallbacks": 0,
+      "expected_fallbacks": 4.7677022635221583e-08,
+      "exact_equal_tail_p": 1.0
+    },
+    {
+      "m": 16,
+      "a": 0.9,
+      "p_loss": 0.1,
+      "observed_fallbacks": 0,
+      "expected_fallbacks": 1.6925388637379563e-05,
+      "exact_equal_tail_p": 1.0
+    }
+  ],
+  "familywise_threshold": 0.0006944444444444445,
+  "interpretation": "Passing checks validate selected implementation properties, not ResHide hardness, arbitrary parser safety, or a full protocol proof."
+}
